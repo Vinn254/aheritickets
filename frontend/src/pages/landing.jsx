@@ -139,7 +139,7 @@ export default function Landing() {
       {/* Hero Section */}
       <section className="landing-hero" style={{
         flex: 1,
-        minHeight: 480,
+        minHeight: 530,
         padding: 0,
         margin: 0,
         position: 'relative',
@@ -152,11 +152,11 @@ export default function Landing() {
         <div style={{
           position: 'relative',
           zIndex: 2,
-          maxWidth: 700,
+          maxWidth: 900,
           width: '100%',
-          background: 'rgba(255,255,255,0.97)',
+          background: 'white',
           borderRadius: 18,
-          padding: '56px 48px',
+          padding: '64px 56px',
           boxShadow: '0 12px 40px rgba(46,125,50,0.13)',
           textAlign: 'center',
           margin: 0,
@@ -247,9 +247,43 @@ export default function Landing() {
           animation: float2 5s ease-in-out infinite;
         }
         .feature-card:nth-child(3) {
-          animation: float3 6s ease-in-out infinite;
-        }
-      `}</style>
+           animation: float3 6s ease-in-out infinite;
+         }
+
+         @media (max-width: 768px) {
+           .landing-hero {
+             min-height: auto;
+           }
+           .landing-hero h1 {
+             font-size: 18px;
+             margin-bottom: 8px;
+             word-wrap: break-word;
+           }
+           .landing-hero p {
+             font-size: 10px;
+             margin-bottom: 16px;
+             line-height: 1.2;
+             word-wrap: break-word;
+           }
+           .landing-hero div[style*="background: rgba(255,255,255,0.7)"] {
+             padding: 16px 12px;
+             max-width: 95vw;
+             word-wrap: break-word;
+           }
+           .landing-hero div[style*="marginTop: 24"] {
+             margin-top: 16px;
+           }
+           .landing-hero div[style*="display: flex"][style*="justify-content: center"] {
+             flex-direction: column;
+             gap: 12px;
+           }
+           .landing-hero button {
+             padding: 10px 20px;
+             font-size: 12px;
+             word-wrap: break-word;
+           }
+         }
+       `}</style>
     </div>
   );
 }
@@ -259,7 +293,7 @@ function Feature({ icon, title, desc, index }) {
     <motion.div
       className={`feature-card feature-${index}`}
       style={{
-        background: 'white',
+        background: index === 0 ? 'rgba(67, 233, 123, 0.2)' : index === 1 ? 'rgba(56, 249, 215, 0.2)' : 'rgba(255, 193, 7, 0.2)',
         borderRadius: 14,
         boxShadow: '0 4px 16px rgba(46,125,50,0.1)',
         padding: '32px 28px',
@@ -275,6 +309,7 @@ function Feature({ icon, title, desc, index }) {
       whileHover={{
         y: -5,
         boxShadow: '0 8px 24px rgba(46,125,50,0.15)',
+        backgroundColor: 'rgba(67, 233, 123, 0.1)',
         transition: { duration: 0.15 }
       }}
       initial={{ opacity: 0, y: 20 }}

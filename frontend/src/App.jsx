@@ -98,7 +98,6 @@ function App() {
       display: "flex",
       flexDirection: "column",
       overflowX: 'hidden',
-      minHeight: '100vh',
       minWidth: '100vw',
       background: 'linear-gradient(135deg, #eafff3 0%, #f7fff7 100%)',
     }}>
