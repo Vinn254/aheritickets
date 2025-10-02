@@ -37,10 +37,10 @@ app.use('/api/tickets', ticketRoutes);
 app.get('/health', (req, res) => res.json({ status: 'ok' }));
 
 // Serve static files and handle SPA routing
-app.use(express.static(path.join(__dirname, '..', '..', 'frontend', 'dist')));
-app.get('*', (req, res) => {
-  res.sendFile(path.join(__dirname, '..', '..', 'frontend', 'dist', 'index.html'));
-});
+//app.use(express.static(path.join(__dirname, '..', '..', 'frontend', 'dist')));
+//app.get('*', (req, res) => {
+//  res.sendFile(path.join(__dirname, '..', '..', 'frontend', 'dist', 'index.html'));
+//});
 
 // 404 + error handler
 app.use(notFound);
