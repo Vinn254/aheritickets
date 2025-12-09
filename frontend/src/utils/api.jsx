@@ -1,5 +1,5 @@
 // src/utils/api.js
-const API_BASE = `${import.meta.env.VITE_API_URL || "http://localhost:5000"}/api`; // backend server
+const API_BASE = import.meta.env.VITE_API_URL || "http://localhost:5000/api"; // backend server
 
 const apiRequest = async (endpoint, method = "GET", body = null, token = null) => {
   const headers = {

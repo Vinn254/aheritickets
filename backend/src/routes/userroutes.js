@@ -3,6 +3,23 @@ const express = require('express');
 const router = express.Router();
 const userController = require('../controllers/usercontroller');
 const { authMiddleware, requireRole } = require('../middleware/authmiddleware');
+const multer = require('multer');
+const path = require('path');
+
+// Multer setup for bulk upload
+const upload = multer({
+  dest: path.join(__dirname, '..', process.env.UPLOAD_DIR || 'uploads'),
+  fileFilter: (req, file, cb) => {
+    const allowedTypes = ['application/vnd.openxmlformats-officedocument.spreadsheetml.sheet', 'application/vnd.ms-excel', 'text/csv', 'application/pdf', 'application/vnd.openxmlformats-officedocument.wordprocessingml.document', 'application/msword'];
+    const allowedExt = ['.xlsx', '.xls', '.csv', '.pdf', '.docx', '.doc'];
+    const ext = path.extname(file.originalname).toLowerCase();
+    if (allowedTypes.includes(file.mimetype) || allowedExt.includes(ext)) {
+      cb(null, true);
+    } else {
+      cb(new Error('Invalid file type'), false);
+    }
+  }
+});
 
 
 // All routes require authentication
@@ -18,6 +35,7 @@ router.get('/', (req, res, next) => {
 // All other user management routes require admin
 router.use(requireRole(['admin']));
 router.post('/', userController.createUser);
+router.post('/bulk', upload.single('file'), userController.bulkCreateUsers);
 router.put('/:id', userController.updateUser);
 router.patch('/:id', userController.updatePassword); // PATCH for password update
 router.delete('/:id', userController.deleteUser);

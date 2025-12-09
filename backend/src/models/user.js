@@ -17,6 +17,7 @@ const UserSchema = new mongoose.Schema(
     serviceType: { type: String, trim: true, default: '' },
     routerMacAddress: { type: String, trim: true, default: '' },
     location: { type: String, trim: true, default: '' }, // Customer location
+    billingPlan: { type: String, trim: true, default: '' }, // Billing plan for customers
     password: { type: String, required: true },
     role: {
       type: String,

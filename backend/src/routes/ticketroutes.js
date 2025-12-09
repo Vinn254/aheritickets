@@ -47,6 +47,9 @@ router.patch('/:id/resolve', ticketController.resolveTicket);
 // Close - Technician/CSR/Admin
 router.patch('/:id/close', requireRole(['csr', 'admin', 'technician']), ticketController.closeTicket);
 
+// Delete ticket - Admin/CSR only
+router.delete('/:id', requireRole(['csr', 'admin']), ticketController.deleteTicket);
+
 // Attachments
 router.post('/:id/attachments', upload.single('file'), ticketController.addAttachment);
 

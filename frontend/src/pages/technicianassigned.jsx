@@ -24,7 +24,7 @@ export default function TechAssigned() {
       }).catch(console.error);
     };
     fetchTickets();
-    let interval = setInterval(fetchTickets, 5000);
+    let interval = setInterval(fetchTickets, 10000);
     return () => clearInterval(interval);
   }, []);
 
@@ -36,6 +36,41 @@ export default function TechAssigned() {
   React.useEffect(() => {
     if (searchInput === '') setSearch('');
   }, [searchInput]);
+
+  // Add responsive styles
+  React.useEffect(() => {
+    const style = document.createElement('style');
+    style.textContent = `
+      @media (max-width: 768px) {
+        .technician-dashboard-container {
+          padding: 16px !important;
+        }
+        .technician-ticket-card {
+          flex-direction: column !important;
+          align-items: flex-start !important;
+          gap: 16px !important;
+        }
+        .technician-ticket-card > div:last-child {
+          align-self: stretch !important;
+          align-items: center !important;
+        }
+        .technician-ticket-card button {
+          width: 100% !important;
+          min-width: unset !important;
+        }
+      }
+      @media (max-width: 480px) {
+        .technician-dashboard-container {
+          padding: 12px !important;
+        }
+        .technician-ticket-card {
+          padding: 16px !important;
+        }
+      }
+    `;
+    document.head.appendChild(style);
+    return () => document.head.removeChild(style);
+  }, []);
 
   return (
     <>
@@ -91,14 +126,6 @@ export default function TechAssigned() {
                     border: '1px solid #e8f5e9',
                     cursor: 'pointer',
                   }}
-                  onMouseOver={e => {
-                    e.currentTarget.style.transform = 'translateY(-2px)';
-                    e.currentTarget.style.boxShadow = '0 12px 40px rgba(255, 152, 0, 0.15), 0 6px 16px rgba(44,62,80,0.1)';
-                  }}
-                  onMouseOut={e => {
-                    e.currentTarget.style.transform = 'translateY(0)';
-                    e.currentTarget.style.boxShadow = '0 8px 32px rgba(255, 152, 0, 0.12), 0 4px 12px rgba(44,62,80,0.08)';
-                  }}
                 >
                   <div style={{ flex: 1, minWidth: 0 }}>
                     <div style={{ fontWeight: 800, fontSize: 20, color: '#222', marginBottom: 6, letterSpacing: 0.3 }}>{t.title || t.issue}</div>
@@ -146,16 +173,7 @@ export default function TechAssigned() {
                         boxShadow: '0 4px 16px rgba(39, 174, 96, 0.2)',
                         cursor: 'pointer',
                         letterSpacing: 0.5,
-                        transition: 'all 0.2s ease',
                         minWidth: 120,
-                      }}
-                      onMouseOver={e => {
-                        e.currentTarget.style.transform = 'scale(1.05)';
-                        e.currentTarget.style.boxShadow = '0 6px 20px rgba(39, 174, 96, 0.3)';
-                      }}
-                      onMouseOut={e => {
-                        e.currentTarget.style.transform = 'scale(1)';
-                        e.currentTarget.style.boxShadow = '0 4px 16px rgba(39, 174, 96, 0.2)';
                       }}
                     >
                       View Details

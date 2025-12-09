@@ -2,6 +2,7 @@
 import React, { useEffect, useState } from 'react';
 import API from '../utils/api';
 import { useParams, useNavigate } from 'react-router-dom';
+import MapDisplay from '../components/MapDisplay';
 
 export default function TicketDetails() {
   const { id } = useParams();
@@ -93,15 +94,44 @@ export default function TicketDetails() {
     }
   };
 
+  // Add responsive styles
+  React.useEffect(() => {
+    const style = document.createElement('style');
+    style.textContent = `
+      @media (max-width: 768px) {
+        .ticket-details-container {
+          padding: 16px !important;
+        }
+        .ticket-details-card {
+          padding: 16px !important;
+        }
+        .ticket-details-flex {
+          flex-direction: column !important;
+          gap: 16px !important;
+        }
+      }
+      @media (max-width: 480px) {
+        .ticket-details-container {
+          padding: 12px !important;
+        }
+        .ticket-details-card {
+          padding: 12px !important;
+        }
+      }
+    `;
+    document.head.appendChild(style);
+    return () => document.head.removeChild(style);
+  }, []);
+
   if (!ticket) return <><p style={{padding:20}}>Loading...</p></>;
 
   return (
     <>
-      <div style={{ padding: 24 }}>
+      <div className="ticket-details-container" style={{ padding: 24 }}>
         <button onClick={() => navigate('/dashboard')} style={{ marginBottom: 12, padding: '8px 12px', borderRadius: 6, background: '#2d7a3e', color: 'white', border: 'none' }}>Back</button>
         <h2 style={{ color: '#2d7a3e', marginBottom: 8 }}>Ticket Details</h2>
-        <div style={{ background: 'white', padding: 24, borderRadius: 12, boxShadow: '0 4px 16px rgba(44,62,80,0.08)', marginBottom: 18, maxWidth: 700 }}>
-          <div style={{ display: 'flex', flexWrap: 'wrap', gap: 24 }}>
+        <div className="ticket-details-card" style={{ background: 'white', padding: 24, borderRadius: 12, boxShadow: '0 4px 16px rgba(44,62,80,0.08)', marginBottom: 18, maxWidth: 700 }}>
+          <div className="ticket-details-flex" style={{ display: 'flex', flexWrap: 'wrap', gap: 24 }}>
             <div style={{ flex: 1 }}>
               <p><strong>Title:</strong> {ticket.title || ticket.issue}</p>
               <p><strong>Description:</strong> {ticket.description}</p>
@@ -121,6 +151,10 @@ export default function TicketDetails() {
               )}
               <p><strong>Updates:</strong> {ticket.updates?.length || 0}</p>
               <p><strong>Status History:</strong> {ticket.statusHistory?.length || 0}</p>
+              <div style={{ marginTop: 20 }}>
+                <h4>Location</h4>
+                <MapDisplay location={ticket.location} />
+              </div>
             </div>
           </div>
 

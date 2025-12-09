@@ -4,7 +4,6 @@ import React, { useContext, useEffect, useState } from 'react';
 import { AuthContext } from '../context/authcontext';
 import { useNavigate, useLocation } from 'react-router-dom';
 import API from '../utils/api';
-import { motion } from 'framer-motion';
 import { SkeletonCard } from '../components/SkeletonLoader';
 
 export default function Dashboard() {
@@ -99,7 +98,7 @@ export default function Dashboard() {
       }
     };
     fetch();
-    interval = setInterval(fetch, 5000);
+    interval = setInterval(fetch, 10000);
     return () => clearInterval(interval);
   }, [user, navigate, location]);
 
@@ -130,26 +129,26 @@ export default function Dashboard() {
         100% { transform: translateY(0px); }
       }
       .dashboard-container {
-        animation: fadeIn 0.8s ease-out;
+        animation: fadeIn 0.4s ease-out;
       }
       .dashboard-stats {
-        animation: slideInUp 0.6s ease-out 0.2s both;
+        animation: slideInUp 0.3s ease-out 0.1s both;
       }
-      .dashboard-stats-grid > div:nth-child(1) { animation: slideInUp 0.5s ease-out 0.4s both; }
-      .dashboard-stats-grid > div:nth-child(2) { animation: slideInUp 0.5s ease-out 0.5s both; }
-      .dashboard-stats-grid > div:nth-child(3) { animation: slideInUp 0.5s ease-out 0.6s both; }
-      .dashboard-stats-grid > div:nth-child(4) { animation: slideInUp 0.5s ease-out 0.7s both; }
-      .dashboard-stats-grid > div:nth-child(5) { animation: slideInUp 0.5s ease-out 0.8s both; }
-      .dashboard-stats-grid > div:nth-child(6) { animation: slideInUp 0.5s ease-out 0.9s both; }
-      .dashboard-stats-grid > div:nth-child(7) { animation: slideInUp 0.5s ease-out 1.0s both; }
-      .dashboard-stats-grid > div:nth-child(8) { animation: slideInUp 0.5s ease-out 1.1s both; }
-      .dashboard-stats-grid > div:nth-child(9) { animation: slideInUp 0.5s ease-out 1.2s both; }
-      .dashboard-detailed-grid > div:nth-child(1) { animation: slideInUp 0.5s ease-out 1.3s both; }
-      .dashboard-detailed-grid > div:nth-child(2) { animation: slideInUp 0.5s ease-out 1.4s both; }
-      .dashboard-detailed-grid > div:nth-child(3) { animation: slideInUp 0.5s ease-out 1.5s both; }
+      .dashboard-stats-grid > div:nth-child(1) { animation: slideInUp 0.25s ease-out 0.2s both; }
+      .dashboard-stats-grid > div:nth-child(2) { animation: slideInUp 0.25s ease-out 0.25s both; }
+      .dashboard-stats-grid > div:nth-child(3) { animation: slideInUp 0.25s ease-out 0.3s both; }
+      .dashboard-stats-grid > div:nth-child(4) { animation: slideInUp 0.25s ease-out 0.35s both; }
+      .dashboard-stats-grid > div:nth-child(5) { animation: slideInUp 0.25s ease-out 0.4s both; }
+      .dashboard-stats-grid > div:nth-child(6) { animation: slideInUp 0.25s ease-out 0.45s both; }
+      .dashboard-stats-grid > div:nth-child(7) { animation: slideInUp 0.25s ease-out 0.5s both; }
+      .dashboard-stats-grid > div:nth-child(8) { animation: slideInUp 0.25s ease-out 0.55s both; }
+      .dashboard-stats-grid > div:nth-child(9) { animation: slideInUp 0.25s ease-out 0.6s both; }
+      .dashboard-detailed-grid > div:nth-child(1) { animation: slideInUp 0.25s ease-out 0.65s both; }
+      .dashboard-detailed-grid > div:nth-child(2) { animation: slideInUp 0.25s ease-out 0.7s both; }
+      .dashboard-detailed-grid > div:nth-child(3) { animation: slideInUp 0.25s ease-out 0.75s both; }
       .dashboard-ticket-card {
-        animation: slideInUp 0.5s ease-out both;
-        animation-delay: calc(var(--index) * 0.1s + 1.6s);
+        animation: slideInUp 0.25s ease-out both;
+        animation-delay: calc(var(--index) * 0.05s + 0.8s);
       }
       .loading-spinner {
         animation: spin 1s linear infinite;
@@ -224,7 +223,7 @@ export default function Dashboard() {
       {/* Search box only for admin/csr/tech, never for customer */}
       <div className="dashboard-container" style={{ minHeight: '100vh', background: 'linear-gradient(135deg, #f7fff7 0%, #e8f5e9 100%)', padding: 32, marginTop: 56 }}>
         {['admin','csr','technician'].includes(user.role) && (
-          <form onSubmit={handleSearch} style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 24, marginTop: 0, flexWrap: 'wrap', animation: 'slideInUp 0.6s ease-out 0.1s both' }}>
+          <form onSubmit={handleSearch} style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 24, marginTop: 0, flexWrap: 'wrap', animation: 'slideInUp 0.3s ease-out 0.05s both' }}>
             <input
               type="text"
               value={searchInput}
@@ -232,7 +231,7 @@ export default function Dashboard() {
               placeholder="Search customer by name..."
               style={{ padding: 12, borderRadius: 8, border: '2px solid #43e97b', minWidth: 220, fontSize: 16, background: '#fff', boxShadow: '0 2px 8px rgba(67, 233, 123, 0.1)', transition: 'border-color 0.3s ease, box-shadow 0.3s ease', ':focus': { borderColor: '#38f9d7', boxShadow: '0 4px 12px rgba(67, 233, 123, 0.3)' } }}
             />
-            <motion.button type="submit" style={{ ...primaryBtn, padding: '12px 20px', fontSize: 16, background: 'linear-gradient(90deg, #43e97b 0%, #38f9d7 100%)', boxShadow: '0 4px 12px rgba(67, 233, 123, 0.3)' }} whileHover={{ scale: 1.05, boxShadow: '0 6px 16px rgba(67, 233, 123, 0.4)', transition: { duration: 0.15 } }} whileTap={{ scale: 0.95 }}>Search</motion.button>
+            <button type="submit" style={{ ...primaryBtn, padding: '12px 20px', fontSize: 16, background: 'linear-gradient(90deg, #43e97b 0%, #38f9d7 100%)', boxShadow: '0 4px 12px rgba(67, 233, 123, 0.3)' }} whileHover={{ scale: 1.05, boxShadow: '0 6px 16px rgba(67, 233, 123, 0.4)', transition: { duration: 0.15 } }} whileTap={{ scale: 0.95 }}>Search</button>
             <label style={{ display: 'flex', alignItems: 'center', gap: 6, fontSize: 15, color: '#2d7a3e', fontWeight: 600, background: '#fff', padding: '8px 12px', borderRadius: 6, border: '1px solid #43e97b', transition: 'background 0.3s ease', cursor: 'pointer' }} onMouseOver={e => e.currentTarget.style.background = '#f7fff7'} onMouseOut={e => e.currentTarget.style.background = '#fff'}>
               <input type="checkbox" checked={sortAZ} onChange={e => setSortAZ(e.target.checked)} style={{ marginRight: 4 }} />
               Sort A-Z
@@ -240,16 +239,16 @@ export default function Dashboard() {
           </form>
         )}
         {user.role !== 'customer' && (
-          <div style={{ display: 'flex', justifyContent: 'flex-end', alignItems: 'center', marginTop: 8, marginBottom: 20, animation: 'slideInUp 0.6s ease-out 0.15s both' }}>
+          <div style={{ display: 'flex', justifyContent: 'flex-end', alignItems: 'center', marginTop: 8, marginBottom: 20, animation: 'slideInUp 0.3s ease-out 0.08s both' }}>
             <nav style={{ display: 'flex', gap: 16, flexWrap: 'wrap' }}>
-              <motion.button onClick={() => navigate('/tickets/create')} style={{ ...navBtn, background: 'linear-gradient(90deg, #43e97b 0%, #38f9d7 100%)', boxShadow: '0 4px 12px rgba(67, 233, 123, 0.3)' }} whileHover={{ scale: 1.05, boxShadow: '0 6px 16px rgba(67, 233, 123, 0.4)', transition: { duration: 0.15 } }} whileTap={{ scale: 0.95 }}>Create Ticket</motion.button>
-              <motion.button onClick={() => navigate('/login')} style={{ ...navBtn, background: '#fff', color: '#2d7a3e', border: '2px solid #43e97b', boxShadow: '0 2px 8px rgba(67, 233, 123, 0.1)' }} whileHover={{ scale: 1.05, boxShadow: '0 4px 12px rgba(67, 233, 123, 0.2)', transition: { duration: 0.15 } }} whileTap={{ scale: 0.95 }}>Logout</motion.button>
+              <button onClick={() => navigate('/tickets/create')} style={{ ...navBtn, background: 'linear-gradient(90deg, #43e97b 0%, #38f9d7 100%)', boxShadow: '0 4px 12px rgba(67, 233, 123, 0.3)' }} whileHover={{ scale: 1.05, boxShadow: '0 6px 16px rgba(67, 233, 123, 0.4)', transition: { duration: 0.15 } }} whileTap={{ scale: 0.95 }}>Create Ticket</button>
+              <button onClick={() => navigate('/login')} style={{ ...navBtn, background: '#fff', color: '#2d7a3e', border: '2px solid #43e97b', boxShadow: '0 2px 8px rgba(67, 233, 123, 0.1)' }} whileHover={{ scale: 1.05, boxShadow: '0 4px 12px rgba(67, 233, 123, 0.2)', transition: { duration: 0.15 } }} whileTap={{ scale: 0.95 }}>Logout</button>
             </nav>
           </div>
         )}
-        <div style={{ textAlign: 'center', marginBottom: 32, animation: 'slideInUp 0.6s ease-out' }}>
-          <h1 style={{ color: '#2d7a3e', margin: 0, fontSize: 32, fontWeight: 800, textShadow: '0 2px 8px rgba(0,0,0,0.1)', letterSpacing: 1, animation: 'fadeIn 0.8s ease-out 0.1s both' }}>Welcome back, {user.name || user.username}!</h1>
-          <p style={{ color: '#4a4a4a', fontSize: 16, marginTop: 8, opacity: 0.8, animation: 'fadeIn 0.8s ease-out 0.3s both' }}>Here's your dashboard overview</p>
+        <div style={{ textAlign: 'center', marginBottom: 32, animation: 'slideInUp 0.3s ease-out' }}>
+          <h1 style={{ color: '#2d7a3e', margin: 0, fontSize: 32, fontWeight: 800, textShadow: '0 2px 8px rgba(0,0,0,0.1)', letterSpacing: 1, animation: 'fadeIn 0.4s ease-out 0.05s both' }}>Welcome back, {user.name || user.username}!</h1>
+          <p style={{ color: '#4a4a4a', fontSize: 16, marginTop: 8, opacity: 0.8, animation: 'fadeIn 0.4s ease-out 0.15s both' }}>Here's your dashboard overview</p>
         </div>
         {user.role === 'admin' && (
           <div className="dashboard-stats" style={{ background: 'linear-gradient(135deg, #43e97b 0%, #38f9d7 100%)', color: '#fff', padding: 24, borderRadius: 16, marginBottom: 24, boxShadow: '0 8px 32px rgba(44, 130, 89, 0.18)', border: '1px solid #43e97b', maxWidth: 1000, marginLeft: 'auto', marginRight: 'auto' }}>
@@ -350,7 +349,7 @@ export default function Dashboard() {
                     <div style={{ fontSize: 16, color: '#4a4a4a', opacity: 0.8 }}>Your recent tickets will appear here</div>
                   </div>
                 ) : (
-                  <motion.div
+                  <div
                     initial="hidden"
                     animate="visible"
                     variants={{
@@ -381,7 +380,7 @@ export default function Dashboard() {
                       })
                       .slice(0,8)
                       .map((t, i) => (
-                        <motion.div
+                        <div
                           key={t._id}
                           className="dashboard-ticket-card"
                           style={{
@@ -402,12 +401,6 @@ export default function Dashboard() {
                             hidden: { opacity: 0, y: 20 },
                             visible: { opacity: 1, y: 0 }
                           }}
-                          whileHover={{
-                            y: -4,
-                            boxShadow: '0 12px 40px rgba(39, 174, 96, 0.15), 0 6px 16px rgba(44,62,80,0.1)',
-                            transition: { duration: 0.15 }
-                          }}
-                          whileTap={{ scale: 0.98 }}
                         >
                           <div style={{ flex: 1, minWidth: 0 }}>
                             <div style={{ fontWeight: 800, fontSize: 20, color: '#222', marginBottom: 6, letterSpacing: 0.3 }}>{t.title || t.issue}</div>
@@ -434,7 +427,7 @@ export default function Dashboard() {
                             </div>
                           </div>
                           <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end', gap: 12 }}>
-                            <motion.button
+                            <button
                               onClick={(e) => {
                                 e.stopPropagation();
                                 navigate(`/tickets/${t._id}`);
@@ -452,22 +445,16 @@ export default function Dashboard() {
                                 letterSpacing: 0.5,
                                 minWidth: 120,
                               }}
-                              whileHover={{
-                                scale: 1.05,
-                                boxShadow: '0 6px 20px rgba(39,174,96,0.3)',
-                                transition: { duration: 0.15 }
-                              }}
-                              whileTap={{ scale: 0.95 }}
                             >
                               View Details
-                            </motion.button>
+                            </button>
                             <div style={{ fontSize: 12, color: '#666', textAlign: 'right' }}>
                               {new Date(t.createdAt).toLocaleDateString()}
                             </div>
                           </div>
-                        </motion.div>
+                        </div>
                       ))}
-                  </motion.div>
+                  </div>
                 )}
               </div>
             )}

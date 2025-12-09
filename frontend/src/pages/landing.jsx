@@ -154,7 +154,7 @@ export default function Landing() {
           zIndex: 2,
           maxWidth: 900,
           width: '100%',
-          background: 'white',
+          background: 'rgba(148, 230, 196, 0.85)',
           borderRadius: 18,
           padding: '64px 56px',
           boxShadow: '0 12px 40px rgba(46,125,50,0.13)',
@@ -189,7 +189,7 @@ export default function Landing() {
 
       {/* Features Section */}
       <section className="landing-features" style={{
-        background: 'rgba(255,255,255,0.85)',
+        background: 'white',
         padding: '64px 0 56px 0',
         display: 'flex',
         flexDirection: 'column',
@@ -232,13 +232,13 @@ export default function Landing() {
           100% { transform: translateY(0px) rotate(0deg); }
         }
         .landing-header {
-          animation: fadeIn 1s ease-out;
+          animation: fadeIn 0.5s ease-out;
         }
         .landing-hero {
-          animation: slideInUp 1s ease-out 0.3s both;
+          animation: slideInUp 0.5s ease-out 0.15s both;
         }
         .landing-features {
-          animation: fadeIn 1s ease-out 0.6s both;
+          animation: fadeIn 0.5s ease-out 0.3s both;
         }
         .feature-card:nth-child(1) {
           animation: float1 4s ease-in-out infinite;

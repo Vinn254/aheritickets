@@ -79,11 +79,35 @@ export default function Analytics() {
     setSearch(searchInput.trim());
   };
 
+  // Delete ticket
+  const handleDelete = async (ticketId) => {
+    if (!window.confirm('Are you sure you want to delete this closed ticket?')) return;
+    try {
+      await API.delete(`/tickets/${ticketId}`);
+      // Refetch tickets immediately
+      const res = await API.get('/tickets');
+      let payload = [];
+      if (res && Array.isArray(res.tickets)) {
+        payload = res.tickets;
+      } else if (res && res.data && Array.isArray(res.data.tickets)) {
+        payload = res.data.tickets;
+      } else if (res && Array.isArray(res.data)) {
+        payload = res.data;
+      }
+      setTickets(payload);
+    } catch (err) {
+      alert('Failed to delete ticket: ' + (err.message || 'Unknown error'));
+    }
+  };
+
   // Add responsive styles
   React.useEffect(() => {
     const style = document.createElement('style');
     style.textContent = `
       @media (max-width: 768px) {
+        .analytics-container {
+          padding: 16px !important;
+        }
         .analytics-table {
           font-size: 12px !important;
         }
@@ -118,6 +142,9 @@ export default function Analytics() {
         }
       }
       @media (max-width: 480px) {
+        .analytics-container {
+          padding: 12px !important;
+        }
         .analytics-stats-grid {
           grid-template-columns: repeat(1, 1fr) !important;
         }
@@ -129,7 +156,7 @@ export default function Analytics() {
 
   return (
     <>
-  <div style={{ padding: 32, background: '#fff', minHeight: '60vh', marginTop: 56 }}>
+  <div className="analytics-container" style={{ padding: 32, background: '#fff', minHeight: '60vh', marginTop: 56 }}>
         {['admin','csr','technician'].includes(user?.role) && (
           <form onSubmit={handleSearch} style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 18, marginTop: 0, maxWidth: 400 }}>
             <input
@@ -248,6 +275,7 @@ export default function Analytics() {
                 <th style={{ padding: 10, border: 'none', letterSpacing: 1 }}>Ticket Title</th>
                 <th style={{ padding: 10, border: 'none', letterSpacing: 1 }}>Technician Specialization</th>
                 <th style={{ padding: 10, border: 'none', letterSpacing: 1 }}>Status</th>
+                <th style={{ padding: 10, border: 'none', letterSpacing: 1 }}>Actions</th>
               </tr>
             </thead>
             <tbody>
@@ -261,6 +289,16 @@ export default function Analytics() {
                   <td style={{ padding: 10, color: '#186a3b', cursor: 'pointer', textDecoration: 'underline' }} onClick={() => window.location.href = `/tickets/${t._id}`}>{t.title}</td>
                   <td style={{ padding: 10, color: '#1a2d1a' }}>{t.assignedTo?.specialization || '-'}</td>
                   <td style={{ padding: 10, color: t.status === 'open' ? '#1e88e5' : t.status === 'resolved' ? '#43a047' : '#0b4d1e', fontWeight: 700, textTransform: 'capitalize' }}>{t.status}</td>
+                  <td style={{ padding: 10 }}>
+                    {t.status === 'closed' && ['admin', 'csr'].includes(user?.role) && (
+                      <button
+                        onClick={() => handleDelete(t._id)}
+                        style={{ padding: '4px 8px', background: '#d32f2f', color: 'white', border: 'none', borderRadius: 4, cursor: 'pointer', fontSize: 12 }}
+                      >
+                        Delete
+                      </button>
+                    )}
+                  </td>
                 </tr>
               ))}
             </tbody>

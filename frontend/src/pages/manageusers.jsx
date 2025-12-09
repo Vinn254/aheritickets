@@ -33,9 +33,11 @@ function ManageUsers() {
   const [serviceType, setServiceType] = useState('');
   const [routerMacAddress, setRouterMacAddress] = useState('');
   const [location, setLocation] = useState('');
+  const [billingPlan, setBillingPlan] = useState('');
   const [msg, setMsg] = useState('');
   const [search, setSearch] = useState('');
   const [searchInput, setSearchInput] = useState('');
+  const [file, setFile] = useState(null);
 
   useEffect(() => {
     API.get('/users').then(users => {
@@ -48,13 +50,15 @@ function ManageUsers() {
     const style = document.createElement('style');
     style.textContent = `
       @media (max-width: 768px) {
-        .manage-users-form {
+        .manage-users-form, .bulk-upload-form {
           flex-direction: column !important;
           gap: 12px !important;
         }
         .manage-users-form input,
         .manage-users-form select,
-        .manage-users-form button {
+        .manage-users-form button,
+        .bulk-upload-form input,
+        .bulk-upload-form button {
           min-width: 100% !important;
           flex: 1 !important;
         }
@@ -64,6 +68,11 @@ function ManageUsers() {
         .manage-users-table th,
         .manage-users-table td {
           padding: 6px !important;
+        }
+        .customers-header {
+          flex-direction: column !important;
+          align-items: flex-start !important;
+          gap: 10px !important;
         }
       }
     `;
@@ -84,11 +93,12 @@ function ManageUsers() {
         payload.serviceType = serviceType;
         payload.routerMacAddress = routerMacAddress;
         payload.location = location;
+        payload.billingPlan = billingPlan;
       }
       const res = await API.post('/users', payload);
       setUsers(prev => [...prev, res.user || res]);
       setName(''); setPhone(''); setEmail(''); setPassword(''); setRole('csr'); setSpecialization(''); setDeviceType('');
-      setFirstName(''); setOtherNames(''); setAccountNumber(''); setCustomerSegment(''); setServiceType(''); setRouterMacAddress('');
+      setFirstName(''); setOtherNames(''); setAccountNumber(''); setCustomerSegment(''); setServiceType(''); setRouterMacAddress(''); setLocation(''); setBillingPlan('');
       setMsg('Added');
     } catch (err) {
       let errorMsg = 'Failed to add user.';
@@ -141,6 +151,38 @@ function ManageUsers() {
     }
   };
 
+  const handleBulkUpload = async (e) => {
+    e.preventDefault();
+    if (!file) {
+      setMsg('Please select a file');
+      return;
+    }
+    setMsg('');
+    try {
+      const token = localStorage.getItem('token');
+      const formData = new FormData();
+      formData.append('file', file);
+      const response = await fetch('http://localhost:5000/api/users/bulk', {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${token}`,
+        },
+        body: formData,
+      });
+      const result = await response.json();
+      if (!response.ok) {
+        throw new Error(result.message || 'Upload failed');
+      }
+      setMsg(result.message);
+      setFile(null);
+      // Refresh users list
+      const users = await API.get('/users');
+      setUsers(users.users || users || []);
+    } catch (err) {
+      setMsg('Failed to upload: ' + err.message);
+    }
+  };
+
   return (
     <ErrorBoundary componentName="ManageUsers">
       <div style={{ padding: 32, background: 'linear-gradient(90deg, #e8f5e9 0%, #f7fff7 100%)', minHeight: '60vh', marginTop: 56 }}>
@@ -156,6 +198,7 @@ function ManageUsers() {
           />
           <button type="submit" style={{ ...primaryBtn, padding: '8px 18px', fontSize: 15 }}>Enter</button>
         </form>
+
         <form onSubmit={add} className="manage-users-form" style={{
           display: 'flex',
           flexWrap: 'wrap',
@@ -189,6 +232,7 @@ function ManageUsers() {
             <>
               <select value={deviceType} onChange={e=>setDeviceType(e.target.value)} required style={{ ...inputStyle, minWidth: 120, flex: 1, background: '#eafff3', border: '1.5px solid #43e97b', color: '#186a3b', fontWeight: 600 }}>
                 <option value="">Select Router Type</option>
+                <option value="N/A">N/A</option>
                 <option value="TP-link">TP-link</option>
                 <option value="Tender">Tender</option>
                 <option value="Fiber router">Fiber router</option>
@@ -196,6 +240,7 @@ function ManageUsers() {
               <input value={accountNumber} onChange={e=>setAccountNumber(e.target.value)} placeholder="Account Number" style={{ ...inputStyle, minWidth: 120, flex: 1, background: '#eafff3', border: '1.5px solid #43e97b', color: '#186a3b', fontWeight: 600 }} />
               <select value={customerSegment} onChange={e=>setCustomerSegment(e.target.value)} style={{ ...inputStyle, minWidth: 120, flex: 1, background: '#eafff3', border: '1.5px solid #43e97b', color: '#186a3b', fontWeight: 600 }}>
                 <option value="">Select POP</option>
+                <option value="N/A">N/A</option>
                 <option value="LAGO">LAGO</option>
                 <option value="MEGA">MEGA</option>
                 <option value="KIBOSWA">KIBOSWA</option>
@@ -208,11 +253,13 @@ function ManageUsers() {
               </select>
               <select value={serviceType} onChange={e=>setServiceType(e.target.value)} style={{ ...inputStyle, minWidth: 120, flex: 1, background: '#eafff3', border: '1.5px solid #43e97b', color: '#186a3b', fontWeight: 600 }}>
                 <option value="">Select Service Type</option>
+                <option value="N/A">N/A</option>
                 <option value="Wireless">Wireless</option>
                 <option value="Home fiber">Home fiber</option>
               </select>
               <input value={routerMacAddress} onChange={e=>setRouterMacAddress(e.target.value)} placeholder="Router MAC Address" style={{ ...inputStyle, minWidth: 120, flex: 1, background: '#eafff3', border: '1.5px solid #43e97b', color: '#186a3b', fontWeight: 600 }} />
               <input value={location} onChange={e=>setLocation(e.target.value)} placeholder="Location" style={{ ...inputStyle, minWidth: 120, flex: 1, background: '#eafff3', border: '1.5px solid #43e97b', color: '#186a3b', fontWeight: 600 }} />
+              <input value={billingPlan} onChange={e=>setBillingPlan(e.target.value)} placeholder="Billing Plan" style={{ ...inputStyle, minWidth: 120, flex: 1, background: '#eafff3', border: '1.5px solid #43e97b', color: '#186a3b', fontWeight: 600 }} />
             </>
           )}
           <button type="submit" style={{ ...primaryBtn, minWidth: 90, background: 'linear-gradient(90deg, #43e97b 0%, #38f9d7 100%)', color: '#fff', fontWeight: 700, boxShadow: '0 2px 8px rgba(44,130,89,0.18)' }}>Add</button>
@@ -225,11 +272,11 @@ function ManageUsers() {
               borderRadius: 6,
               fontWeight: 600,
               fontSize: 14,
-              background: msg.includes('Added') || msg.includes('updated') || msg.includes('deleted')
+              background: msg.includes('Added') || msg.includes('updated') || msg.includes('deleted') || msg.includes('Uploaded')
                 ? 'linear-gradient(90deg, #43e97b 0%, #38f9d7 100%)'
                 : 'linear-gradient(90deg, #ff5252 0%, #ffb199 100%)',
               color: '#fff',
-              boxShadow: msg.includes('Added') || msg.includes('updated') || msg.includes('deleted')
+              boxShadow: msg.includes('Added') || msg.includes('updated') || msg.includes('deleted') || msg.includes('Uploaded')
                 ? '0 2px 6px rgba(44,130,89,0.15)'
                 : '0 2px 6px rgba(255,82,82,0.15)',
               textAlign: 'center',
@@ -287,6 +334,7 @@ function ManageUsers() {
           </table>
         </div>
 
+
         {/* Customers Table */}
         <div style={{
           background: 'linear-gradient(135deg, #eafff3 0%, #f7fff7 100%)',
@@ -299,7 +347,22 @@ function ManageUsers() {
           marginRight: 'auto',
           overflowX: 'auto',
         }}>
-          <h3 style={{ color: '#186a3b', fontWeight: 700, marginBottom: 18 }}>Customers</h3>
+          <div className="customers-header" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 18 }}>
+            <h3 style={{ color: '#186a3b', fontWeight: 700 }}>Customers</h3>
+            <form onSubmit={handleBulkUpload} className="bulk-upload-form" style={{
+              display: 'flex',
+              gap: 8,
+              alignItems: 'center',
+            }}>
+              <input
+                type="file"
+                accept=".xlsx,.xls,.csv,.pdf,.docx,.doc"
+                onChange={e => setFile(e.target.files[0])}
+                style={{ ...inputStyle, width: 200, background: '#eafff3', border: '1.5px solid #43e97b', color: '#186a3b', fontWeight: 600, fontSize: 12 }}
+              />
+              <button type="submit" style={{ ...primaryBtn, padding: '6px 12px', background: 'linear-gradient(90deg, #43e97b 0%, #38f9d7 100%)', color: '#fff', fontWeight: 700, boxShadow: '0 2px 8px rgba(44,130,89,0.18)', fontSize: 12 }}>Upload</button>
+            </form>
+          </div>
           <table className="manage-users-table" style={{ minWidth: '800px', width: '100%', borderCollapse: 'collapse', fontSize: 14, color: '#1a2d1a', fontWeight: 500 }}>
             <thead>
               <tr style={{ background: 'linear-gradient(90deg, #43e97b 0%, #38f9d7 100%)', color: '#fff', fontWeight: 800 }}>
@@ -312,6 +375,7 @@ function ManageUsers() {
                 <th style={{ ...th, border: 'none', padding: 8, letterSpacing: 1 }}>Router MAC</th>
                 <th style={{ ...th, border: 'none', padding: 8, letterSpacing: 1 }}>Device Type</th>
                 <th style={{ ...th, border: 'none', padding: 8, letterSpacing: 1 }}>Location</th>
+                <th style={{ ...th, border: 'none', padding: 8, letterSpacing: 1 }}>Billing Plan</th>
                 <th style={{ ...th, border: 'none', padding: 8, letterSpacing: 1 }}>Actions</th>
               </tr>
             </thead>
@@ -329,6 +393,7 @@ function ManageUsers() {
                   <td style={{ ...td, color: '#1a2d1a', padding: 8 }}>{u.routerMacAddress || '-'}</td>
                   <td style={{ ...td, color: '#1a2d1a', padding: 8 }}>{u.deviceType || '-'}</td>
                   <td style={{ ...td, color: '#1a2d1a', padding: 8 }}>{u.location || '-'}</td>
+                  <td style={{ ...td, color: '#1a2d1a', padding: 8 }}>{u.billingPlan || '-'}</td>
                   <td style={{ ...td, color: '#1a2d1a', padding: 8, display: 'flex', gap: 8, flexWrap: 'wrap' }}>
                     <EditPassword userId={u._id} />
                     <EditDetails user={u} setUsers={setUsers} />
@@ -386,7 +451,8 @@ function EditDetails({ user, setUsers }) {
     customerSegment: user.customerSegment || '',
     serviceType: user.serviceType || '',
     routerMacAddress: user.routerMacAddress || '',
-    location: user.location || ''
+    location: user.location || '',
+    billingPlan: user.billingPlan || ''
   });
   const [msg, setMsg] = React.useState('');
 
@@ -433,6 +499,7 @@ function EditDetails({ user, setUsers }) {
               <input name="serviceType" value={formData.serviceType} onChange={handleChange} placeholder="Service Type" style={inputStyle} />
               <input name="routerMacAddress" value={formData.routerMacAddress} onChange={handleChange} placeholder="Router MAC Address" style={inputStyle} />
               <input name="location" value={formData.location} onChange={handleChange} placeholder="Location" style={inputStyle} />
+              <input name="billingPlan" value={formData.billingPlan} onChange={handleChange} placeholder="Billing Plan" style={inputStyle} />
             </>
           )}
         </div>

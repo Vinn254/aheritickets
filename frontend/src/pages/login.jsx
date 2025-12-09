@@ -28,14 +28,14 @@ export default function Login() {
         75% { transform: translateX(5px); }
       }
       .login-form {
-        animation: fadeIn 0.8s ease-out;
+        animation: fadeIn 0.4s ease-out;
       }
       .login-input {
-        animation: slideInLeft 0.6s ease-out both;
-        animation-delay: calc(var(--index) * 0.1s);
+        animation: slideInLeft 0.3s ease-out both;
+        animation-delay: calc(var(--index) * 0.05s);
       }
       .login-button {
-        animation: slideInLeft 0.6s ease-out 0.3s both;
+        animation: slideInLeft 0.3s ease-out 0.15s both;
       }
       .error-shake {
         animation: shake 0.5s ease-in-out;

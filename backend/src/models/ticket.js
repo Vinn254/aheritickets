@@ -55,7 +55,11 @@ const TicketSchema = new Schema(
     resolutionSummary: { type: String },
     resolutionCategory: { type: String },
     resolvedAt: { type: Date },
-    closedAt: { type: Date }
+    closedAt: { type: Date },
+    location: {
+      lat: { type: Number },
+      lng: { type: Number }
+    }
   },
   { timestamps: true }
 );

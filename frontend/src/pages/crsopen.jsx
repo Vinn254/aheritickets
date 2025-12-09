@@ -2,11 +2,13 @@
 import React, { useEffect, useState } from 'react';
 import API from '../utils/api';
 import { useNavigate } from 'react-router-dom';
+import TicketsMap from '../components/TicketsMap';
 
 export default function CSROpen() {
   const [tickets, setTickets] = useState([]);
   const [search, setSearch] = useState('');
   const [searchInput, setSearchInput] = useState('');
+  const [viewMode, setViewMode] = useState('list'); // 'list' or 'map'
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -22,7 +24,7 @@ export default function CSROpen() {
         }
         setTickets(payload);
       }).catch(console.error);
-    }, 5000);
+    }, 10000);
     // fetch immediately on mount
     API.get('/tickets').then(res => {
       let payload = [];
@@ -47,15 +49,50 @@ export default function CSROpen() {
     if (searchInput === '') setSearch('');
   }, [searchInput]);
 
+  // Add responsive styles
+  React.useEffect(() => {
+    const style = document.createElement('style');
+    style.textContent = `
+      @media (max-width: 768px) {
+        .csr-dashboard-container {
+          padding: 16px !important;
+        }
+        .csr-ticket-card {
+          flex-direction: column !important;
+          align-items: flex-start !important;
+          gap: 16px !important;
+        }
+        .csr-ticket-card > div:last-child {
+          align-self: stretch !important;
+          align-items: center !important;
+        }
+        .csr-ticket-card button {
+          width: 100% !important;
+          min-width: unset !important;
+        }
+      }
+      @media (max-width: 480px) {
+        .csr-dashboard-container {
+          padding: 12px !important;
+        }
+        .csr-ticket-card {
+          padding: 16px !important;
+        }
+      }
+    `;
+    document.head.appendChild(style);
+    return () => document.head.removeChild(style);
+  }, []);
+
   return (
     <>
-   <div className="csr-dashboard-container" style={{
-     padding: 32,
-     marginTop: 56,
-     minHeight: '100vh',
-     background: 'linear-gradient(135deg, #eafff3 0%, #f7fff7 100%)',
-     boxSizing: 'border-box',
-   }}>
+    <div className="csr-dashboard-container" style={{
+      padding: 32,
+      marginTop: 56,
+      minHeight: '100vh',
+      background: 'linear-gradient(135deg, #eafff3 0%, #f7fff7 100%)',
+      boxSizing: 'border-box',
+    }}>
     <div style={{ textAlign: 'center', marginBottom: 32 }}>
       <h1 style={{ color: '#2d7a3e', margin: 0, fontSize: 32, fontWeight: 800, textShadow: '0 2px 8px rgba(0,0,0,0.1)', letterSpacing: 1 }}>CSR Dashboard</h1>
       <p style={{ color: '#4a4a4a', fontSize: 16, marginTop: 8, opacity: 0.8 }}>Manage and assign all customer tickets</p>
@@ -72,9 +109,46 @@ export default function CSROpen() {
       />
       <button type="submit" style={{ padding: '12px 20px', background: 'linear-gradient(90deg, #43e97b 0%, #38f9d7 100%)', color: 'white', border: 'none', borderRadius: 8, fontSize: 16, fontWeight: 600, boxShadow: '0 4px 12px rgba(67, 233, 123, 0.3)' }}>Search</button>
     </form>
+
+    {/* View Toggle */}
+    <div style={{ display: 'flex', justifyContent: 'center', gap: 10, marginBottom: 20 }}>
+      <button
+        onClick={() => setViewMode('list')}
+        style={{
+          padding: '10px 20px',
+          background: viewMode === 'list' ? 'linear-gradient(90deg, #43e97b 0%, #38f9d7 100%)' : '#f0f0f0',
+          color: viewMode === 'list' ? 'white' : '#333',
+          border: 'none',
+          borderRadius: 8,
+          fontSize: 16,
+          fontWeight: 600,
+          cursor: 'pointer'
+        }}
+      >
+        List View
+      </button>
+      <button
+        onClick={() => setViewMode('map')}
+        style={{
+          padding: '10px 20px',
+          background: viewMode === 'map' ? 'linear-gradient(90deg, #43e97b 0%, #38f9d7 100%)' : '#f0f0f0',
+          color: viewMode === 'map' ? 'white' : '#333',
+          border: 'none',
+          borderRadius: 8,
+          fontSize: 16,
+          fontWeight: 600,
+          cursor: 'pointer'
+        }}
+      >
+        Map View
+      </button>
+    </div>
     <div style={{ marginTop: 32 }}>
-      <h2 style={{ color: '#2d7a3e', marginTop: 0, marginBottom: 20, textAlign: 'center', fontSize: 28, fontWeight: 700 }}>All Tickets</h2>
-      <div className="csr-tickets-container" style={{ display: 'grid', gap: 40 }}>
+      <h2 style={{ color: '#2d7a3e', marginTop: 0, marginBottom: 20, textAlign: 'center', fontSize: 28, fontWeight: 700 }}>
+        {viewMode === 'list' ? 'All Tickets' : 'Tickets Map'}
+      </h2>
+      {viewMode === 'list' ? (
+        <div className="csr-tickets-container" style={{ display: 'grid', gap: 40 }}>
         {tickets.length === 0 ? (
           <div style={{ textAlign: 'center', padding: 60, background: 'linear-gradient(135deg, #f7fff7 0%, #e8f5e9 100%)', borderRadius: 16, border: '2px dashed #43e97b' }}>
             <div style={{ fontSize: 48, marginBottom: 16 }}>📋</div>
@@ -99,14 +173,6 @@ export default function CSROpen() {
                 position: 'relative',
                 border: '1px solid #e8f5e9',
                 cursor: 'pointer',
-              }}
-              onMouseOver={e => {
-                e.currentTarget.style.transform = 'translateY(-2px)';
-                e.currentTarget.style.boxShadow = '0 12px 40px rgba(39, 174, 96, 0.15), 0 6px 16px rgba(44,62,80,0.1)';
-              }}
-              onMouseOut={e => {
-                e.currentTarget.style.transform = 'translateY(0)';
-                e.currentTarget.style.boxShadow = '0 8px 32px rgba(39, 174, 96, 0.12), 0 4px 12px rgba(44,62,80,0.08)';
               }}
             >
               <div style={{ flex: 1, minWidth: 0 }}>
@@ -155,17 +221,8 @@ export default function CSROpen() {
                     boxShadow: '0 4px 16px rgba(39,174,96,0.2)',
                     cursor: 'pointer',
                     letterSpacing: 0.5,
-                    transition: 'all 0.2s ease',
                     minWidth: 140,
-                  }}
-                  onMouseOver={e => {
-                    e.currentTarget.style.transform = 'scale(1.05)';
-                    e.currentTarget.style.boxShadow = '0 6px 20px rgba(39,174,96,0.3)';
-                  }}
-                  onMouseOut={e => {
-                    e.currentTarget.style.transform = 'scale(1)';
-                    e.currentTarget.style.boxShadow = '0 4px 16px rgba(39,174,96,0.2)';
-                  }}
+              }}
                 >
                   View & Assign
                 </button>
@@ -175,7 +232,10 @@ export default function CSROpen() {
               </div>
             </div>
           ))}
-      </div>
+        </div>
+      ) : (
+        <TicketsMap tickets={tickets.filter(t => !search || (t.customer && t.customer.name && t.customer.name.toLowerCase().includes(search.toLowerCase())))} />
+      )}
     </div>
       </div>
     </>

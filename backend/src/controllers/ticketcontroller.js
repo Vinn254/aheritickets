@@ -5,7 +5,7 @@ const User = require('../models/user');
 // Create ticket (customers or CSR can create on behalf)
 exports.createTicket = async (req, res, next) => {
   try {
-    const { title, description, priority, customerId } = req.body;
+    const { title, description, priority, customerId, location } = req.body;
     if (!title || !description) return res.status(400).json({ message: 'Missing required fields' });
 
     console.log('DEBUG: req.user in createTicket:', req.user);
@@ -19,7 +19,8 @@ exports.createTicket = async (req, res, next) => {
       title,
       description,
       priority: priority || 'low',
-      status: 'open'
+      status: 'open',
+      location
     });
 
     ticket.statusHistory.push({ from: null, to: 'open', by: req.user._id });
@@ -232,6 +233,28 @@ exports.closeTicket = async (req, res, next) => {
 
     await ticket.save();
     res.json({ ticket });
+  } catch (err) {
+    next(err);
+  }
+};
+
+// Delete ticket (Admin or CSR only, and only if closed)
+exports.deleteTicket = async (req, res, next) => {
+  try {
+    const { id } = req.params;
+    const ticket = await Ticket.findById(id);
+    if (!ticket) return res.status(404).json({ message: 'Ticket not found' });
+
+    // Only admin or csr can delete, and only if ticket is closed
+    if (!['admin', 'csr'].includes(req.user.role)) {
+      return res.status(403).json({ message: 'Forbidden' });
+    }
+    if (ticket.status !== 'closed') {
+      return res.status(400).json({ message: 'Only closed tickets can be deleted' });
+    }
+
+    await Ticket.findByIdAndDelete(id);
+    res.json({ message: 'Ticket deleted successfully' });
   } catch (err) {
     next(err);
   }

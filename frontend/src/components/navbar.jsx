@@ -4,7 +4,7 @@ import { useNavigate } from 'react-router-dom';
 import { AuthContext } from '../context/authcontext';
 import { motion, AnimatePresence } from 'framer-motion';
 
-export default function Navbar({ isAuthenticated, onLogout }) {
+export default function Navbar({ isAuthenticated }) {
   const { user, logout } = useContext(AuthContext);
   const [open, setOpen] = useState(false);
   const navigate = useNavigate();
@@ -72,6 +72,8 @@ export default function Navbar({ isAuthenticated, onLogout }) {
                       {role === 'admin' && <motion.div style={menuItem} onClick={() => go('/manage-users')} whileHover={{ backgroundColor: '#f0f0f0', scale: 1.02 }} whileTap={{ scale: 0.98 }}>Manage Users</motion.div>}
                       {role === 'admin' && <motion.div style={menuItem} onClick={() => go('/analytics')} whileHover={{ backgroundColor: '#f0f0f0', scale: 1.02 }} whileTap={{ scale: 0.98 }}>Analytics</motion.div>}
                       {role === 'csr' && <motion.div style={menuItem} onClick={() => go('/analytics')} whileHover={{ backgroundColor: '#f0f0f0', scale: 1.02 }} whileTap={{ scale: 0.98 }}>Analytics</motion.div>}
+                      {(role === 'admin' || role === 'technician') && <motion.div style={menuItem} onClick={() => go('/network')} whileHover={{ backgroundColor: '#f0f0f0', scale: 1.02 }} whileTap={{ scale: 0.98 }}>Network Management</motion.div>}
+                      {(role === 'admin' || role === 'technician') && <motion.div style={menuItem} onClick={() => go('/inventory')} whileHover={{ backgroundColor: '#f0f0f0', scale: 1.02 }} whileTap={{ scale: 0.98 }}>Inventory</motion.div>}
                       <div style={{ height: 1, background: '#eee', margin: '8px 0' }} />
                       <motion.div style={menuItem} onClick={logout} whileHover={{ backgroundColor: '#ffebee', scale: 1.02 }} whileTap={{ scale: 0.98 }}>Logout</motion.div>
                     </div>

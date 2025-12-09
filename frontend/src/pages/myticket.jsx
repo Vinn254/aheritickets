@@ -24,9 +24,28 @@ import { useNavigate, useLocation } from 'react-router-dom';
     }).catch(console.error);
   }, [location]);
 
+  // Add responsive styles
+  React.useEffect(() => {
+    const style = document.createElement('style');
+    style.textContent = `
+      @media (max-width: 768px) {
+        .my-tickets-container {
+          padding: 12px !important;
+        }
+      }
+      @media (max-width: 480px) {
+        .my-tickets-container {
+          padding: 8px !important;
+        }
+      }
+    `;
+    document.head.appendChild(style);
+    return () => document.head.removeChild(style);
+  }, []);
+
   return (
     <>
-  <div style={{ padding: 16, marginTop: 4 }}>
+  <div className="my-tickets-container" style={{ padding: 16, marginTop: 4 }}>
         <h2 style={{ color: '#2d7a3e' }}>My Tickets</h2>
         <div style={{ display: 'grid', gap: 12 }}>
           {tickets.length === 0 ? (
