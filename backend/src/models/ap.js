@@ -1,4 +1,4 @@
-ice type // backend/src/models/ap.js
+// backend/src/models/ap.js
 const mongoose = require('mongoose');
 
 const ApSchema = new mongoose.Schema(
