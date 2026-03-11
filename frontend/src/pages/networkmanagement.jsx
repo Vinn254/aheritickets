@@ -38,10 +38,10 @@ export default function NetworkManagement() {
   const fetchAllData = async () => {
     try {
       const [popsRes, apsRes, stationsRes, backbonesRes] = await Promise.all([
-        API.get('/network/pops'),
-        API.get('/network/aps'),
-        API.get('/network/stations'),
-        API.get('/network/backbones')
+        API.get('/api/network/pops'),
+        API.get('/api/network/aps'),
+        API.get('/api/network/stations'),
+        API.get('/api/network/backbones')
       ]);
       setPops(popsRes.pops || []);
       setAps(apsRes.aps || []);
@@ -59,9 +59,9 @@ export default function NetworkManagement() {
     const type = deviceType + 's';
     try {
       if (editing) {
-        await API.put(`/network/${type}/${editing}`, formData);
+        await API.put(`/api/network/${type}/${editing}`, formData);
       } else {
-        await API.post(`/network/${type}`, formData);
+        await API.post(`/api/network/${type}`, formData);
       }
       fetchAllData();
       setEditing(null);
@@ -80,7 +80,7 @@ export default function NetworkManagement() {
   const handleDelete = async (id, type) => {
     if (!confirm('Are you sure?')) return;
     try {
-      await API.delete(`/network/${type}/${id}`);
+      await API.delete(`/api/network/${type}/${id}`);
       fetchAllData();
     } catch (err) {
       console.error(err);
@@ -89,7 +89,7 @@ export default function NetworkManagement() {
 
   const handleStatusUpdate = async (id, type, status) => {
     try {
-      await API.put(`/network/${type}/${id}`, { status });
+      await API.put(`/api/network/${type}/${id}`, { status });
       fetchAllData();
     } catch (err) {
       console.error(err);
@@ -136,12 +136,30 @@ export default function NetworkManagement() {
         <form onSubmit={handleSubmit}>
           {deviceType === 'pop' && (
             <div>
-              <label style={{ display: 'block', marginBottom: 5, fontWeight: 600, color: '#2d7a3e' }}>Name</label>
+              <label style={{ display: 'block', marginBottom: 5, fontWeight: 600, color: '#2d7a3e' }}>Name *</label>
               <input
                 type="text"
                 placeholder="Enter POP name"
                 value={formData.name || ''}
                 onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+                required
+                style={inputStyle}
+              />
+              <label style={{ display: 'block', marginBottom: 5, fontWeight: 600, color: '#2d7a3e', marginTop: 10 }}>Brand/Model *</label>
+              <input
+                type="text"
+                placeholder="Enter brand/model"
+                value={formData.brand || ''}
+                onChange={(e) => setFormData({ ...formData, brand: e.target.value })}
+                required
+                style={inputStyle}
+              />
+              <label style={{ display: 'block', marginBottom: 5, fontWeight: 600, color: '#2d7a3e', marginTop: 10 }}>Address *</label>
+              <input
+                type="text"
+                placeholder="Enter address"
+                value={formData.address || ''}
+                onChange={(e) => setFormData({ ...formData, address: e.target.value })}
                 required
                 style={inputStyle}
               />
@@ -153,13 +171,12 @@ export default function NetworkManagement() {
                 onChange={(e) => setFormData({ ...formData, macAddress: e.target.value })}
                 style={inputStyle}
               />
-              <label style={{ display: 'block', marginBottom: 5, fontWeight: 600, color: '#2d7a3e', marginTop: 10 }}>Address</label>
+              <label style={{ display: 'block', marginBottom: 5, fontWeight: 600, color: '#2d7a3e', marginTop: 10 }}>Details</label>
               <input
                 type="text"
-                placeholder="Enter address"
-                value={formData.address || ''}
-                onChange={(e) => setFormData({ ...formData, address: e.target.value })}
-                required
+                placeholder="Enter additional details"
+                value={formData.details || ''}
+                onChange={(e) => setFormData({ ...formData, details: e.target.value })}
                 style={inputStyle}
               />
             </div>
@@ -321,26 +338,34 @@ export default function NetworkManagement() {
           <div style={{ marginBottom: 30 }}>
             <h3 style={{ color: '#2d7a3e', marginBottom: 15 }}>POPs ({pops.length})</h3>
             {pops.length === 0 ? (
-              <p style={{ color: '#666' }}>No POPs found.</p>
+              <p style={{ color: '#666' }}>No POPs found. Click the buttons above to add one.</p>
             ) : (
-              <table style={{ width: '100%', borderCollapse: 'collapse' }}>
+              <table style={{ width: '100%', borderCollapse: 'collapse', background: '#fff', borderRadius: 8, overflow: 'hidden' }}>
                 <thead>
-                  <tr style={{ background: '#f5f5f5' }}>
-                    <th style={{ padding: 12, textAlign: 'left', borderBottom: '2px solid #43e97b' }}>Name</th>
-                    <th style={{ padding: 12, textAlign: 'left', borderBottom: '2px solid #43e97b' }}>Address</th>
-                    <th style={{ padding: 12, textAlign: 'left', borderBottom: '2px solid #43e97b' }}>MAC Address</th>
-                    <th style={{ padding: 12, textAlign: 'left', borderBottom: '2px solid #43e97b' }}>Actions</th>
+                  <tr style={{ background: '#43e97b', color: '#fff' }}>
+                    <th style={{ padding: 14, textAlign: 'left', borderBottom: '2px solid #38f9d7' }}>Name</th>
+                    <th style={{ padding: 14, textAlign: 'left', borderBottom: '2px solid #38f9d7' }}>Brand</th>
+                    <th style={{ padding: 14, textAlign: 'left', borderBottom: '2px solid #38f9d7' }}>Address</th>
+                    <th style={{ padding: 14, textAlign: 'left', borderBottom: '2px solid #38f9d7' }}>MAC Address</th>
+                    <th style={{ padding: 14, textAlign: 'left', borderBottom: '2px solid #38f9d7' }}>Status</th>
+                    <th style={{ padding: 14, textAlign: 'center', borderBottom: '2px solid #38f9d7' }}>Actions</th>
                   </tr>
                 </thead>
                 <tbody>
                   {pops.map(pop => (
                     <tr key={pop._id} style={{ borderBottom: '1px solid #e0e0e0' }}>
-                      <td style={{ padding: 12 }}>{pop.name}</td>
+                      <td style={{ padding: 12, fontWeight: 600 }}>{pop.name}</td>
+                      <td style={{ padding: 12 }}>{pop.brand || 'N/A'}</td>
                       <td style={{ padding: 12 }}>{pop.address}</td>
-                      <td style={{ padding: 12 }}>{pop.macAddress || 'N/A'}</td>
+                      <td style={{ padding: 12, fontFamily: 'monospace' }}>{pop.macAddress || 'N/A'}</td>
                       <td style={{ padding: 12 }}>
-                        <button onClick={() => handleEdit(pop, 'pop')} style={{ marginRight: 8, padding: '6px 12px', background: '#43e97b', color: '#fff', border: 'none', borderRadius: 4, cursor: 'pointer' }}>Edit</button>
-                        <button onClick={() => handleDelete(pop._id, 'pops')} style={{ padding: '6px 12px', background: '#f44336', color: '#fff', border: 'none', borderRadius: 4, cursor: 'pointer' }}>Delete</button>
+                        <span style={{ padding: '4px 10px', borderRadius: 12, fontSize: 12, fontWeight: 600, background: pop.status === 'active' ? '#4caf50' : '#f44336', color: '#fff' }}>
+                          {pop.status?.toUpperCase() || 'ACTIVE'}
+                        </span>
+                      </td>
+                      <td style={{ padding: 12, textAlign: 'center' }}>
+                        <button onClick={() => handleEdit(pop, 'pop')} style={{ marginRight: 6, padding: '6px 12px', background: '#2196f3', color: '#fff', border: 'none', borderRadius: 4, cursor: 'pointer', fontSize: 12 }}>Edit</button>
+                        <button onClick={() => handleDelete(pop._id, 'pops')} style={{ padding: '6px 12px', background: '#f44336', color: '#fff', border: 'none', borderRadius: 4, cursor: 'pointer', fontSize: 12 }}>Delete</button>
                       </td>
                     </tr>
                   ))}
@@ -353,26 +378,36 @@ export default function NetworkManagement() {
           <div style={{ marginBottom: 30 }}>
             <h3 style={{ color: '#2d7a3e', marginBottom: 15 }}>Access Points ({aps.length})</h3>
             {aps.length === 0 ? (
-              <p style={{ color: '#666' }}>No APs found.</p>
+              <p style={{ color: '#666' }}>No APs found. Click the buttons above to add one.</p>
             ) : (
-              <table style={{ width: '100%', borderCollapse: 'collapse' }}>
+              <table style={{ width: '100%', borderCollapse: 'collapse', background: '#fff', borderRadius: 8, overflow: 'hidden' }}>
                 <thead>
-                  <tr style={{ background: '#f5f5f5' }}>
-                    <th style={{ padding: 12, textAlign: 'left', borderBottom: '2px solid #43e97b' }}>Name</th>
-                    <th style={{ padding: 12, textAlign: 'left', borderBottom: '2px solid #43e97b' }}>Address</th>
-                    <th style={{ padding: 12, textAlign: 'left', borderBottom: '2px solid #43e97b' }}>Brand</th>
-                    <th style={{ padding: 12, textAlign: 'left', borderBottom: '2px solid #43e97b' }}>Actions</th>
+                  <tr style={{ background: '#43e97b', color: '#fff' }}>
+                    <th style={{ padding: 14, textAlign: 'left', borderBottom: '2px solid #38f9d7' }}>Name</th>
+                    <th style={{ padding: 14, textAlign: 'left', borderBottom: '2px solid #38f9d7' }}>Brand</th>
+                    <th style={{ padding: 14, textAlign: 'left', borderBottom: '2px solid #38f9d7' }}>Address</th>
+                    <th style={{ padding: 14, textAlign: 'left', borderBottom: '2px solid #38f9d7' }}>MAC Address</th>
+                    <th style={{ padding: 14, textAlign: 'left', borderBottom: '2px solid #38f9d7' }}>POP</th>
+                    <th style={{ padding: 14, textAlign: 'left', borderBottom: '2px solid #38f9d7' }}>Status</th>
+                    <th style={{ padding: 14, textAlign: 'center', borderBottom: '2px solid #38f9d7' }}>Actions</th>
                   </tr>
                 </thead>
                 <tbody>
                   {aps.map(ap => (
                     <tr key={ap._id} style={{ borderBottom: '1px solid #e0e0e0' }}>
-                      <td style={{ padding: 12 }}>{ap.name}</td>
-                      <td style={{ padding: 12 }}>{ap.address}</td>
+                      <td style={{ padding: 12, fontWeight: 600 }}>{ap.name}</td>
                       <td style={{ padding: 12 }}>{ap.brand || 'N/A'}</td>
+                      <td style={{ padding: 12 }}>{ap.address}</td>
+                      <td style={{ padding: 12, fontFamily: 'monospace' }}>{ap.macAddress || 'N/A'}</td>
+                      <td style={{ padding: 12 }}>{ap.pop?.name || 'N/A'}</td>
                       <td style={{ padding: 12 }}>
-                        <button onClick={() => handleEdit(ap, 'ap')} style={{ marginRight: 8, padding: '6px 12px', background: '#43e97b', color: '#fff', border: 'none', borderRadius: 4, cursor: 'pointer' }}>Edit</button>
-                        <button onClick={() => handleDelete(ap._id, 'aps')} style={{ padding: '6px 12px', background: '#f44336', color: '#fff', border: 'none', borderRadius: 4, cursor: 'pointer' }}>Delete</button>
+                        <span style={{ padding: '4px 10px', borderRadius: 12, fontSize: 12, fontWeight: 600, background: ap.status === 'active' ? '#4caf50' : '#f44336', color: '#fff' }}>
+                          {ap.status?.toUpperCase() || 'ACTIVE'}
+                        </span>
+                      </td>
+                      <td style={{ padding: 12, textAlign: 'center' }}>
+                        <button onClick={() => handleEdit(ap, 'ap')} style={{ marginRight: 6, padding: '6px 12px', background: '#2196f3', color: '#fff', border: 'none', borderRadius: 4, cursor: 'pointer', fontSize: 12 }}>Edit</button>
+                        <button onClick={() => handleDelete(ap._id, 'aps')} style={{ padding: '6px 12px', background: '#f44336', color: '#fff', border: 'none', borderRadius: 4, cursor: 'pointer', fontSize: 12 }}>Delete</button>
                       </td>
                     </tr>
                   ))}
@@ -385,26 +420,36 @@ export default function NetworkManagement() {
           <div style={{ marginBottom: 30 }}>
             <h3 style={{ color: '#2d7a3e', marginBottom: 15 }}>Stations ({stations.length})</h3>
             {stations.length === 0 ? (
-              <p style={{ color: '#666' }}>No stations found.</p>
+              <p style={{ color: '#666' }}>No stations found. Click the buttons above to add one.</p>
             ) : (
-              <table style={{ width: '100%', borderCollapse: 'collapse' }}>
+              <table style={{ width: '100%', borderCollapse: 'collapse', background: '#fff', borderRadius: 8, overflow: 'hidden' }}>
                 <thead>
-                  <tr style={{ background: '#f5f5f5' }}>
-                    <th style={{ padding: 12, textAlign: 'left', borderBottom: '2px solid #43e97b' }}>Name</th>
-                    <th style={{ padding: 12, textAlign: 'left', borderBottom: '2px solid #43e97b' }}>IP Address</th>
-                    <th style={{ padding: 12, textAlign: 'left', borderBottom: '2px solid #43e97b' }}>Brand</th>
-                    <th style={{ padding: 12, textAlign: 'left', borderBottom: '2px solid #43e97b' }}>Actions</th>
+                  <tr style={{ background: '#43e97b', color: '#fff' }}>
+                    <th style={{ padding: 14, textAlign: 'left', borderBottom: '2px solid #38f9d7' }}>Name</th>
+                    <th style={{ padding: 14, textAlign: 'left', borderBottom: '2px solid #38f9d7' }}>Brand</th>
+                    <th style={{ padding: 14, textAlign: 'left', borderBottom: '2px solid #38f9d7' }}>IP Address</th>
+                    <th style={{ padding: 14, textAlign: 'left', borderBottom: '2px solid #38f9d7' }}>MAC Address</th>
+                    <th style={{ padding: 14, textAlign: 'left', borderBottom: '2px solid #38f9d7' }}>Connected AP</th>
+                    <th style={{ padding: 14, textAlign: 'left', borderBottom: '2px solid #38f9d7' }}>Status</th>
+                    <th style={{ padding: 14, textAlign: 'center', borderBottom: '2px solid #38f9d7' }}>Actions</th>
                   </tr>
                 </thead>
                 <tbody>
                   {stations.map(station => (
                     <tr key={station._id} style={{ borderBottom: '1px solid #e0e0e0' }}>
-                      <td style={{ padding: 12 }}>{station.name}</td>
-                      <td style={{ padding: 12 }}>{station.address || 'N/A'}</td>
+                      <td style={{ padding: 12, fontWeight: 600 }}>{station.name}</td>
                       <td style={{ padding: 12 }}>{station.brand || 'N/A'}</td>
+                      <td style={{ padding: 12, fontFamily: 'monospace' }}>{station.address || 'N/A'}</td>
+                      <td style={{ padding: 12, fontFamily: 'monospace' }}>{station.macAddress || 'N/A'}</td>
+                      <td style={{ padding: 12 }}>{station.ap?.name || 'N/A'}</td>
                       <td style={{ padding: 12 }}>
-                        <button onClick={() => handleEdit(station, 'station')} style={{ marginRight: 8, padding: '6px 12px', background: '#43e97b', color: '#fff', border: 'none', borderRadius: 4, cursor: 'pointer' }}>Edit</button>
-                        <button onClick={() => handleDelete(station._id, 'stations')} style={{ padding: '6px 12px', background: '#f44336', color: '#fff', border: 'none', borderRadius: 4, cursor: 'pointer' }}>Delete</button>
+                        <span style={{ padding: '4px 10px', borderRadius: 12, fontSize: 12, fontWeight: 600, background: station.status === 'active' ? '#4caf50' : '#f44336', color: '#fff' }}>
+                          {station.status?.toUpperCase() || 'ACTIVE'}
+                        </span>
+                      </td>
+                      <td style={{ padding: 12, textAlign: 'center' }}>
+                        <button onClick={() => handleEdit(station, 'station')} style={{ marginRight: 6, padding: '6px 12px', background: '#2196f3', color: '#fff', border: 'none', borderRadius: 4, cursor: 'pointer', fontSize: 12 }}>Edit</button>
+                        <button onClick={() => handleDelete(station._id, 'stations')} style={{ padding: '6px 12px', background: '#f44336', color: '#fff', border: 'none', borderRadius: 4, cursor: 'pointer', fontSize: 12 }}>Delete</button>
                       </td>
                     </tr>
                   ))}
@@ -417,24 +462,30 @@ export default function NetworkManagement() {
           <div>
             <h3 style={{ color: '#2d7a3e', marginBottom: 15 }}>Backbones ({backbones.length})</h3>
             {backbones.length === 0 ? (
-              <p style={{ color: '#666' }}>No backbones found.</p>
+              <p style={{ color: '#666' }}>No backbones found. Click the buttons above to add one.</p>
             ) : (
-              <table style={{ width: '100%', borderCollapse: 'collapse' }}>
+              <table style={{ width: '100%', borderCollapse: 'collapse', background: '#fff', borderRadius: 8, overflow: 'hidden' }}>
                 <thead>
-                  <tr style={{ background: '#f5f5f5' }}>
-                    <th style={{ padding: 12, textAlign: 'left', borderBottom: '2px solid #43e97b' }}>Type</th>
-                    <th style={{ padding: 12, textAlign: 'left', borderBottom: '2px solid #43e97b' }}>Details</th>
-                    <th style={{ padding: 12, textAlign: 'left', borderBottom: '2px solid #43e97b' }}>Actions</th>
+                  <tr style={{ background: '#43e97b', color: '#fff' }}>
+                    <th style={{ padding: 14, textAlign: 'left', borderBottom: '2px solid #38f9d7' }}>Type</th>
+                    <th style={{ padding: 14, textAlign: 'left', borderBottom: '2px solid #38f9d7' }}>Details</th>
+                    <th style={{ padding: 14, textAlign: 'left', borderBottom: '2px solid #38f9d7' }}>Status</th>
+                    <th style={{ padding: 14, textAlign: 'center', borderBottom: '2px solid #38f9d7' }}>Actions</th>
                   </tr>
                 </thead>
                 <tbody>
                   {backbones.map(bb => (
                     <tr key={bb._id} style={{ borderBottom: '1px solid #e0e0e0' }}>
-                      <td style={{ padding: 12 }}>{bb.type}</td>
+                      <td style={{ padding: 12, fontWeight: 600, textTransform: 'capitalize' }}>{bb.type || 'N/A'}</td>
                       <td style={{ padding: 12 }}>{bb.details || 'N/A'}</td>
                       <td style={{ padding: 12 }}>
-                        <button onClick={() => handleEdit(bb, 'backbone')} style={{ marginRight: 8, padding: '6px 12px', background: '#43e97b', color: '#fff', border: 'none', borderRadius: 4, cursor: 'pointer' }}>Edit</button>
-                        <button onClick={() => handleDelete(bb._id, 'backbones')} style={{ padding: '6px 12px', background: '#f44336', color: '#fff', border: 'none', borderRadius: 4, cursor: 'pointer' }}>Delete</button>
+                        <span style={{ padding: '4px 10px', borderRadius: 12, fontSize: 12, fontWeight: 600, background: bb.status === 'active' ? '#4caf50' : '#f44336', color: '#fff' }}>
+                          {bb.status?.toUpperCase() || 'ACTIVE'}
+                        </span>
+                      </td>
+                      <td style={{ padding: 12, textAlign: 'center' }}>
+                        <button onClick={() => handleEdit(bb, 'backbone')} style={{ marginRight: 6, padding: '6px 12px', background: '#2196f3', color: '#fff', border: 'none', borderRadius: 4, cursor: 'pointer', fontSize: 12 }}>Edit</button>
+                        <button onClick={() => handleDelete(bb._id, 'backbones')} style={{ padding: '6px 12px', background: '#f44336', color: '#fff', border: 'none', borderRadius: 4, cursor: 'pointer', fontSize: 12 }}>Delete</button>
                       </td>
                     </tr>
                   ))}

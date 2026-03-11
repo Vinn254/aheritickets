@@ -120,7 +120,6 @@ export default function ManageInstallationRequests() {
           name: newCustomer.name,
           email: newCustomer.email,
           phone: newCustomer.phone,
-          location: newCustomer.location,
           role: 'customer',
           status: 'active'
         });
@@ -468,21 +467,6 @@ export default function ManageInstallationRequests() {
                       boxSizing: 'border-box'
                     }}
                     required={customerMode === 'new'}
-                  />
-                  <input
-                    type="text"
-                    placeholder="Location (optional)"
-                    value={newCustomer.location}
-                    onChange={(e) => setNewCustomer({ ...newCustomer, location: e.target.value })}
-                    style={{
-                      width: '100%',
-                      padding: '10px 12px',
-                      borderRadius: '8px',
-                      border: '2px solid #43e97b',
-                      fontSize: '14px',
-                      fontFamily: 'inherit',
-                      boxSizing: 'border-box'
-                    }}
                   />
                 </div>
               )}
