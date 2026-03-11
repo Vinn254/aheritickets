@@ -186,15 +186,6 @@ export default function Sidebar({ showSidebar, setShowSidebar }) {
                 <MenuIcon icon="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2z" />
                 <span>Request Installation</span>
               </motion.div>
-              <motion.div
-                style={menuItemStyle(isActiveRoute('/quotations'))}
-                onClick={() => go('/quotations')}
-                whileHover={{ backgroundColor: '#43a047', paddingLeft: '12px' }}
-                whileTap={{ scale: 0.98 }}
-              >
-                <MenuIcon icon="M9 5H7a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V7a2 2 0 0 0-2-2h-2M9 5a2 2 0 0 0 2 2h2a2 2 0 0 0 2-2M9 5a2 2 0 0 1 2-2h2a2 2 0 0 1 2 2" />
-                <span>My Quotations</span>
-              </motion.div>
             </>
           )}
 
@@ -217,24 +208,6 @@ export default function Sidebar({ showSidebar, setShowSidebar }) {
               >
                 <MenuIcon icon="M3 3v18h18M3 12h18M3 6h18M3 18h18" />
                 <span>Analytics</span>
-              </motion.div>
-              <motion.div
-                style={menuItemStyle(isActiveRoute('/quotations'))}
-                onClick={() => go('/quotations')}
-                whileHover={{ backgroundColor: '#43a047', paddingLeft: '12px' }}
-                whileTap={{ scale: 0.98 }}
-              >
-                <MenuIcon icon="M9 5H7a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V7a2 2 0 0 0-2-2h-2M9 5a2 2 0 0 0 2 2h2a2 2 0 0 0 2-2M9 5a2 2 0 0 1 2-2h2a2 2 0 0 1 2 2" />
-                <span>Quotations</span>
-              </motion.div>
-              <motion.div
-                style={menuItemStyle(isActiveRoute('/invoices'))}
-                onClick={() => go('/invoices')}
-                whileHover={{ backgroundColor: '#43a047', paddingLeft: '12px' }}
-                whileTap={{ scale: 0.98 }}
-              >
-                <MenuIcon icon="M9 5H7a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V7a2 2 0 0 0-2-2h-2M9 5a2 2 0 0 0 2 2h2a2 2 0 0 0 2-2M9 5a2 2 0 0 1 2-2h2a2 2 0 0 1 2 2" />
-                <span>Invoices</span>
               </motion.div>
               <motion.div
                 style={menuItemStyle(isActiveRoute('/manage-installation-requests'))}
@@ -335,24 +308,6 @@ export default function Sidebar({ showSidebar, setShowSidebar }) {
               >
                 <MenuIcon icon="M3 3v18h18M3 12h18M3 6h18M3 18h18" />
                 <span>Analytics</span>
-              </motion.div>
-              <motion.div
-                style={menuItemStyle(isActiveRoute('/quotations'))}
-                onClick={() => go('/quotations')}
-                whileHover={{ backgroundColor: '#43a047', paddingLeft: '12px' }}
-                whileTap={{ scale: 0.98 }}
-              >
-                <MenuIcon icon="M9 5H7a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V7a2 2 0 0 0-2-2h-2M9 5a2 2 0 0 0 2 2h2a2 2 0 0 0 2-2M9 5a2 2 0 0 1 2-2h2a2 2 0 0 1 2 2" />
-                <span>Quotations</span>
-              </motion.div>
-              <motion.div
-                style={menuItemStyle(isActiveRoute('/invoices'))}
-                onClick={() => go('/invoices')}
-                whileHover={{ backgroundColor: '#43a047', paddingLeft: '12px' }}
-                whileTap={{ scale: 0.98 }}
-              >
-                <MenuIcon icon="M9 5H7a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V7a2 2 0 0 0-2-2h-2M9 5a2 2 0 0 0 2 2h2a2 2 0 0 0 2-2M9 5a2 2 0 0 1 2-2h2a2 2 0 0 1 2 2" />
-                <span>Invoices</span>
               </motion.div>
               <motion.div
                 style={menuItemStyle(isActiveRoute('/network'))}

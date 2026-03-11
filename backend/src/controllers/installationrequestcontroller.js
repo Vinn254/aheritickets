@@ -60,14 +60,17 @@ const createInstallationRequest = async (req, res) => {
   try {
     const { installationType, package: packageName, location, description } = req.body;
 
-    if (!installationType || !packageName) {
+    // Handle case where package is sent as an object instead of string
+    const packageString = typeof packageName === 'object' ? packageName.name : packageName;
+
+    if (!installationType || !packageString) {
       return res.status(400).json({ error: 'Installation type and package are required' });
     }
 
     const request = new InstallationRequest({
       customer: req.user.id,
       installationType,
-      package: packageName,
+      package: packageString,
       location,
       description,
       status: 'opened' // New status when created
@@ -98,7 +101,10 @@ const createInstallation = async (req, res) => {
       totalUpfront
     } = req.body;
 
-    if (!customerId || !installationType || !packageName) {
+    // Handle case where package is sent as an object instead of string
+    const packageString = typeof packageName === 'object' ? packageName.name : packageName;
+
+    if (!customerId || !installationType || !packageString) {
       return res.status(400).json({ error: 'Customer, installation type and package are required' });
     }
 
@@ -119,7 +125,7 @@ const createInstallation = async (req, res) => {
     const request = new InstallationRequest({
       customer: customerId,
       installationType,
-      package: packageName,
+      package: packageString,
       packagePrice: packagePrice || 0,
       installationFee: installationFee || 0,
       includeRouter: includeRouter || false,

@@ -73,7 +73,7 @@ export default function Analytics() {
       }
     };
     fetch();
-    interval = setInterval(fetch, 5000);
+    interval = setInterval(fetch, 2000);
     return () => clearInterval(interval);
   }, []);
 

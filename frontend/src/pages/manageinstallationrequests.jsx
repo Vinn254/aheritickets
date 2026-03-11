@@ -64,7 +64,7 @@ export default function ManageInstallationRequests() {
     const user = JSON.parse(localStorage.getItem('user') || '{}');
     setUserRole(user.role);
     fetchRequests();
-    if (user.role === 'admin') {
+    if (user.role === 'admin' || user.role === 'csr') {
       fetchTechnicians();
       fetchCustomers();
     }
