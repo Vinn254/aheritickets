@@ -1,0 +1,32 @@
+/* Watermark background utility for all pages */
+body {
+  background: #f7fff7;
+  min-height: 100vh;
+  margin: 0;
+  font-family: 'Inter', Arial, sans-serif;
+  position: relative;
+}
+
+.watermark-bg {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  z-index: 0;
+  pointer-events: none;
+  opacity: 0.08;
+  background: url('img5.PNG') center center/30vw no-repeat;
+  /* You can replace vite.svg with your logo or watermark image */
+}
+
+.page-box {
+  position: relative;
+  z-index: 1;
+  background: rgba(255,255,255,0.92);
+  border-radius: 18px;
+  box-shadow: 0 8px 32px rgba(44, 130, 89, 0.10);
+  margin: 32px auto;
+  max-width: 1100px;
+  padding: 32px 24px;
+}
