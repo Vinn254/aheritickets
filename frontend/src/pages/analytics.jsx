@@ -17,7 +17,7 @@ export default function Analytics() {
     let interval;
     const fetch = async () => {
       try {
-        const res = await API.get('/tickets');
+        const res = await API.get('/api/tickets');
         let payload = [];
         if (res && Array.isArray(res.tickets)) {
           payload = res.tickets;
@@ -49,7 +49,7 @@ export default function Analytics() {
         setCsrStats(csrObj);
 
         try {
-          const usersRes = await API.get('/users');
+          const usersRes = await API.get('/api/users');
           const users = usersRes.users || usersRes || [];
           const customers = users.filter(u => u.role === 'customer');
           setCustomerCount(customers.length);
@@ -87,8 +87,8 @@ export default function Analytics() {
   const handleDelete = async (ticketId) => {
     if (!window.confirm('Are you sure you want to delete this closed ticket?')) return;
     try {
-      await API.delete(`/tickets/${ticketId}`);
-      const res = await API.get('/tickets');
+      await API.delete(`/api/tickets/${ticketId}`);
+      const res = await API.get('/api/tickets');
       let payload = [];
       if (res && Array.isArray(res.tickets)) {
         payload = res.tickets;
