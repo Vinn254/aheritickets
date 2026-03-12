@@ -29,7 +29,7 @@ router.put('/:id/start', requireRole(['technician']), installationController.sta
 router.put('/:id/complete', requireRole(['technician']), installationController.completeInstallation);
 
 // Admin closes installation (after technician completion)
-router.put('/:id/close', requireRole(['admin']), installationController.closeInstallation);
+router.put('/:id/close', requireRole(['admin', 'csr']), installationController.closeInstallation);
 
 // Technician can view their assigned installations
 router.get('/technician/my-installations', requireRole(['technician']), installationController.getTechnicianInstallations);

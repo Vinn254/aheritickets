@@ -259,9 +259,9 @@ const closeInstallation = async (req, res) => {
     
     if (!request) return res.status(404).json({ error: 'Request not found' });
 
-    // Can only close if status is completed
-    if (request.status !== 'completed') {
-      return res.status(400).json({ error: 'Installation must be completed by technician before closing' });
+    // Can close if status is completed OR pending (admin force closes)
+    if (request.status !== 'completed' && request.status !== 'pending') {
+      return res.status(400).json({ error: 'Installation must be in progress (pending) or completed to close' });
     }
 
     request.status = 'closed';

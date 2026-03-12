@@ -274,7 +274,7 @@ export default function ManageInstallationRequests() {
     { status: 'closed', count: requests.filter(r => r.status === 'closed').length }
   ];
 
-  const isAdmin = userRole === 'admin';
+  const isAdminOrCSR = userRole === 'admin' || userRole === 'csr';
 
   return (
     <div style={{
@@ -1005,7 +1005,7 @@ export default function ManageInstallationRequests() {
               )}
 
               {/* Action Buttons */}
-              {isAdmin && viewing.status === 'opened' && !viewing.technician && (
+              {isAdminOrCSR && viewing.status === 'opened' && !viewing.technician && (
                 <div style={{ marginTop: '20px' }}>
                   <button
                     onClick={() => setShowAssignModal(true)}
@@ -1027,7 +1027,7 @@ export default function ManageInstallationRequests() {
                 </div>
               )}
 
-              {isAdmin && viewing.status === 'completed' && (
+              {isAdminOrCSR && (viewing.status === 'completed' || viewing.status === 'pending') && (
                 <div style={{ marginTop: '20px' }}>
                   <button
                     onClick={() => closeInstallation(viewing._id)}
@@ -1044,10 +1044,10 @@ export default function ManageInstallationRequests() {
                       transition: 'all 0.3s ease'
                     }}
                   >
-                    ✓ Close Installation (Admin Confirmation)
+                    ✓ Close Installation
                   </button>
                   <p style={{ margin: '8px 0 0 0', color: '#666', fontSize: '11px', textAlign: 'center' }}>
-                    Only admin can close after technician completes the work
+                    Admin can close installation at any time
                   </p>
                 </div>
               )}
