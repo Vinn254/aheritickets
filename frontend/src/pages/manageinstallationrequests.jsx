@@ -95,7 +95,7 @@ export default function ManageInstallationRequests() {
 
   const fetchCustomers = async () => {
     try {
-      const data = await API.get('/users?role=customer');
+      const data = await API.get('/api/users?role=customer');
       setCustomers(Array.isArray(data) ? data : (data.users || []));
     } catch (err) {
       console.error('Error fetching customers:', err);
@@ -274,6 +274,7 @@ export default function ManageInstallationRequests() {
     { status: 'closed', count: requests.filter(r => r.status === 'closed').length }
   ];
 
+  const isAdmin = userRole === 'admin';
   const isAdminOrCSR = userRole === 'admin' || userRole === 'csr';
 
   return (
