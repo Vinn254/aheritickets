@@ -49,10 +49,27 @@ export default function Quotations() {
     return total;
   };
 
-  // Check if coming from installation request
+  // Check if coming from installation request or need to view a specific quotation
   useEffect(() => {
     if (location.state) {
-      const { installationRequestId, customer, installationType, package: pkg, notes } = location.state;
+      const { installationRequestId, customer, installationType, package: pkg, notes, viewQuotation } = location.state;
+      
+      // If viewing a specific quotation
+      if (viewQuotation) {
+        const quote = quotations.find(q => q._id === viewQuotation);
+        if (quote) {
+          setViewing(quote);
+        } else {
+          // Fetch the quotation if not in list
+          API.get(`/api/quotations/${viewQuotation}`).then(data => {
+            setViewing(data);
+          }).catch(err => console.error('Error fetching quotation:', err));
+        }
+        // Clear the state
+        navigate(location.pathname, { replace: true });
+        return;
+      }
+      
       setInstallationRequestId(installationRequestId);
       setFormData(prev => ({
         ...prev,

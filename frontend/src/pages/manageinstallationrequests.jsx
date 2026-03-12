@@ -1006,6 +1006,7 @@ export default function ManageInstallationRequests() {
                     onClick={() => navigate('/quotations', { state: { viewQuotation: viewing.quotation._id } })}
                     style={{
                       marginTop: '8px',
+                      marginRight: '8px',
                       padding: '6px 12px',
                       background: '#1976d2',
                       color: 'white',
@@ -1017,6 +1018,23 @@ export default function ManageInstallationRequests() {
                   >
                     View Quotation
                   </button>
+                  {viewing.invoice && (
+                    <button
+                      onClick={() => navigate('/invoices', { state: { viewInvoice: viewing.invoice._id } })}
+                      style={{
+                        marginTop: '8px',
+                        padding: '6px 12px',
+                        background: '#2e7d32',
+                        color: 'white',
+                        border: 'none',
+                        borderRadius: '4px',
+                        fontSize: '12px',
+                        cursor: 'pointer'
+                      }}
+                    >
+                      View Invoice
+                    </button>
+                  )}
                 </div>
               )}
 

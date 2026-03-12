@@ -3,9 +3,12 @@ import React, { useState, useEffect, useContext } from 'react';
 import { AuthContext } from '../context/authcontext';
 import API, { API_BASE } from '../utils/api';
 import { motion } from 'framer-motion';
+import { useNavigate, useLocation } from 'react-router-dom';
 
 export default function Invoices() {
   const { user } = useContext(AuthContext);
+  const navigate = useNavigate();
+  const location = useLocation();
   const [invoices, setInvoices] = useState([]);
   const [loading, setLoading] = useState(true);
   const [viewing, setViewing] = useState(null);
@@ -13,6 +16,24 @@ export default function Invoices() {
   const [searchTerm, setSearchTerm] = useState('');
   const [paymentModal, setPaymentModal] = useState(null);
   const [paymentMethod, setPaymentMethod] = useState('mpesa');
+
+  // Check if need to view a specific invoice
+  useEffect(() => {
+    if (location.state && location.state.viewInvoice) {
+      const viewInvoiceId = location.state.viewInvoice;
+      const invoice = invoices.find(inv => inv._id === viewInvoiceId);
+      if (invoice) {
+        setViewing(invoice);
+      } else {
+        // Fetch the invoice if not in list
+        API.get(`/invoices/${viewInvoiceId}`).then(data => {
+          setViewing(data);
+        }).catch(err => console.error('Error fetching invoice:', err));
+      }
+      // Clear the state
+      navigate(location.pathname, { replace: true });
+    }
+  }, [location.state]);
 
   useEffect(() => {
     fetchInvoices();

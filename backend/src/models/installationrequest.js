@@ -25,6 +25,7 @@ const InstallationRequestSchema = new Schema(
     closedDate: { type: Date }, // When admin closed the installation
     // Keep old fields for backward compatibility
     quotation: { type: Schema.Types.ObjectId, ref: 'Quotation' },
+    invoice: { type: Schema.Types.ObjectId, ref: 'Invoice' },
     approvedBy: { type: Schema.Types.ObjectId, ref: 'User' },
     approvalNotes: { type: String },
     requestedDate: { type: Date, default: Date.now }

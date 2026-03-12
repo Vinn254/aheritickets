@@ -10,6 +10,7 @@ const getInstallationRequests = async (req, res) => {
       .populate('customer', 'name email phone location')
       .populate('technician', 'name email phone')
       .populate('quotation', 'quotationNumber')
+      .populate('invoice', 'invoiceNumber')
       .populate('approvedBy', 'name')
       .sort({ createdAt: -1 });
     res.json(requests);
@@ -154,6 +155,7 @@ const getInstallationRequest = async (req, res) => {
       .populate('customer', 'name email phone location')
       .populate('technician', 'name email phone')
       .populate('quotation', 'quotationNumber total status')
+      .populate('invoice', 'invoiceNumber total status')
       .populate('approvedBy', 'name');
     
     if (!request) return res.status(404).json({ error: 'Request not found' });
