@@ -177,8 +177,7 @@ export default function ManageInstallationRequests() {
     }
   };
 
-  const assignTechnician = async (requestId) => {
-    const techId = showAssignModal;
+  const assignTechnician = async (requestId, techId) => {
     if (!techId) {
       alert('Please select a technician');
       return;
@@ -1174,7 +1173,11 @@ export default function ManageInstallationRequests() {
               <button
                 onClick={() => {
                   const techId = document.getElementById('techSelect').value;
-                  assignTechnician(viewing._id);
+                  if (!techId) {
+                    alert('Please select a technician');
+                    return;
+                  }
+                  assignTechnician(viewing._id, techId);
                 }}
                 style={{
                   padding: '10px',
