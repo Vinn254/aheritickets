@@ -193,10 +193,10 @@ export default function NetworkManagement() {
         padding: '8px 8px 0 8px'
       }}>
         {[
-          { key: 'pop', label: 'POPs', icon: '📡', count: pops.length },
-          { key: 'ap', label: 'Access Points', icon: '📶', count: aps.length },
-          { key: 'station', label: 'Stations', icon: '🖥️', count: stations.length },
-          { key: 'backbone', label: 'Backbones', icon: '🔗', count: backbones.length }
+          { key: 'pop', label: 'POPs', count: pops.length },
+          { key: 'ap', label: 'Access Points', count: aps.length },
+          { key: 'station', label: 'Stations', count: stations.length },
+          { key: 'backbone', label: 'Backbones', count: backbones.length }
         ].map(tab => (
           <button
             key={tab.key}
@@ -225,7 +225,7 @@ export default function NetworkManagement() {
         }}>
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 20 }}>
             <h2 style={{ color: '#186a3b', margin: 0, fontSize: 20 }}>
-              {editing ? '✏️ Edit' : '➕ Add'} {activeTab.toUpperCase()}
+              {editing ? 'Edit' : 'Add'} {activeTab.toUpperCase()}
             </h2>
             <button 
               onClick={() => { setShowForm(false); setEditing(null); setFormData({}); }}
@@ -513,15 +513,16 @@ export default function NetworkManagement() {
         {/* POPs Table */}
         {activeTab === 'pop' && (
           <div style={{ padding: 20 }}>
-            <h3 style={{ color: '#186a3b', marginBottom: 16, fontSize: 18, display: 'flex', alignItems: 'center', gap: 8 }}>
-              📡 POPs ({pops.length})
+            <h3 style={{ color: '#186a3b', marginBottom: 16, fontSize: 18 }}>
+              POPs ({pops.length})
             </h3>
             {pops.length === 0 ? (
               <div style={{ padding: 40, textAlign: 'center', background: '#f9f9f9', borderRadius: 8 }}>
                 <p style={{ color: '#666', marginBottom: 16 }}>No POPs found. Click "Add New Device" to create one.</p>
               </div>
             ) : (
-              <table style={{ width: '100%', borderCollapse: 'collapse' }}>
+              <div style={{ overflowX: 'auto', maxHeight: '500px' }}>
+              <table style={{ width: '100%', borderCollapse: 'collapse', minWidth: '800px' }}>
                 <thead>
                   <tr style={{ background: 'linear-gradient(90deg, #43e97b 0%, #38f9d7 100%)' }}>
                     <th style={{ padding: 14, textAlign: 'left', color: '#fff', fontWeight: 600 }}>Name</th>
@@ -575,6 +576,7 @@ export default function NetworkManagement() {
                   ))}
                 </tbody>
               </table>
+              </div>
             )}
           </div>
         )}
@@ -582,8 +584,8 @@ export default function NetworkManagement() {
         {/* APs Table */}
         {activeTab === 'ap' && (
           <div style={{ padding: 20 }}>
-            <h3 style={{ color: '#186a3b', marginBottom: 16, fontSize: 18, display: 'flex', alignItems: 'center', gap: 8 }}>
-              📶 Access Points ({aps.length})
+            <h3 style={{ color: '#186a3b', marginBottom: 16, fontSize: 18 }}>
+              Access Points ({aps.length})
             </h3>
             {aps.length === 0 ? (
               <div style={{ padding: 40, textAlign: 'center', background: '#f9f9f9', borderRadius: 8 }}>
@@ -651,8 +653,8 @@ export default function NetworkManagement() {
         {/* Stations Table */}
         {activeTab === 'station' && (
           <div style={{ padding: 20 }}>
-            <h3 style={{ color: '#186a3b', marginBottom: 16, fontSize: 18, display: 'flex', alignItems: 'center', gap: 8 }}>
-              🖥️ Stations ({stations.length})
+            <h3 style={{ color: '#186a3b', marginBottom: 16, fontSize: 18 }}>
+              Stations ({stations.length})
             </h3>
             {stations.length === 0 ? (
               <div style={{ padding: 40, textAlign: 'center', background: '#f9f9f9', borderRadius: 8 }}>
@@ -720,8 +722,8 @@ export default function NetworkManagement() {
         {/* Backbones Table */}
         {activeTab === 'backbone' && (
           <div style={{ padding: 20 }}>
-            <h3 style={{ color: '#186a3b', marginBottom: 16, fontSize: 18, display: 'flex', alignItems: 'center', gap: 8 }}>
-              🔗 Backbones ({backbones.length})
+            <h3 style={{ color: '#186a3b', marginBottom: 16, fontSize: 18 }}>
+              Backbones ({backbones.length})
             </h3>
             {backbones.length === 0 ? (
               <div style={{ padding: 40, textAlign: 'center', background: '#f9f9f9', borderRadius: 8 }}>

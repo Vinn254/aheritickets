@@ -1002,6 +1002,21 @@ export default function ManageInstallationRequests() {
                   <p style={{ margin: 0, color: '#1976d2', fontSize: '14px', fontWeight: '700' }}>
                     {viewing.quotation.quotationNumber}
                   </p>
+                  <button
+                    onClick={() => navigate('/quotations', { state: { viewQuotation: viewing.quotation._id } })}
+                    style={{
+                      marginTop: '8px',
+                      padding: '6px 12px',
+                      background: '#1976d2',
+                      color: 'white',
+                      border: 'none',
+                      borderRadius: '4px',
+                      fontSize: '12px',
+                      cursor: 'pointer'
+                    }}
+                  >
+                    View Quotation
+                  </button>
                 </div>
               )}
 
