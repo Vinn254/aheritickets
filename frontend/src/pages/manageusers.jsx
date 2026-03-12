@@ -22,6 +22,7 @@ function ManageUsers() {
   const [routerMacAddress, setRouterMacAddress] = useState('');
   const [location, setLocation] = useState('');
   const [billingPlan, setBillingPlan] = useState('');
+  const [status, setStatus] = useState('active');
   const [msg, setMsg] = useState('');
   const [search, setSearch] = useState('');
   const [searchInput, setSearchInput] = useState('');

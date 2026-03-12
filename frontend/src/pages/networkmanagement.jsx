@@ -18,6 +18,47 @@ const selectStyle = {
   cursor: 'pointer'
 };
 
+// Styled button styles
+const tabButtonStyle = (isActive) => ({
+  padding: '12px 24px',
+  border: 'none',
+  borderRadius: '8px 8px 0 0',
+  background: isActive ? '#43e97b' : '#e8f5e9',
+  color: isActive ? '#fff' : '#2d7a3e',
+  cursor: 'pointer',
+  fontWeight: 600,
+  fontSize: 14,
+  textTransform: 'capitalize',
+  transition: 'all 0.3s ease',
+  boxShadow: isActive ? '0 -2px 10px rgba(67, 233, 123, 0.3)' : 'none',
+  borderBottom: isActive ? 'none' : '2px solid #43e97b'
+});
+
+const actionButtonStyle = (variant = 'primary') => ({
+  padding: '8px 16px',
+  border: 'none',
+  borderRadius: '6px',
+  cursor: 'pointer',
+  fontWeight: 600,
+  fontSize: 13,
+  transition: 'all 0.3s ease',
+  ...(variant === 'edit' && {
+    background: '#2196f3',
+    color: '#fff',
+    boxShadow: '0 2px 6px rgba(33, 150, 243, 0.3)'
+  }),
+  ...(variant === 'delete' && {
+    background: '#f44336',
+    color: '#fff',
+    boxShadow: '0 2px 6px rgba(244, 67, 54, 0.3)'
+  }),
+  ...(variant === 'primary' && {
+    background: 'linear-gradient(135deg, #43e97b 0%, #38f9d7 100%)',
+    color: '#fff',
+    boxShadow: '0 2px 10px rgba(67, 233, 123, 0.3)'
+  })
+});
+
 export default function NetworkManagement() {
   const { user } = useContext(AuthContext);
   const [pops, setPops] = useState([]);
@@ -27,7 +68,8 @@ export default function NetworkManagement() {
   const [loading, setLoading] = useState(true);
   const [editing, setEditing] = useState(null);
   const [formData, setFormData] = useState({});
-  const [deviceType, setDeviceType] = useState('pop');
+  const [activeTab, setActiveTab] = useState('pop');
+  const [showForm, setShowForm] = useState(false);
 
   useEffect(() => {
     fetchAllData();
@@ -56,7 +98,7 @@ export default function NetworkManagement() {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    const type = deviceType + 's';
+    const type = activeTab + 's';
     try {
       if (editing) {
         await API.put(`/api/network/${type}/${editing}`, formData);
@@ -66,306 +108,468 @@ export default function NetworkManagement() {
       fetchAllData();
       setEditing(null);
       setFormData({});
+      setShowForm(false);
     } catch (err) {
       console.error(err);
+      alert('Error: ' + (err.message || 'Failed to save'));
     }
   };
 
   const handleEdit = (item, type) => {
     setEditing(item._id);
-    setDeviceType(type.replace('s', ''));
+    setActiveTab(type.replace('s', ''));
     setFormData({ ...item });
+    setShowForm(true);
   };
 
   const handleDelete = async (id, type) => {
-    if (!confirm('Are you sure?')) return;
+    if (!window.confirm('Are you sure you want to delete this item?')) return;
     try {
       await API.delete(`/api/network/${type}/${id}`);
       fetchAllData();
     } catch (err) {
       console.error(err);
+      alert('Error deleting item');
     }
   };
 
-  const handleStatusUpdate = async (id, type, status) => {
-    try {
-      await API.put(`/api/network/${type}/${id}`, { status });
-      fetchAllData();
-    } catch (err) {
-      console.error(err);
+  const handleNewClick = () => {
+    setActiveTab('pop');
+    setFormData({});
+    setEditing(null);
+    setShowForm(true);
+  };
+
+  const getCurrentData = () => {
+    switch (activeTab) {
+      case 'pop': return pops;
+      case 'ap': return aps;
+      case 'station': return stations;
+      case 'backbone': return backbones;
+      default: return [];
     }
   };
 
-  if (loading) return <div style={{ padding: 20, textAlign: 'center' }}>Loading...</div>;
+  if (loading) return (
+    <div style={{ padding: 60, textAlign: 'center', marginTop: 56 }}>
+      <div style={{ fontSize: 18, color: '#2d7a3e' }}>Loading Network Devices...</div>
+    </div>
+  );
 
   return (
-    <div style={{ padding: 32, background: 'linear-gradient(90deg, #e8f5e9 0%, #f7fff7 100%)', minHeight: '100vh', marginTop: '56px' }}>
-      {/* Add Device Form */}
-      <div style={{ marginBottom: 30, padding: 20, background: '#eafff3', borderRadius: 12, boxShadow: '0 4px 12px rgba(67, 233, 123, 0.1)', border: '1.5px solid #43e97b', maxWidth: 800, marginLeft: 'auto', marginRight: 'auto' }}>
-        <h2 style={{ color: '#186a3b', marginBottom: 18, fontWeight: 700 }}>Add/Edit Device</h2>
-        
-        <div style={{ marginBottom: 20 }}>
-          <label style={{ display: 'block', marginBottom: 10, fontWeight: 600, color: '#2d7a3e' }}>Device Type</label>
-          <div style={{ display: 'flex', gap: 10 }}>
-            {['pop', 'ap', 'station', 'backbone'].map(type => (
-              <button
-                key={type}
-                type="button"
-                onClick={() => {
-                  setDeviceType(type);
-                  setFormData({});
-                  setEditing(null);
-                }}
-                style={{
-                  padding: '8px 16px',
-                  border: 'none',
-                  borderRadius: 6,
-                  background: deviceType === type ? '#43e97b' : '#f0f0f0',
-                  color: deviceType === type ? '#fff' : '#333',
-                  cursor: 'pointer',
-                  fontWeight: 600,
-                  textTransform: 'capitalize'
-                }}
-              >
-                {type}
-              </button>
-            ))}
-          </div>
-        </div>
-
-        <form onSubmit={handleSubmit}>
-          {deviceType === 'pop' && (
-            <div>
-              <label style={{ display: 'block', marginBottom: 5, fontWeight: 600, color: '#2d7a3e' }}>Name *</label>
-              <input
-                type="text"
-                placeholder="Enter POP name"
-                value={formData.name || ''}
-                onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-                required
-                style={inputStyle}
-              />
-              <label style={{ display: 'block', marginBottom: 5, fontWeight: 600, color: '#2d7a3e', marginTop: 10 }}>Brand/Model *</label>
-              <input
-                type="text"
-                placeholder="Enter brand/model"
-                value={formData.brand || ''}
-                onChange={(e) => setFormData({ ...formData, brand: e.target.value })}
-                required
-                style={inputStyle}
-              />
-              <label style={{ display: 'block', marginBottom: 5, fontWeight: 600, color: '#2d7a3e', marginTop: 10 }}>Address *</label>
-              <input
-                type="text"
-                placeholder="Enter address"
-                value={formData.address || ''}
-                onChange={(e) => setFormData({ ...formData, address: e.target.value })}
-                required
-                style={inputStyle}
-              />
-              <label style={{ display: 'block', marginBottom: 5, fontWeight: 600, color: '#2d7a3e', marginTop: 10 }}>MAC Address</label>
-              <input
-                type="text"
-                placeholder="Enter MAC address"
-                value={formData.macAddress || ''}
-                onChange={(e) => setFormData({ ...formData, macAddress: e.target.value })}
-                style={inputStyle}
-              />
-              <label style={{ display: 'block', marginBottom: 5, fontWeight: 600, color: '#2d7a3e', marginTop: 10 }}>Details</label>
-              <input
-                type="text"
-                placeholder="Enter additional details"
-                value={formData.details || ''}
-                onChange={(e) => setFormData({ ...formData, details: e.target.value })}
-                style={inputStyle}
-              />
-            </div>
-          )}
-
-          {deviceType === 'ap' && (
-            <div>
-              <label style={{ display: 'block', marginBottom: 5, fontWeight: 600, color: '#2d7a3e' }}>Name</label>
-              <input
-                type="text"
-                placeholder="Enter AP name"
-                value={formData.name || ''}
-                onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-                required
-                style={inputStyle}
-              />
-              <label style={{ display: 'block', marginBottom: 5, fontWeight: 600, color: '#2d7a3e', marginTop: 10 }}>MAC Address</label>
-              <input
-                type="text"
-                placeholder="Enter MAC address"
-                value={formData.macAddress || ''}
-                onChange={(e) => setFormData({ ...formData, macAddress: e.target.value })}
-                style={inputStyle}
-              />
-              <label style={{ display: 'block', marginBottom: 5, fontWeight: 600, color: '#2d7a3e', marginTop: 10 }}>Address</label>
-              <input
-                type="text"
-                placeholder="Enter address"
-                value={formData.address || ''}
-                onChange={(e) => setFormData({ ...formData, address: e.target.value })}
-                required
-                style={inputStyle}
-              />
-              <label style={{ display: 'block', marginBottom: 5, fontWeight: 600, color: '#2d7a3e', marginTop: 10 }}>POP</label>
-              <select
-                value={formData.pop || ''}
-                onChange={(e) => setFormData({ ...formData, pop: e.target.value })}
-                required
-                style={selectStyle}
-              >
-                <option value="">Select POP</option>
-                {pops.map(pop => <option key={pop._id} value={pop._id}>{pop.name}</option>)}
-              </select>
-              <label style={{ display: 'block', marginBottom: 5, fontWeight: 600, color: '#2d7a3e', marginTop: 10 }}>Brand/Model</label>
-              <input
-                type="text"
-                placeholder="Enter brand/model"
-                value={formData.brand || ''}
-                onChange={(e) => setFormData({ ...formData, brand: e.target.value })}
-                required
-                style={inputStyle}
-              />
-            </div>
-          )}
-
-          {deviceType === 'station' && (
-            <div>
-              <label style={{ display: 'block', marginBottom: 5, fontWeight: 600, color: '#2d7a3e' }}>Name</label>
-              <input
-                type="text"
-                placeholder="Enter station name"
-                value={formData.name || ''}
-                onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-                required
-                style={inputStyle}
-              />
-              <label style={{ display: 'block', marginBottom: 5, fontWeight: 600, color: '#2d7a3e', marginTop: 10 }}>IP Address</label>
-              <input
-                type="text"
-                placeholder="Enter IP address"
-                value={formData.address || ''}
-                onChange={(e) => setFormData({ ...formData, address: e.target.value })}
-                style={inputStyle}
-              />
-              <label style={{ display: 'block', marginBottom: 5, fontWeight: 600, color: '#2d7a3e', marginTop: 10 }}>MAC Address</label>
-              <input
-                type="text"
-                placeholder="Enter MAC address"
-                value={formData.macAddress || ''}
-                onChange={(e) => setFormData({ ...formData, macAddress: e.target.value })}
-                style={inputStyle}
-              />
-              <label style={{ display: 'block', marginBottom: 5, fontWeight: 600, color: '#2d7a3e', marginTop: 10 }}>Connected AP</label>
-              <select
-                value={formData.ap || ''}
-                onChange={(e) => setFormData({ ...formData, ap: e.target.value })}
-                required
-                style={selectStyle}
-              >
-                <option value="">Select AP</option>
-                {aps.map(ap => <option key={ap._id} value={ap._id}>{ap.name}</option>)}
-              </select>
-              <label style={{ display: 'block', marginBottom: 5, fontWeight: 600, color: '#2d7a3e', marginTop: 10 }}>Brand/Model</label>
-              <input
-                type="text"
-                placeholder="Enter brand/model"
-                value={formData.brand || ''}
-                onChange={(e) => setFormData({ ...formData, brand: e.target.value })}
-                required
-                style={inputStyle}
-              />
-            </div>
-          )}
-
-          {deviceType === 'backbone' && (
-            <div>
-              <label style={{ display: 'block', marginBottom: 5, fontWeight: 600, color: '#2d7a3e' }}>Type</label>
-              <select
-                value={formData.type || ''}
-                onChange={(e) => setFormData({ ...formData, type: e.target.value })}
-                required
-                style={selectStyle}
-              >
-                <option value="">Select Type</option>
-                <option value="wireless">Wireless</option>
-                <option value="fibre">Fibre</option>
-              </select>
-              <label style={{ display: 'block', marginBottom: 5, fontWeight: 600, color: '#2d7a3e', marginTop: 10 }}>Details</label>
-              <input
-                type="text"
-                placeholder="Enter details"
-                value={formData.details || ''}
-                onChange={(e) => setFormData({ ...formData, details: e.target.value })}
-                style={inputStyle}
-              />
-              <label style={{ display: 'block', marginBottom: 5, fontWeight: 600, color: '#2d7a3e', marginTop: 10 }}>Connected POPs</label>
-              <select
-                multiple
-                value={formData.pops || []}
-                onChange={(e) => setFormData({ ...formData, pops: Array.from(e.target.selectedOptions, option => option.value) })}
-                style={{ ...selectStyle, minHeight: 80 }}
-              >
-                {pops.map(pop => <option key={pop._id} value={pop._id}>{pop.name}</option>)}
-              </select>
-            </div>
-          )}
-
-          <div style={{ display: 'flex', gap: 10, justifyContent: 'flex-end', marginTop: 20 }}>
-            <button type="submit" style={{ padding: '12px 24px', background: 'linear-gradient(135deg, #43e97b 0%, #38f9d7 100%)', color: '#fff', border: 'none', borderRadius: 8, fontWeight: 600, cursor: 'pointer' }}>
-              {editing ? 'Update' : 'Add'} {deviceType.toUpperCase()}
-            </button>
-            {editing && (
-              <button type="button" onClick={() => { setEditing(null); setFormData({}); }} style={{ padding: '12px 24px', background: '#f5f5f5', color: '#666', border: 'none', borderRadius: 8, fontWeight: 600, cursor: 'pointer' }}>
-                Cancel
-              </button>
-            )}
-          </div>
-        </form>
+    <div style={{ padding: 24, background: 'linear-gradient(135deg, #e8f5e9 0%, #f0f7f0 100%)', minHeight: '100vh', marginTop: 56 }}>
+      
+      {/* Header Section */}
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 24 }}>
+        <h1 style={{ color: '#186a3b', margin: 0, fontSize: 28, fontWeight: 700 }}>
+          Network Management
+        </h1>
+        <button 
+          onClick={handleNewClick}
+          style={{
+            padding: '12px 28px',
+            background: 'linear-gradient(135deg, #43e97b 0%, #38f9d7 100%)',
+            color: '#fff',
+            border: 'none',
+            borderRadius: 8,
+            fontWeight: 700,
+            fontSize: 14,
+            cursor: 'pointer',
+            boxShadow: '0 4px 15px rgba(67, 233, 123, 0.4)',
+            transition: 'transform 0.2s'
+          }}
+        >
+          + Add New Device
+        </button>
       </div>
 
-      {/* Network Table View */}
-      <div style={{ background: '#eafff3', borderRadius: 12, boxShadow: '0 4px 12px rgba(67, 233, 123, 0.1)', border: '1.5px solid #43e97b', overflow: 'hidden' }}>
-        <div style={{ padding: 20, background: '#43e97b', color: '#fff' }}>
-          <h2 style={{ margin: 0 }}>Network Devices</h2>
-        </div>
+      {/* Tab Navigation */}
+      <div style={{ 
+        display: 'flex', 
+        gap: 4, 
+        marginBottom: 0,
+        background: '#e8f5e9',
+        borderRadius: '12px 12px 0 0',
+        padding: '8px 8px 0 8px'
+      }}>
+        {[
+          { key: 'pop', label: 'POPs', icon: '📡', count: pops.length },
+          { key: 'ap', label: 'Access Points', icon: '📶', count: aps.length },
+          { key: 'station', label: 'Stations', icon: '🖥️', count: stations.length },
+          { key: 'backbone', label: 'Backbones', icon: '🔗', count: backbones.length }
+        ].map(tab => (
+          <button
+            key={tab.key}
+            onClick={() => { setActiveTab(tab.key); setShowForm(false); setEditing(null); setFormData({}); }}
+            onMouseOver={(e) => e.currentTarget.style.transform = 'translateY(-2px)'}
+            onMouseOut={(e) => e.currentTarget.style.transform = 'translateY(0)'}
+            style={{
+              ...tabButtonStyle(activeTab === tab.key),
+              position: 'relative'
+            }}
+          >
+            {tab.icon} {tab.label} ({tab.count})
+          </button>
+        ))}
+      </div>
 
-        <div style={{ padding: 20 }}>
-          {/* POPs Table */}
-          <div style={{ marginBottom: 30 }}>
-            <h3 style={{ color: '#2d7a3e', marginBottom: 15 }}>POPs ({pops.length})</h3>
+      {/* Form Section - Only shows when adding/editing */}
+      {showForm && (
+        <div style={{ 
+          marginBottom: 24, 
+          padding: 24, 
+          background: '#fff', 
+          borderRadius: '0 12px 12px 12px', 
+          boxShadow: '0 8px 24px rgba(0,0,0,0.1)',
+          border: '2px solid #43e97b'
+        }}>
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 20 }}>
+            <h2 style={{ color: '#186a3b', margin: 0, fontSize: 20 }}>
+              {editing ? '✏️ Edit' : '➕ Add'} {activeTab.toUpperCase()}
+            </h2>
+            <button 
+              onClick={() => { setShowForm(false); setEditing(null); setFormData({}); }}
+              style={{ background: 'none', border: 'none', fontSize: 24, cursor: 'pointer', color: '#666' }}
+            >
+              ✕
+            </button>
+          </div>
+          
+          <form onSubmit={handleSubmit}>
+            {activeTab === 'pop' && (
+              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16 }}>
+                <div>
+                  <label style={{ display: 'block', marginBottom: 6, fontWeight: 600, color: '#2d7a3e' }}>Name *</label>
+                  <input
+                    type="text"
+                    placeholder="Enter POP name"
+                    value={formData.name || ''}
+                    onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+                    required
+                    style={inputStyle}
+                  />
+                </div>
+                <div>
+                  <label style={{ display: 'block', marginBottom: 6, fontWeight: 600, color: '#2d7a3e' }}>Brand/Model *</label>
+                  <input
+                    type="text"
+                    placeholder="Enter brand/model"
+                    value={formData.brand || ''}
+                    onChange={(e) => setFormData({ ...formData, brand: e.target.value })}
+                    required
+                    style={inputStyle}
+                  />
+                </div>
+                <div>
+                  <label style={{ display: 'block', marginBottom: 6, fontWeight: 600, color: '#2d7a3e' }}>Address *</label>
+                  <input
+                    type="text"
+                    placeholder="Enter address"
+                    value={formData.address || ''}
+                    onChange={(e) => setFormData({ ...formData, address: e.target.value })}
+                    required
+                    style={inputStyle}
+                  />
+                </div>
+                <div>
+                  <label style={{ display: 'block', marginBottom: 6, fontWeight: 600, color: '#2d7a3e' }}>MAC Address</label>
+                  <input
+                    type="text"
+                    placeholder="Enter MAC address"
+                    value={formData.macAddress || ''}
+                    onChange={(e) => setFormData({ ...formData, macAddress: e.target.value })}
+                    style={inputStyle}
+                  />
+                </div>
+                <div>
+                  <label style={{ display: 'block', marginBottom: 6, fontWeight: 600, color: '#2d7a3e' }}>Connected Backbone</label>
+                  <select
+                    value={formData.backbone || ''}
+                    onChange={(e) => setFormData({ ...formData, backbone: e.target.value })}
+                    style={selectStyle}
+                  >
+                    <option value="">Select Backbone</option>
+                    {backbones.map(bb => <option key={bb._id} value={bb._id}>{bb.type} - {bb.details}</option>)}
+                  </select>
+                </div>
+                <div>
+                  <label style={{ display: 'block', marginBottom: 6, fontWeight: 600, color: '#2d7a3e' }}>Details</label>
+                  <input
+                    type="text"
+                    placeholder="Enter additional details"
+                    value={formData.details || ''}
+                    onChange={(e) => setFormData({ ...formData, details: e.target.value })}
+                    style={inputStyle}
+                  />
+                </div>
+              </div>
+            )}
+
+            {activeTab === 'ap' && (
+              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16 }}>
+                <div>
+                  <label style={{ display: 'block', marginBottom: 6, fontWeight: 600, color: '#2d7a3e' }}>Name *</label>
+                  <input
+                    type="text"
+                    placeholder="Enter AP name"
+                    value={formData.name || ''}
+                    onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+                    required
+                    style={inputStyle}
+                  />
+                </div>
+                <div>
+                  <label style={{ display: 'block', marginBottom: 6, fontWeight: 600, color: '#2d7a3e' }}>Brand/Model *</label>
+                  <input
+                    type="text"
+                    placeholder="Enter brand/model"
+                    value={formData.brand || ''}
+                    onChange={(e) => setFormData({ ...formData, brand: e.target.value })}
+                    required
+                    style={inputStyle}
+                  />
+                </div>
+                <div>
+                  <label style={{ display: 'block', marginBottom: 6, fontWeight: 600, color: '#2d7a3e' }}>Address *</label>
+                  <input
+                    type="text"
+                    placeholder="Enter address"
+                    value={formData.address || ''}
+                    onChange={(e) => setFormData({ ...formData, address: e.target.value })}
+                    required
+                    style={inputStyle}
+                  />
+                </div>
+                <div>
+                  <label style={{ display: 'block', marginBottom: 6, fontWeight: 600, color: '#2d7a3e' }}>Connected POP *</label>
+                  <select
+                    value={formData.pop || ''}
+                    onChange={(e) => setFormData({ ...formData, pop: e.target.value })}
+                    required
+                    style={selectStyle}
+                  >
+                    <option value="">Select POP</option>
+                    {pops.map(pop => <option key={pop._id} value={pop._id}>{pop.name}</option>)}
+                  </select>
+                </div>
+                <div>
+                  <label style={{ display: 'block', marginBottom: 6, fontWeight: 600, color: '#2d7a3e' }}>MAC Address</label>
+                  <input
+                    type="text"
+                    placeholder="Enter MAC address"
+                    value={formData.macAddress || ''}
+                    onChange={(e) => setFormData({ ...formData, macAddress: e.target.value })}
+                    style={inputStyle}
+                  />
+                </div>
+                <div>
+                  <label style={{ display: 'block', marginBottom: 6, fontWeight: 600, color: '#2d7a3e' }}>Details</label>
+                  <input
+                    type="text"
+                    placeholder="Enter additional details"
+                    value={formData.details || ''}
+                    onChange={(e) => setFormData({ ...formData, details: e.target.value })}
+                    style={inputStyle}
+                  />
+                </div>
+              </div>
+            )}
+
+            {activeTab === 'station' && (
+              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16 }}>
+                <div>
+                  <label style={{ display: 'block', marginBottom: 6, fontWeight: 600, color: '#2d7a3e' }}>Name *</label>
+                  <input
+                    type="text"
+                    placeholder="Enter station name"
+                    value={formData.name || ''}
+                    onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+                    required
+                    style={inputStyle}
+                  />
+                </div>
+                <div>
+                  <label style={{ display: 'block', marginBottom: 6, fontWeight: 600, color: '#2d7a3e' }}>Brand/Model *</label>
+                  <input
+                    type="text"
+                    placeholder="Enter brand/model"
+                    value={formData.brand || ''}
+                    onChange={(e) => setFormData({ ...formData, brand: e.target.value })}
+                    required
+                    style={inputStyle}
+                  />
+                </div>
+                <div>
+                  <label style={{ display: 'block', marginBottom: 6, fontWeight: 600, color: '#2d7a3e' }}>IP Address</label>
+                  <input
+                    type="text"
+                    placeholder="Enter IP address"
+                    value={formData.address || ''}
+                    onChange={(e) => setFormData({ ...formData, address: e.target.value })}
+                    style={inputStyle}
+                  />
+                </div>
+                <div>
+                  <label style={{ display: 'block', marginBottom: 6, fontWeight: 600, color: '#2d7a3e' }}>Connected AP *</label>
+                  <select
+                    value={formData.ap || ''}
+                    onChange={(e) => setFormData({ ...formData, ap: e.target.value })}
+                    required
+                    style={selectStyle}
+                  >
+                    <option value="">Select AP</option>
+                    {aps.map(ap => <option key={ap._id} value={ap._id}>{ap.name}</option>)}
+                  </select>
+                </div>
+                <div>
+                  <label style={{ display: 'block', marginBottom: 6, fontWeight: 600, color: '#2d7a3e' }}>MAC Address</label>
+                  <input
+                    type="text"
+                    placeholder="Enter MAC address"
+                    value={formData.macAddress || ''}
+                    onChange={(e) => setFormData({ ...formData, macAddress: e.target.value })}
+                    style={inputStyle}
+                  />
+                </div>
+                <div>
+                  <label style={{ display: 'block', marginBottom: 6, fontWeight: 600, color: '#2d7a3e' }}>Details</label>
+                  <input
+                    type="text"
+                    placeholder="Enter additional details"
+                    value={formData.details || ''}
+                    onChange={(e) => setFormData({ ...formData, details: e.target.value })}
+                    style={inputStyle}
+                  />
+                </div>
+              </div>
+            )}
+
+            {activeTab === 'backbone' && (
+              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16 }}>
+                <div>
+                  <label style={{ display: 'block', marginBottom: 6, fontWeight: 600, color: '#2d7a3e' }}>Type *</label>
+                  <select
+                    value={formData.type || ''}
+                    onChange={(e) => setFormData({ ...formData, type: e.target.value })}
+                    required
+                    style={selectStyle}
+                  >
+                    <option value="">Select Type</option>
+                    <option value="wireless">Wireless</option>
+                    <option value="fibre">Fibre</option>
+                  </select>
+                </div>
+                <div>
+                  <label style={{ display: 'block', marginBottom: 6, fontWeight: 600, color: '#2d7a3e' }}>Details</label>
+                  <input
+                    type="text"
+                    placeholder="Enter details"
+                    value={formData.details || ''}
+                    onChange={(e) => setFormData({ ...formData, details: e.target.value })}
+                    style={inputStyle}
+                  />
+                </div>
+                <div>
+                  <label style={{ display: 'block', marginBottom: 6, fontWeight: 600, color: '#2d7a3e' }}>Connected POPs</label>
+                  <select
+                    multiple
+                    value={formData.pops || []}
+                    onChange={(e) => setFormData({ ...formData, pops: Array.from(e.target.selectedOptions, option => option.value) })}
+                    style={{ ...selectStyle, minHeight: 80 }}
+                  >
+                    {pops.map(pop => <option key={pop._id} value={pop._id}>{pop.name}</option>)}
+                  </select>
+                  <small style={{ color: '#666' }}>Hold Ctrl/Cmd to select multiple</small>
+                </div>
+              </div>
+            )}
+
+            <div style={{ display: 'flex', gap: 12, justifyContent: 'flex-end', marginTop: 24 }}>
+              <button 
+                type="button" 
+                onClick={() => { setShowForm(false); setEditing(null); setFormData({}); }}
+                style={{ padding: '12px 24px', background: '#f5f5f5', color: '#666', border: 'none', borderRadius: 8, fontWeight: 600, cursor: 'pointer' }}
+              >
+                Cancel
+              </button>
+              <button 
+                type="submit" 
+                style={actionButtonStyle('primary')}
+              >
+                {editing ? '💾 Update' : '➕ Add'} {activeTab.toUpperCase()}
+              </button>
+            </div>
+          </form>
+        </div>
+      )}
+
+      {/* Table Section */}
+      <div style={{ 
+        background: '#fff', 
+        borderRadius: activeTab === 'backbone' ? 12 : '0 0 12px 12px', 
+        boxShadow: '0 4px 20px rgba(0,0,0,0.08)',
+        overflow: 'hidden'
+      }}>
+        {/* POPs Table */}
+        {activeTab === 'pop' && (
+          <div style={{ padding: 20 }}>
+            <h3 style={{ color: '#186a3b', marginBottom: 16, fontSize: 18, display: 'flex', alignItems: 'center', gap: 8 }}>
+              📡 POPs ({pops.length})
+            </h3>
             {pops.length === 0 ? (
-              <p style={{ color: '#666' }}>No POPs found. Click the buttons above to add one.</p>
+              <div style={{ padding: 40, textAlign: 'center', background: '#f9f9f9', borderRadius: 8 }}>
+                <p style={{ color: '#666', marginBottom: 16 }}>No POPs found. Click "Add New Device" to create one.</p>
+              </div>
             ) : (
-              <table style={{ width: '100%', borderCollapse: 'collapse', background: '#fff', borderRadius: 8, overflow: 'hidden' }}>
+              <table style={{ width: '100%', borderCollapse: 'collapse' }}>
                 <thead>
-                  <tr style={{ background: '#43e97b', color: '#fff' }}>
-                    <th style={{ padding: 14, textAlign: 'left', borderBottom: '2px solid #38f9d7' }}>Name</th>
-                    <th style={{ padding: 14, textAlign: 'left', borderBottom: '2px solid #38f9d7' }}>Brand</th>
-                    <th style={{ padding: 14, textAlign: 'left', borderBottom: '2px solid #38f9d7' }}>Address</th>
-                    <th style={{ padding: 14, textAlign: 'left', borderBottom: '2px solid #38f9d7' }}>MAC Address</th>
-                    <th style={{ padding: 14, textAlign: 'left', borderBottom: '2px solid #38f9d7' }}>Status</th>
-                    <th style={{ padding: 14, textAlign: 'center', borderBottom: '2px solid #38f9d7' }}>Actions</th>
+                  <tr style={{ background: 'linear-gradient(90deg, #43e97b 0%, #38f9d7 100%)' }}>
+                    <th style={{ padding: 14, textAlign: 'left', color: '#fff', fontWeight: 600 }}>Name</th>
+                    <th style={{ padding: 14, textAlign: 'left', color: '#fff', fontWeight: 600 }}>Brand</th>
+                    <th style={{ padding: 14, textAlign: 'left', color: '#fff', fontWeight: 600 }}>Address</th>
+                    <th style={{ padding: 14, textAlign: 'left', color: '#fff', fontWeight: 600 }}>MAC Address</th>
+                    <th style={{ padding: 14, textAlign: 'left', color: '#fff', fontWeight: 600 }}>Backbone</th>
+                    <th style={{ padding: 14, textAlign: 'left', color: '#fff', fontWeight: 600 }}>Status</th>
+                    <th style={{ padding: 14, textAlign: 'center', color: '#fff', fontWeight: 600 }}>Actions</th>
                   </tr>
                 </thead>
                 <tbody>
-                  {pops.map(pop => (
-                    <tr key={pop._id} style={{ borderBottom: '1px solid #e0e0e0' }}>
-                      <td style={{ padding: 12, fontWeight: 600 }}>{pop.name}</td>
-                      <td style={{ padding: 12 }}>{pop.brand || 'N/A'}</td>
-                      <td style={{ padding: 12 }}>{pop.address}</td>
-                      <td style={{ padding: 12, fontFamily: 'monospace' }}>{pop.macAddress || 'N/A'}</td>
-                      <td style={{ padding: 12 }}>
-                        <span style={{ padding: '4px 10px', borderRadius: 12, fontSize: 12, fontWeight: 600, background: pop.status === 'active' ? '#4caf50' : '#f44336', color: '#fff' }}>
+                  {pops.map((pop, idx) => (
+                    <tr key={pop._id} style={{ background: idx % 2 === 0 ? '#f9fcf9' : '#fff', transition: 'background 0.2s' }}>
+                      <td style={{ padding: 14, fontWeight: 600, color: '#2d7a3e' }}>{pop.name}</td>
+                      <td style={{ padding: 14 }}>{pop.brand || '-'}</td>
+                      <td style={{ padding: 14 }}>{pop.address}</td>
+                      <td style={{ padding: 14, fontFamily: 'monospace', fontSize: 13 }}>{pop.macAddress || '-'}</td>
+                      <td style={{ padding: 14 }}>{pop.backbone?.details || pop.backbone?.type || '-'}</td>
+                      <td style={{ padding: 14 }}>
+                        <span style={{ 
+                          padding: '4px 12px', 
+                          borderRadius: 20, 
+                          fontSize: 12, 
+                          fontWeight: 600, 
+                          background: pop.status === 'active' ? '#4caf50' : '#f44336', 
+                          color: '#fff' 
+                        }}>
                           {pop.status?.toUpperCase() || 'ACTIVE'}
                         </span>
                       </td>
-                      <td style={{ padding: 12, textAlign: 'center' }}>
-                        <button onClick={() => handleEdit(pop, 'pop')} style={{ marginRight: 6, padding: '6px 12px', background: '#2196f3', color: '#fff', border: 'none', borderRadius: 4, cursor: 'pointer', fontSize: 12 }}>Edit</button>
-                        <button onClick={() => handleDelete(pop._id, 'pops')} style={{ padding: '6px 12px', background: '#f44336', color: '#fff', border: 'none', borderRadius: 4, cursor: 'pointer', fontSize: 12 }}>Delete</button>
+                      <td style={{ padding: 14, textAlign: 'center' }}>
+                        <button 
+                          onClick={() => handleEdit(pop, 'pops')}
+                          onMouseOver={(e) => e.currentTarget.style.transform = 'scale(1.05)'}
+                          onMouseOut={(e) => e.currentTarget.style.transform = 'scale(1)'}
+                          style={actionButtonStyle('edit')}
+                        >
+                          ✏️ Edit
+                        </button>
+                        <button 
+                          onClick={() => handleDelete(pop._id, 'pops')}
+                          onMouseOver={(e) => e.currentTarget.style.transform = 'scale(1.05)'}
+                          onMouseOut={(e) => e.currentTarget.style.transform = 'scale(1)'}
+                          style={{ ...actionButtonStyle('delete'), marginLeft: 8 }}
+                        >
+                          🗑️ Delete
+                        </button>
                       </td>
                     </tr>
                   ))}
@@ -373,41 +577,68 @@ export default function NetworkManagement() {
               </table>
             )}
           </div>
+        )}
 
-          {/* APs Table */}
-          <div style={{ marginBottom: 30 }}>
-            <h3 style={{ color: '#2d7a3e', marginBottom: 15 }}>Access Points ({aps.length})</h3>
+        {/* APs Table */}
+        {activeTab === 'ap' && (
+          <div style={{ padding: 20 }}>
+            <h3 style={{ color: '#186a3b', marginBottom: 16, fontSize: 18, display: 'flex', alignItems: 'center', gap: 8 }}>
+              📶 Access Points ({aps.length})
+            </h3>
             {aps.length === 0 ? (
-              <p style={{ color: '#666' }}>No APs found. Click the buttons above to add one.</p>
+              <div style={{ padding: 40, textAlign: 'center', background: '#f9f9f9', borderRadius: 8 }}>
+                <p style={{ color: '#666', marginBottom: 16 }}>No Access Points found. Click "Add New Device" to create one.</p>
+              </div>
             ) : (
-              <table style={{ width: '100%', borderCollapse: 'collapse', background: '#fff', borderRadius: 8, overflow: 'hidden' }}>
+              <table style={{ width: '100%', borderCollapse: 'collapse' }}>
                 <thead>
-                  <tr style={{ background: '#43e97b', color: '#fff' }}>
-                    <th style={{ padding: 14, textAlign: 'left', borderBottom: '2px solid #38f9d7' }}>Name</th>
-                    <th style={{ padding: 14, textAlign: 'left', borderBottom: '2px solid #38f9d7' }}>Brand</th>
-                    <th style={{ padding: 14, textAlign: 'left', borderBottom: '2px solid #38f9d7' }}>Address</th>
-                    <th style={{ padding: 14, textAlign: 'left', borderBottom: '2px solid #38f9d7' }}>MAC Address</th>
-                    <th style={{ padding: 14, textAlign: 'left', borderBottom: '2px solid #38f9d7' }}>POP</th>
-                    <th style={{ padding: 14, textAlign: 'left', borderBottom: '2px solid #38f9d7' }}>Status</th>
-                    <th style={{ padding: 14, textAlign: 'center', borderBottom: '2px solid #38f9d7' }}>Actions</th>
+                  <tr style={{ background: 'linear-gradient(90deg, #43e97b 0%, #38f9d7 100%)' }}>
+                    <th style={{ padding: 14, textAlign: 'left', color: '#fff', fontWeight: 600 }}>Name</th>
+                    <th style={{ padding: 14, textAlign: 'left', color: '#fff', fontWeight: 600 }}>Brand</th>
+                    <th style={{ padding: 14, textAlign: 'left', color: '#fff', fontWeight: 600 }}>Address</th>
+                    <th style={{ padding: 14, textAlign: 'left', color: '#fff', fontWeight: 600 }}>MAC Address</th>
+                    <th style={{ padding: 14, textAlign: 'left', color: '#fff', fontWeight: 600 }}>Connected POP</th>
+                    <th style={{ padding: 14, textAlign: 'left', color: '#fff', fontWeight: 600 }}>Status</th>
+                    <th style={{ padding: 14, textAlign: 'center', color: '#fff', fontWeight: 600 }}>Actions</th>
                   </tr>
                 </thead>
                 <tbody>
-                  {aps.map(ap => (
-                    <tr key={ap._id} style={{ borderBottom: '1px solid #e0e0e0' }}>
-                      <td style={{ padding: 12, fontWeight: 600 }}>{ap.name}</td>
-                      <td style={{ padding: 12 }}>{ap.brand || 'N/A'}</td>
-                      <td style={{ padding: 12 }}>{ap.address}</td>
-                      <td style={{ padding: 12, fontFamily: 'monospace' }}>{ap.macAddress || 'N/A'}</td>
-                      <td style={{ padding: 12 }}>{ap.pop?.name || 'N/A'}</td>
-                      <td style={{ padding: 12 }}>
-                        <span style={{ padding: '4px 10px', borderRadius: 12, fontSize: 12, fontWeight: 600, background: ap.status === 'active' ? '#4caf50' : '#f44336', color: '#fff' }}>
+                  {aps.map((ap, idx) => (
+                    <tr key={ap._id} style={{ background: idx % 2 === 0 ? '#f9fcf9' : '#fff', transition: 'background 0.2s' }}>
+                      <td style={{ padding: 14, fontWeight: 600, color: '#2d7a3e' }}>{ap.name}</td>
+                      <td style={{ padding: 14 }}>{ap.brand || '-'}</td>
+                      <td style={{ padding: 14 }}>{ap.address}</td>
+                      <td style={{ padding: 14, fontFamily: 'monospace', fontSize: 13 }}>{ap.macAddress || '-'}</td>
+                      <td style={{ padding: 14 }}>{ap.pop?.name || '-'}</td>
+                      <td style={{ padding: 14 }}>
+                        <span style={{ 
+                          padding: '4px 12px', 
+                          borderRadius: 20, 
+                          fontSize: 12, 
+                          fontWeight: 600, 
+                          background: ap.status === 'active' ? '#4caf50' : '#f44336', 
+                          color: '#fff' 
+                        }}>
                           {ap.status?.toUpperCase() || 'ACTIVE'}
                         </span>
                       </td>
-                      <td style={{ padding: 12, textAlign: 'center' }}>
-                        <button onClick={() => handleEdit(ap, 'ap')} style={{ marginRight: 6, padding: '6px 12px', background: '#2196f3', color: '#fff', border: 'none', borderRadius: 4, cursor: 'pointer', fontSize: 12 }}>Edit</button>
-                        <button onClick={() => handleDelete(ap._id, 'aps')} style={{ padding: '6px 12px', background: '#f44336', color: '#fff', border: 'none', borderRadius: 4, cursor: 'pointer', fontSize: 12 }}>Delete</button>
+                      <td style={{ padding: 14, textAlign: 'center' }}>
+                        <button 
+                          onClick={() => handleEdit(ap, 'aps')}
+                          onMouseOver={(e) => e.currentTarget.style.transform = 'scale(1.05)'}
+                          onMouseOut={(e) => e.currentTarget.style.transform = 'scale(1)'}
+                          style={actionButtonStyle('edit')}
+                        >
+                          ✏️ Edit
+                        </button>
+                        <button 
+                          onClick={() => handleDelete(ap._id, 'aps')}
+                          onMouseOver={(e) => e.currentTarget.style.transform = 'scale(1.05)'}
+                          onMouseOut={(e) => e.currentTarget.style.transform = 'scale(1)'}
+                          style={{ ...actionButtonStyle('delete'), marginLeft: 8 }}
+                        >
+                          🗑️ Delete
+                        </button>
                       </td>
                     </tr>
                   ))}
@@ -415,41 +646,68 @@ export default function NetworkManagement() {
               </table>
             )}
           </div>
+        )}
 
-          {/* Stations Table */}
-          <div style={{ marginBottom: 30 }}>
-            <h3 style={{ color: '#2d7a3e', marginBottom: 15 }}>Stations ({stations.length})</h3>
+        {/* Stations Table */}
+        {activeTab === 'station' && (
+          <div style={{ padding: 20 }}>
+            <h3 style={{ color: '#186a3b', marginBottom: 16, fontSize: 18, display: 'flex', alignItems: 'center', gap: 8 }}>
+              🖥️ Stations ({stations.length})
+            </h3>
             {stations.length === 0 ? (
-              <p style={{ color: '#666' }}>No stations found. Click the buttons above to add one.</p>
+              <div style={{ padding: 40, textAlign: 'center', background: '#f9f9f9', borderRadius: 8 }}>
+                <p style={{ color: '#666', marginBottom: 16 }}>No Stations found. Click "Add New Device" to create one.</p>
+              </div>
             ) : (
-              <table style={{ width: '100%', borderCollapse: 'collapse', background: '#fff', borderRadius: 8, overflow: 'hidden' }}>
+              <table style={{ width: '100%', borderCollapse: 'collapse' }}>
                 <thead>
-                  <tr style={{ background: '#43e97b', color: '#fff' }}>
-                    <th style={{ padding: 14, textAlign: 'left', borderBottom: '2px solid #38f9d7' }}>Name</th>
-                    <th style={{ padding: 14, textAlign: 'left', borderBottom: '2px solid #38f9d7' }}>Brand</th>
-                    <th style={{ padding: 14, textAlign: 'left', borderBottom: '2px solid #38f9d7' }}>IP Address</th>
-                    <th style={{ padding: 14, textAlign: 'left', borderBottom: '2px solid #38f9d7' }}>MAC Address</th>
-                    <th style={{ padding: 14, textAlign: 'left', borderBottom: '2px solid #38f9d7' }}>Connected AP</th>
-                    <th style={{ padding: 14, textAlign: 'left', borderBottom: '2px solid #38f9d7' }}>Status</th>
-                    <th style={{ padding: 14, textAlign: 'center', borderBottom: '2px solid #38f9d7' }}>Actions</th>
+                  <tr style={{ background: 'linear-gradient(90deg, #43e97b 0%, #38f9d7 100%)' }}>
+                    <th style={{ padding: 14, textAlign: 'left', color: '#fff', fontWeight: 600 }}>Name</th>
+                    <th style={{ padding: 14, textAlign: 'left', color: '#fff', fontWeight: 600 }}>Brand</th>
+                    <th style={{ padding: 14, textAlign: 'left', color: '#fff', fontWeight: 600 }}>IP Address</th>
+                    <th style={{ padding: 14, textAlign: 'left', color: '#fff', fontWeight: 600 }}>MAC Address</th>
+                    <th style={{ padding: 14, textAlign: 'left', color: '#fff', fontWeight: 600 }}>Connected AP</th>
+                    <th style={{ padding: 14, textAlign: 'left', color: '#fff', fontWeight: 600 }}>Status</th>
+                    <th style={{ padding: 14, textAlign: 'center', color: '#fff', fontWeight: 600 }}>Actions</th>
                   </tr>
                 </thead>
                 <tbody>
-                  {stations.map(station => (
-                    <tr key={station._id} style={{ borderBottom: '1px solid #e0e0e0' }}>
-                      <td style={{ padding: 12, fontWeight: 600 }}>{station.name}</td>
-                      <td style={{ padding: 12 }}>{station.brand || 'N/A'}</td>
-                      <td style={{ padding: 12, fontFamily: 'monospace' }}>{station.address || 'N/A'}</td>
-                      <td style={{ padding: 12, fontFamily: 'monospace' }}>{station.macAddress || 'N/A'}</td>
-                      <td style={{ padding: 12 }}>{station.ap?.name || 'N/A'}</td>
-                      <td style={{ padding: 12 }}>
-                        <span style={{ padding: '4px 10px', borderRadius: 12, fontSize: 12, fontWeight: 600, background: station.status === 'active' ? '#4caf50' : '#f44336', color: '#fff' }}>
+                  {stations.map((station, idx) => (
+                    <tr key={station._id} style={{ background: idx % 2 === 0 ? '#f9fcf9' : '#fff', transition: 'background 0.2s' }}>
+                      <td style={{ padding: 14, fontWeight: 600, color: '#2d7a3e' }}>{station.name}</td>
+                      <td style={{ padding: 14 }}>{station.brand || '-'}</td>
+                      <td style={{ padding: 14, fontFamily: 'monospace', fontSize: 13 }}>{station.address || '-'}</td>
+                      <td style={{ padding: 14, fontFamily: 'monospace', fontSize: 13 }}>{station.macAddress || '-'}</td>
+                      <td style={{ padding: 14 }}>{station.ap?.name || '-'}</td>
+                      <td style={{ padding: 14 }}>
+                        <span style={{ 
+                          padding: '4px 12px', 
+                          borderRadius: 20, 
+                          fontSize: 12, 
+                          fontWeight: 600, 
+                          background: station.status === 'active' ? '#4caf50' : '#f44336', 
+                          color: '#fff' 
+                        }}>
                           {station.status?.toUpperCase() || 'ACTIVE'}
                         </span>
                       </td>
-                      <td style={{ padding: 12, textAlign: 'center' }}>
-                        <button onClick={() => handleEdit(station, 'station')} style={{ marginRight: 6, padding: '6px 12px', background: '#2196f3', color: '#fff', border: 'none', borderRadius: 4, cursor: 'pointer', fontSize: 12 }}>Edit</button>
-                        <button onClick={() => handleDelete(station._id, 'stations')} style={{ padding: '6px 12px', background: '#f44336', color: '#fff', border: 'none', borderRadius: 4, cursor: 'pointer', fontSize: 12 }}>Delete</button>
+                      <td style={{ padding: 14, textAlign: 'center' }}>
+                        <button 
+                          onClick={() => handleEdit(station, 'stations')}
+                          onMouseOver={(e) => e.currentTarget.style.transform = 'scale(1.05)'}
+                          onMouseOut={(e) => e.currentTarget.style.transform = 'scale(1)'}
+                          style={actionButtonStyle('edit')}
+                        >
+                          ✏️ Edit
+                        </button>
+                        <button 
+                          onClick={() => handleDelete(station._id, 'stations')}
+                          onMouseOver={(e) => e.currentTarget.style.transform = 'scale(1.05)'}
+                          onMouseOut={(e) => e.currentTarget.style.transform = 'scale(1)'}
+                          style={{ ...actionButtonStyle('delete'), marginLeft: 8 }}
+                        >
+                          🗑️ Delete
+                        </button>
                       </td>
                     </tr>
                   ))}
@@ -457,35 +715,66 @@ export default function NetworkManagement() {
               </table>
             )}
           </div>
+        )}
 
-          {/* Backbones Table */}
-          <div>
-            <h3 style={{ color: '#2d7a3e', marginBottom: 15 }}>Backbones ({backbones.length})</h3>
+        {/* Backbones Table */}
+        {activeTab === 'backbone' && (
+          <div style={{ padding: 20 }}>
+            <h3 style={{ color: '#186a3b', marginBottom: 16, fontSize: 18, display: 'flex', alignItems: 'center', gap: 8 }}>
+              🔗 Backbones ({backbones.length})
+            </h3>
             {backbones.length === 0 ? (
-              <p style={{ color: '#666' }}>No backbones found. Click the buttons above to add one.</p>
+              <div style={{ padding: 40, textAlign: 'center', background: '#f9f9f9', borderRadius: 8 }}>
+                <p style={{ color: '#666', marginBottom: 16 }}>No Backbones found. Click "Add New Device" to create one.</p>
+              </div>
             ) : (
-              <table style={{ width: '100%', borderCollapse: 'collapse', background: '#fff', borderRadius: 8, overflow: 'hidden' }}>
+              <table style={{ width: '100%', borderCollapse: 'collapse' }}>
                 <thead>
-                  <tr style={{ background: '#43e97b', color: '#fff' }}>
-                    <th style={{ padding: 14, textAlign: 'left', borderBottom: '2px solid #38f9d7' }}>Type</th>
-                    <th style={{ padding: 14, textAlign: 'left', borderBottom: '2px solid #38f9d7' }}>Details</th>
-                    <th style={{ padding: 14, textAlign: 'left', borderBottom: '2px solid #38f9d7' }}>Status</th>
-                    <th style={{ padding: 14, textAlign: 'center', borderBottom: '2px solid #38f9d7' }}>Actions</th>
+                  <tr style={{ background: 'linear-gradient(90deg, #43e97b 0%, #38f9d7 100%)' }}>
+                    <th style={{ padding: 14, textAlign: 'left', color: '#fff', fontWeight: 600 }}>Type</th>
+                    <th style={{ padding: 14, textAlign: 'left', color: '#fff', fontWeight: 600 }}>Details</th>
+                    <th style={{ padding: 14, textAlign: 'left', color: '#fff', fontWeight: 600 }}>Connected POPs</th>
+                    <th style={{ padding: 14, textAlign: 'left', color: '#fff', fontWeight: 600 }}>Status</th>
+                    <th style={{ padding: 14, textAlign: 'center', color: '#fff', fontWeight: 600 }}>Actions</th>
                   </tr>
                 </thead>
                 <tbody>
-                  {backbones.map(bb => (
-                    <tr key={bb._id} style={{ borderBottom: '1px solid #e0e0e0' }}>
-                      <td style={{ padding: 12, fontWeight: 600, textTransform: 'capitalize' }}>{bb.type || 'N/A'}</td>
-                      <td style={{ padding: 12 }}>{bb.details || 'N/A'}</td>
-                      <td style={{ padding: 12 }}>
-                        <span style={{ padding: '4px 10px', borderRadius: 12, fontSize: 12, fontWeight: 600, background: bb.status === 'active' ? '#4caf50' : '#f44336', color: '#fff' }}>
+                  {backbones.map((bb, idx) => (
+                    <tr key={bb._id} style={{ background: idx % 2 === 0 ? '#f9fcf9' : '#fff', transition: 'background 0.2s' }}>
+                      <td style={{ padding: 14, fontWeight: 600, color: '#2d7a3e', textTransform: 'capitalize' }}>{bb.type || '-'}</td>
+                      <td style={{ padding: 14 }}>{bb.details || '-'}</td>
+                      <td style={{ padding: 14 }}>
+                        {bb.pops?.map(p => p.name).join(', ') || '-'}
+                      </td>
+                      <td style={{ padding: 14 }}>
+                        <span style={{ 
+                          padding: '4px 12px', 
+                          borderRadius: 20, 
+                          fontSize: 12, 
+                          fontWeight: 600, 
+                          background: bb.status === 'active' ? '#4caf50' : '#f44336', 
+                          color: '#fff' 
+                        }}>
                           {bb.status?.toUpperCase() || 'ACTIVE'}
                         </span>
                       </td>
-                      <td style={{ padding: 12, textAlign: 'center' }}>
-                        <button onClick={() => handleEdit(bb, 'backbone')} style={{ marginRight: 6, padding: '6px 12px', background: '#2196f3', color: '#fff', border: 'none', borderRadius: 4, cursor: 'pointer', fontSize: 12 }}>Edit</button>
-                        <button onClick={() => handleDelete(bb._id, 'backbones')} style={{ padding: '6px 12px', background: '#f44336', color: '#fff', border: 'none', borderRadius: 4, cursor: 'pointer', fontSize: 12 }}>Delete</button>
+                      <td style={{ padding: 14, textAlign: 'center' }}>
+                        <button 
+                          onClick={() => handleEdit(bb, 'backbones')}
+                          onMouseOver={(e) => e.currentTarget.style.transform = 'scale(1.05)'}
+                          onMouseOut={(e) => e.currentTarget.style.transform = 'scale(1)'}
+                          style={actionButtonStyle('edit')}
+                        >
+                          ✏️ Edit
+                        </button>
+                        <button 
+                          onClick={() => handleDelete(bb._id, 'backbones')}
+                          onMouseOver={(e) => e.currentTarget.style.transform = 'scale(1.05)'}
+                          onMouseOut={(e) => e.currentTarget.style.transform = 'scale(1)'}
+                          style={{ ...actionButtonStyle('delete'), marginLeft: 8 }}
+                        >
+                          🗑️ Delete
+                        </button>
                       </td>
                     </tr>
                   ))}
@@ -493,7 +782,7 @@ export default function NetworkManagement() {
               </table>
             )}
           </div>
-        </div>
+        )}
       </div>
     </div>
   );

@@ -25,6 +25,10 @@ export default function Inventory() {
   const [filterDeviceType, setFilterDeviceType] = useState('');
   const [filterCategory, setFilterCategory] = useState('');
   const [filterBrand, setFilterBrand] = useState('');
+  const [showBulkUpload, setShowBulkUpload] = useState(false);
+  const [bulkData, setBulkData] = useState('');
+  const [bulkCategory, setBulkCategory] = useState('in stock');
+  const [bulkLocation, setBulkLocation] = useState('');
 
   useEffect(() => {
     fetchInventory();
@@ -37,7 +41,7 @@ export default function Inventory() {
       if (filterDeviceType) params.append('deviceType', filterDeviceType);
       if (filterCategory) params.append('category', filterCategory);
       if (filterBrand) params.append('brand', filterBrand);
-      const data = await API.get(`/inventory?${params}`);
+      const data = await API.get(`/api/inventory?${params}`);
       setInventory(data.inventory || []);
     } catch (err) {
       console.error(err);
@@ -46,7 +50,7 @@ export default function Inventory() {
 
   const fetchCounts = async () => {
     try {
-      const data = await API.get('/inventory/counts');
+      const data = await API.get('/api/inventory/counts');
       setCounts(data.counts || []);
     } catch (err) {
       console.error(err);
@@ -58,13 +62,13 @@ export default function Inventory() {
     setMsg('');
     try {
       const payload = { deviceType, brand, model, serialNumber, category, location, notes };
-      await API.post('/inventory', payload);
+      await API.post('/api/inventory', payload);
       setMsg('Item added');
       resetForm();
       fetchInventory();
       fetchCounts();
     } catch (err) {
-      setMsg('Failed to add item');
+      setMsg('Failed to add item: ' + (err.message || 'Unknown error'));
     }
   };
 
@@ -86,12 +90,54 @@ export default function Inventory() {
   const handleDelete = async (id) => {
     if (!window.confirm('Are you sure you want to delete this item?')) return;
     try {
-      await API.delete(`/inventory/${id}`);
+      await API.delete(`/api/inventory/${id}`);
       setMsg('Item deleted');
       fetchInventory();
       fetchCounts();
     } catch (err) {
       setMsg('Failed to delete item');
+    }
+  };
+
+  const handleBulkUpload = async (e) => {
+    e.preventDefault();
+    setMsg('');
+    try {
+      // Parse the bulk data - expects format: brand,model,serialNumber (one per line)
+      const lines = bulkData.trim().split('\n').filter(line => line.trim());
+      const items = lines.map(line => {
+        const parts = line.split(',').map(p => p.trim());
+        return {
+          deviceType: 'Accessory',
+          brand: parts[0] || '',
+          model: parts[1] || '',
+          serialNumber: parts[2] || '',
+          category: bulkCategory,
+          location: bulkLocation,
+          notes: 'Bulk uploaded'
+        };
+      });
+
+      // Send each item
+      let successCount = 0;
+      for (const item of items) {
+        if (item.brand && item.serialNumber) {
+          try {
+            await API.post('/api/inventory', item);
+            successCount++;
+          } catch (err) {
+            console.error('Failed to add:', item);
+          }
+        }
+      }
+
+      setMsg(`Successfully added ${successCount} items`);
+      setBulkData('');
+      setShowBulkUpload(false);
+      fetchInventory();
+      fetchCounts();
+    } catch (err) {
+      setMsg('Failed to upload items');
     }
   };
 
@@ -140,6 +186,9 @@ export default function Inventory() {
             <option value="Backbone">Backbone</option>
             <option value="POP">POP</option>
             <option value="Station">Station</option>
+            <option value="Switch">Switch</option>
+            <option value="Router POE">Router POE</option>
+            <option value="Accessory">Accessory</option>
           </select>
           <select value={filterCategory} onChange={e => setFilterCategory(e.target.value)} style={inputStyle}>
             <option value="">All Categories</option>
@@ -155,7 +204,72 @@ export default function Inventory() {
             style={inputStyle}
           />
           <button onClick={fetchInventory} style={primaryBtn}>Apply Filters</button>
+          <button 
+            onClick={() => setShowBulkUpload(!showBulkUpload)} 
+            style={{ ...primaryBtn, background: showBulkUpload ? '#ff9800' : '#2196f3' }}
+          >
+            {showBulkUpload ? '✕ Cancel' : '📤 Bulk Upload'}
+          </button>
         </div>
+
+        {/* Bulk Upload Form */}
+        {showBulkUpload && (
+          <form onSubmit={handleBulkUpload} style={{
+            display: 'flex',
+            flexDirection: 'column',
+            gap: 12,
+            marginBottom: 18,
+            background: 'linear-gradient(135deg, #e3f2fd 0%, #bbdefb 100%)',
+            padding: 20,
+            borderRadius: 16,
+            boxShadow: '0 4px 16px rgba(33, 150, 243, 0.18)',
+          }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+              <h3 style={{ margin: 0, color: '#1565c0' }}>📤 Bulk Upload Accessories</h3>
+            </div>
+            <p style={{ margin: 0, color: '#666', fontSize: 13 }}>
+              Format: Enter one item per line as: <strong>brand,model,serialNumber</strong>
+            </p>
+            <textarea
+              value={bulkData}
+              onChange={(e) => setBulkData(e.target.value)}
+              placeholder="Example:
+Cisco,Cat6 Cable,SN001
+Cisco,Cat6 Cable,SN002
+TP-Link,Patch Panel,PP001"
+              style={{
+                padding: 12,
+                borderRadius: 8,
+                border: '2px solid #2196f3',
+                fontSize: 13,
+                fontFamily: 'monospace',
+                minHeight: 120,
+                resize: 'vertical'
+              }}
+            />
+            <div style={{ display: 'flex', gap: 12, flexWrap: 'wrap' }}>
+              <select
+                value={bulkCategory}
+                onChange={(e) => setBulkCategory(e.target.value)}
+                style={{ ...inputStyle, minWidth: 150, background: '#fff', border: '1.5px solid #2196f3' }}
+              >
+                <option value="in stock">In Stock</option>
+                <option value="deployed">Deployed</option>
+                <option value="spoiled">Spoiled</option>
+              </select>
+              <input
+                type="text"
+                value={bulkLocation}
+                onChange={(e) => setBulkLocation(e.target.value)}
+                placeholder="Location"
+                style={{ ...inputStyle, minWidth: 150, background: '#fff', border: '1.5px solid #2196f3' }}
+              />
+              <button type="submit" style={{ ...primaryBtn, background: 'linear-gradient(90deg, #2196f3 0%, #64b5f6 100%)', color: '#fff', fontWeight: 700 }}>
+                Upload {bulkData ? bulkData.trim().split('\n').filter(l => l.trim()).length : 0} Items
+              </button>
+            </div>
+          </form>
+        )}
 
         {/* Add Form */}
         <form onSubmit={addItem} style={{
@@ -174,6 +288,9 @@ export default function Inventory() {
             <option value="Backbone">Backbone</option>
             <option value="POP">POP</option>
             <option value="Station">Station</option>
+            <option value="Switch">Switch</option>
+            <option value="Router POE">Router POE</option>
+            <option value="Accessory">Accessory</option>
           </select>
           <input value={brand} onChange={e => setBrand(e.target.value)} placeholder="Brand" required style={{ ...inputStyle, minWidth: 120, flex: 1, background: '#eafff3', border: '1.5px solid #43e97b', color: '#186a3b', fontWeight: 600 }} />
           <input value={model} onChange={e => setModel(e.target.value)} placeholder="Model" style={{ ...inputStyle, minWidth: 120, flex: 1, background: '#eafff3', border: '1.5px solid #43e97b', color: '#186a3b', fontWeight: 600 }} />

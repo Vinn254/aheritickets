@@ -73,7 +73,7 @@ export default function ManageInstallationRequests() {
   const fetchRequests = async () => {
     try {
       setLoading(true);
-      const data = await API.get('/installation-requests');
+      const data = await API.get('/api/installation-requests');
       setRequests(Array.isArray(data) ? data : []);
     } catch (err) {
       console.error('Error fetching requests:', err);
@@ -85,7 +85,7 @@ export default function ManageInstallationRequests() {
 
   const fetchTechnicians = async () => {
     try {
-      const data = await API.get('/installation-requests/technicians');
+      const data = await API.get('/api/installation-requests/technicians');
       setTechnicians(Array.isArray(data) ? data : []);
     } catch (err) {
       console.error('Error fetching technicians:', err);
@@ -184,7 +184,7 @@ export default function ManageInstallationRequests() {
       return;
     }
     try {
-      await API.put(`/installation-requests/${requestId}/assign`, { technicianId: techId });
+      await API.put(`/api/installation-requests/${requestId}/assign`, { technicianId: techId });
       alert('Technician assigned successfully!');
       setShowAssignModal(null);
       fetchRequests();
@@ -201,7 +201,7 @@ export default function ManageInstallationRequests() {
   const closeInstallation = async (requestId) => {
     const notes = prompt('Enter confirmation notes (optional):');
     try {
-      await API.put(`/installation-requests/${requestId}/close`, { adminConfirmationNotes: notes || '' });
+      await API.put(`/api/installation-requests/${requestId}/close`, { adminConfirmationNotes: notes || '' });
       alert('Installation closed successfully!');
       fetchRequests();
       setViewing(null);

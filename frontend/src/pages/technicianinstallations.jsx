@@ -16,7 +16,7 @@ export default function TechnicianInstallations() {
   const fetchInstallations = async () => {
     try {
       setLoading(true);
-      const data = await API.get('/installation-requests/technician/my-installations');
+      const data = await API.get('/api/installation-requests/technician/my-installations');
       setInstallations(Array.isArray(data) ? data : []);
     } catch (err) {
       console.error('Error fetching installations:', err);
@@ -28,7 +28,7 @@ export default function TechnicianInstallations() {
 
   const startInstallation = async (installationId) => {
     try {
-      await API.put(`/installation-requests/${installationId}/start`);
+      await API.put(`/api/installation-requests/${installationId}/start`);
       alert('Installation started!');
       fetchInstallations();
       setViewing(null);
@@ -43,7 +43,7 @@ export default function TechnicianInstallations() {
     if (notes === null) return; // User cancelled
     
     try {
-      await API.put(`/installation-requests/${installationId}/complete`, { technicianNotes: notes || '' });
+      await API.put(`/api/installation-requests/${installationId}/complete`, { technicianNotes: notes || '' });
       alert('Installation marked as completed! Admin will confirm closure.');
       fetchInstallations();
       setViewing(null);

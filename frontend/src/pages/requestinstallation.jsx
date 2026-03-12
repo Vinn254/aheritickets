@@ -30,7 +30,7 @@ export default function RequestInstallation() {
   const fetchRequests = async () => {
     try {
       setLoading(true);
-      const data = await API.get('/installation-requests/my-requests');
+      const data = await API.get('/api/installation-requests/my-requests');
       setRequests(Array.isArray(data) ? data : []);
     } catch (err) {
       console.error('Error fetching requests:', err);
@@ -48,7 +48,7 @@ export default function RequestInstallation() {
     }
 
     try {
-      await API.post('/installation-requests', {
+      await API.post('/api/installation-requests', {
         installationType: formData.installationType,
         package: formData.package,
         location: formData.location,

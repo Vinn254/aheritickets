@@ -107,7 +107,7 @@ export default function Quotations() {
       } else if (installationRequestId) {
         // Create quotation from installation request
         const total = calculateTotal();
-        const response = await API.post(`/installation-requests/${installationRequestId}/quotation`, {
+        const response = await API.post(`/api/installation-requests/${installationRequestId}/quotation`, {
           total,
           otherServices: formData.otherServices,
           notes: formData.notes

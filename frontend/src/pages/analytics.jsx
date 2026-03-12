@@ -59,7 +59,7 @@ export default function Analytics() {
         }
 
         try {
-          const installRes = await API.get('/installation-requests');
+          const installRes = await API.get('/api/installation-requests');
           const requests = installRes.data || installRes.installationRequests || [];
           const approved = requests.filter(r => r.status === 'approved').length;
           setApprovedInstallations(approved);
