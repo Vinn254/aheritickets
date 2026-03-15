@@ -12,15 +12,8 @@ export const ROLES = {
 };
 
 // Menu categories with their items and permissions
+// Admin, CRS, HR dashboards will show this structure
 export const MENU_CONFIG = [
-  {
-    category: 'Dashboard',
-    icon: 'M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z',
-    roles: [ROLES.SUPER_ADMIN, ROLES.ADMIN, ROLES.HR, ROLES.CRS, ROLES.TECHNICIAN, ROLES.CUSTOMER, ROLES.CONTRACTOR],
-    items: [
-      { name: 'Dashboard', path: '/dashboard', roles: [ROLES.SUPER_ADMIN, ROLES.ADMIN, ROLES.HR, ROLES.CRS, ROLES.TECHNICIAN, ROLES.CUSTOMER, ROLES.CONTRACTOR] }
-    ]
-  },
   {
     category: 'User Management',
     icon: 'M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2M16 11a2 2 0 1 0 0-4 2 2 0 0 0 0 4zM8 7a2 2 0 1 0 0-4 2 2 0 0 0 0 4z',
@@ -46,7 +39,7 @@ export const MENU_CONFIG = [
     icon: 'M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6',
     roles: [ROLES.SUPER_ADMIN, ROLES.ADMIN, ROLES.HR, ROLES.CRS],
     items: [
-      { name: 'Quotations', path: '/quotations', roles: [ROLES.SUPER_ADMIN, ROLES.ADMIN, ROLES.CRS, ROLES.CUSTOMER] },
+      { name: 'Quotations', path: '/quotations', roles: [ROLES.SUPER_ADMIN, ROLES.ADMIN, ROLES.CRS] },
       { name: 'Invoices', path: '/invoices', roles: [ROLES.SUPER_ADMIN, ROLES.ADMIN, ROLES.HR, ROLES.CRS] },
       { name: 'Receipts', path: '/receipts', roles: [ROLES.SUPER_ADMIN, ROLES.ADMIN, ROLES.HR, ROLES.CRS] }
     ]
@@ -54,9 +47,9 @@ export const MENU_CONFIG = [
   {
     category: 'Procurement',
     icon: 'M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4',
-    roles: [ROLES.SUPER_ADMIN, ROLES.ADMIN, ROLES.TECHNICIAN],
+    roles: [ROLES.SUPER_ADMIN, ROLES.ADMIN],
     items: [
-      { name: 'Inventory', path: '/inventory', roles: [ROLES.SUPER_ADMIN, ROLES.ADMIN, ROLES.TECHNICIAN] },
+      { name: 'Inventory', path: '/inventory', roles: [ROLES.SUPER_ADMIN, ROLES.ADMIN] },
       { name: 'Accessories', path: '/accessories', roles: [ROLES.SUPER_ADMIN, ROLES.ADMIN] },
       { name: 'Tools', path: '/tools', roles: [ROLES.SUPER_ADMIN, ROLES.ADMIN] },
       { name: 'Bulk Upload', path: '/bulk-upload', roles: [ROLES.SUPER_ADMIN, ROLES.ADMIN] }
@@ -76,42 +69,48 @@ export const MENU_CONFIG = [
   {
     category: 'Settings',
     icon: 'M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z',
-    roles: [ROLES.SUPER_ADMIN, ROLES.ADMIN, ROLES.HR],
+    roles: [ROLES.SUPER_ADMIN, ROLES.ADMIN],
     items: [
-      { name: 'Roles', path: '/settings/roles', roles: [ROLES.SUPER_ADMIN] },
-      { name: 'Permissions', path: '/settings/permissions', roles: [ROLES.SUPER_ADMIN] }
+      { name: 'Roles', path: '/settings/roles', roles: [ROLES.SUPER_ADMIN, ROLES.ADMIN] },
+      { name: 'Permissions', path: '/settings/permissions', roles: [ROLES.SUPER_ADMIN, ROLES.ADMIN] }
     ]
   }
 ];
 
 // Permission matrix - what each role can view and edit
+// Based on user requirements:
+// - Super Admin: views all pages but NOT edit (view only)
+// - Admin: view all, edit most
+// - HR: only edits HR pages, views others
+// - CRS: view and edit their assigned areas
+// - Technician: view only technical/installation pages
 export const ROLE_PERMISSIONS = {
   [ROLES.SUPER_ADMIN]: {
     canView: ['*'], // Can view everything
-    canEdit: ['*'], // Can edit everything
-    canDelete: ['*'],
-    canCreate: ['*']
+    canEdit: [], // CANNOT edit anything - VIEW ONLY
+    canDelete: [], // CANNOT delete anything
+    canCreate: [] // CANNOT create anything
   },
   [ROLES.ADMIN]: {
     canView: ['*'], // Can view everything
-    canEdit: ['users', 'customers', 'network', 'inventory', 'installations', 'planning', 'quotations', 'invoices', 'reports'], // Can edit most except HR settings
-    canDelete: ['customers', 'network', 'inventory', 'installations', 'planning', 'quotations', 'invoices'],
+    canEdit: ['users', 'customers', 'network', 'inventory', 'installations', 'planning', 'quotations', 'invoices', 'reports', 'roles', 'permissions'], // Can edit everything except super admin settings
+    canDelete: ['customers', 'network', 'inventory', 'installations', 'planning', 'quotations', 'invoices', 'users'],
     canCreate: ['users', 'customers', 'network', 'inventory', 'installations', 'planning', 'quotations', 'invoices']
   },
   [ROLES.HR]: {
     canView: ['*'], // Can view everything
-    canEdit: ['users', 'invoices', 'receipts', 'reports'], // Can edit HR-related items
-    canDelete: ['users'],
-    canCreate: ['users', 'invoices', 'receipts']
+    canEdit: ['users'], // Can only edit users (HR pages)
+    canDelete: ['users'], // Can only delete users
+    canCreate: ['users'] // Can only create users
   },
   [ROLES.CRS]: {
     canView: ['customers', 'installations', 'quotations', 'invoices', 'reports', 'planning'],
-    canEdit: ['installations', 'quotations', 'customers'],
+    canEdit: ['customers', 'installations', 'quotations'], // Can edit their assigned areas
     canDelete: ['quotations'],
-    canCreate: ['installations', 'quotations', 'customers']
+    canCreate: ['customers', 'installations', 'quotations']
   },
   [ROLES.TECHNICIAN]: {
-    canView: ['customers', 'installations', 'network', 'inventory', 'planning'],
+    canView: ['network', 'customers', 'installations', 'inventory', 'planning'], // Only technical/installation pages
     canEdit: ['installations', 'network'],
     canDelete: [],
     canCreate: ['installations']
@@ -169,6 +168,10 @@ export const PATH_TO_RESOURCE = {
   '/invoices': 'invoices',
   '/receipts': 'receipts',
   '/reports': 'reports',
+  '/reports/operational': 'reports',
+  '/reports/customer': 'reports',
+  '/reports/network': 'reports',
+  '/reports/financial': 'reports',
   '/tickets': 'tickets',
   '/tickets/create': 'tickets',
   '/request-installation': 'installations',

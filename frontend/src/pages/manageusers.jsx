@@ -1,6 +1,9 @@
 import React, { useEffect, useState } from 'react';
 import API from '../utils/api';
 import ErrorBoundary from '../components/ErrorBoundary';
+import { hasPermission } from '../utils/permissions';
+import { AuthContext } from '../context/authcontext';
+import { useContext } from 'react';
 
 const inputStyle = { padding: '8px', borderRadius: '4px', border: '1px solid #ddd', fontSize: '12px' };
 const primaryBtn = { padding: '6px 12px', background: '#2d7a3e', color: 'white', border: 'none', borderRadius: '4px', cursor: 'pointer' };
@@ -8,6 +11,10 @@ const primaryBtn = { padding: '6px 12px', background: '#2d7a3e', color: 'white',
 export default ManageUsers;
 
 function ManageUsers() {
+  const { user } = useContext(AuthContext);
+  const userRole = user?.role || localStorage.getItem('role');
+  const canCreate = (resource) => hasPermission(userRole, 'canCreate', resource);
+  const canDelete = (resource) => hasPermission(userRole, 'canDelete', resource);
   const [users, setUsers] = useState([]);
   const [name, setName] = useState('');
   const [phone, setPhone] = useState('');
@@ -194,7 +201,7 @@ ${user.billingPlan ? 'Billing Plan: ' + user.billingPlan : ''}
               <input value={billingPlan} onChange={e=>setBillingPlan(e.target.value)} placeholder="Billing Plan" style={inputStyle} />
             </>}
           </div>
-          <button type="submit" style={primaryBtn}>Add User</button>
+          <button type="submit" style={canCreate('users') ? primaryBtn : {...primaryBtn, opacity: 0.5, cursor: 'not-allowed'}} disabled={!canCreate('users')}>Add User</button>
         </form>
 
         {msg && <div style={{ padding: '10px', marginBottom: '15px', background: msg.includes('success') ? '#d4edda' : '#f8d7da', color: msg.includes('success') ? '#155724' : '#721c24', borderRadius: '4px' }}>{msg}</div>}
@@ -219,8 +226,8 @@ ${user.billingPlan ? 'Billing Plan: ' + user.billingPlan : ''}
                 <td style={{ padding: '8px', border: '1px solid #ddd' }}>{u.role}</td>
                 <td style={{ padding: '8px', border: '1px solid #ddd', display: 'flex', gap: '8px', alignItems: 'center' }}>
                   <button onClick={() => handleViewDetails(u)} title="View Details" style={{ background: 'none', border: 'none', cursor: 'pointer', fontSize: '14px', padding: '2px 4px' }}>👀</button>
-                  <button onClick={() => handleEditPassword(u)} title="Edit Password" style={{ background: 'none', border: 'none', cursor: 'pointer', fontSize: '14px', padding: '2px 4px' }}>🔑</button>
-                  <button onClick={() => handleDelete(u._id)} title="Delete" style={{ background: 'none', border: 'none', cursor: 'pointer', fontSize: '14px', padding: '2px 4px' }}>🗑️</button>
+                  <button onClick={() => handleEditPassword(u)} title="Edit Password" style={{ background: 'none', border: 'none', cursor: canDelete('users') ? 'pointer' : 'not-allowed', fontSize: '14px', padding: '2px 4px', opacity: canDelete('users') ? 1 : 0.5 }}>🔑</button>
+                  {canDelete('users') && <button onClick={() => handleDelete(u._id)} title="Delete" style={{ background: 'none', border: 'none', cursor: 'pointer', fontSize: '14px', padding: '2px 4px' }}>🗑️</button>}
                 </td>
               </tr>)}
           </tbody>
@@ -263,8 +270,8 @@ ${user.billingPlan ? 'Billing Plan: ' + user.billingPlan : ''}
                 </td>
                 <td style={{ padding: '8px', border: '1px solid #ddd', display: 'flex', gap: '8px', alignItems: 'center' }}>
                   <button onClick={() => handleViewDetails(u)} title="View Details" style={{ background: 'none', border: 'none', cursor: 'pointer', fontSize: '14px', padding: '2px 4px' }}>👀</button>
-                  <button onClick={() => handleEditPassword(u)} title="Edit Password" style={{ background: 'none', border: 'none', cursor: 'pointer', fontSize: '14px', padding: '2px 4px' }}>🔑</button>
-                  <button onClick={() => handleDelete(u._id)} title="Delete" style={{ background: 'none', border: 'none', cursor: 'pointer', fontSize: '14px', padding: '2px 4px' }}>🗑️</button>
+                  <button onClick={() => handleEditPassword(u)} title="Edit Password" style={{ background: 'none', border: 'none', cursor: canDelete('users') ? 'pointer' : 'not-allowed', fontSize: '14px', padding: '2px 4px', opacity: canDelete('users') ? 1 : 0.5 }}>🔑</button>
+                  {canDelete('users') && <button onClick={() => handleDelete(u._id)} title="Delete" style={{ background: 'none', border: 'none', cursor: 'pointer', fontSize: '14px', padding: '2px 4px' }}>🗑️</button>}
                 </td>
               </tr>)}
           </tbody>

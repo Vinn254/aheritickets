@@ -68,34 +68,40 @@ UserSchema.methods.toJSON = function () {
 };
 
 // Get permissions based on role
+// Based on user requirements:
+// - Super Admin: views all pages but NOT edit (view only)
+// - Admin: view all, edit most
+// - HR: only edits HR pages (users), views others
+// - CRS: view and edit their assigned areas (customers, installations, quotations)
+// - Technician: view only technical/installation pages
 UserSchema.methods.getPermissions = function () {
   const rolePermissions = {
     superadmin: {
-      canView: ['*'],
-      canEdit: ['*'],
-      canDelete: ['*'],
-      canCreate: ['*']
+      canView: ['*'], // Can view everything
+      canEdit: [], // CANNOT edit anything - VIEW ONLY
+      canDelete: [], // CANNOT delete anything
+      canCreate: [] // CANNOT create anything
     },
     admin: {
-      canView: ['*'],
-      canEdit: ['users', 'customers', 'network', 'inventory', 'installations', 'planning', 'quotations', 'invoices', 'reports'],
-      canDelete: ['customers', 'network', 'inventory', 'installations', 'planning', 'quotations', 'invoices'],
+      canView: ['*'], // Can view everything
+      canEdit: ['users', 'customers', 'network', 'inventory', 'installations', 'planning', 'quotations', 'invoices', 'reports', 'roles', 'permissions'], // Can edit everything
+      canDelete: ['customers', 'network', 'inventory', 'installations', 'planning', 'quotations', 'invoices', 'users'],
       canCreate: ['users', 'customers', 'network', 'inventory', 'installations', 'planning', 'quotations', 'invoices']
     },
     hr: {
-      canView: ['*'],
-      canEdit: ['users', 'invoices', 'receipts', 'reports'],
-      canDelete: ['users'],
-      canCreate: ['users', 'invoices', 'receipts']
+      canView: ['*'], // Can view everything
+      canEdit: ['users'], // Can only edit users (HR pages)
+      canDelete: ['users'], // Can only delete users
+      canCreate: ['users'] // Can only create users
     },
     csr: {
       canView: ['customers', 'installations', 'quotations', 'invoices', 'reports', 'planning'],
-      canEdit: ['installations', 'quotations', 'customers'],
+      canEdit: ['customers', 'installations', 'quotations'], // Can edit their assigned areas
       canDelete: ['quotations'],
-      canCreate: ['installations', 'quotations', 'customers']
+      canCreate: ['customers', 'installations', 'quotations']
     },
     technician: {
-      canView: ['customers', 'installations', 'network', 'inventory', 'planning'],
+      canView: ['network', 'customers', 'installations', 'inventory', 'planning'], // Only technical/installation pages
       canEdit: ['installations', 'network'],
       canDelete: [],
       canCreate: ['installations']
