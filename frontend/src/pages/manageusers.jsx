@@ -166,6 +166,8 @@ ${user.billingPlan ? 'Billing Plan: ' + user.billingPlan : ''}
               <option value="csr">CSR</option>
               <option value="technician">Technician</option>
               <option value="admin">Admin</option>
+              <option value="superadmin">Super Admin</option>
+              <option value="hr">HR</option>
               <option value="customer">Customer</option>
               <option value="contractor">Contractor</option>
             </select>
@@ -216,6 +218,50 @@ ${user.billingPlan ? 'Billing Plan: ' + user.billingPlan : ''}
                 <td style={{ padding: '8px', border: '1px solid #ddd' }}>{u.phone || '-'}</td>
                 <td style={{ padding: '8px', border: '1px solid #ddd' }}>{u.email}</td>
                 <td style={{ padding: '8px', border: '1px solid #ddd' }}>{u.role}</td>
+                <td style={{ padding: '8px', border: '1px solid #ddd', display: 'flex', gap: '8px', alignItems: 'center' }}>
+                  <button onClick={() => handleViewDetails(u)} title="View Details" style={{ background: 'none', border: 'none', cursor: 'pointer', fontSize: '14px', padding: '2px 4px' }}>👀</button>
+                  <button onClick={() => handleEditPassword(u)} title="Edit Password" style={{ background: 'none', border: 'none', cursor: 'pointer', fontSize: '14px', padding: '2px 4px' }}>🔑</button>
+                  <button onClick={() => handleDelete(u._id)} title="Delete" style={{ background: 'none', border: 'none', cursor: 'pointer', fontSize: '14px', padding: '2px 4px' }}>🗑️</button>
+                </td>
+              </tr>)}
+          </tbody>
+        </table>
+        </div>
+
+        {/* Customers Table */}
+        <h3 style={{ color: '#186a3b', fontWeight: 700, marginTop: '30px' }}>Customers</h3>
+        <div style={{ overflowX: 'auto' }}>
+          <table className="responsive-table" style={{ width: '100%', borderCollapse: 'collapse', fontSize: '12px', marginBottom: '20px', minWidth: '800px' }}>
+          <thead><tr style={{ background: '#1976d2', color: 'white' }}>
+            <th style={{ padding: '8px', border: '1px solid #ddd' }}>Name</th>
+            <th style={{ padding: '8px', border: '1px solid #ddd' }}>Phone</th>
+            <th style={{ padding: '8px', border: '1px solid #ddd' }}>Email</th>
+            <th style={{ padding: '8px', border: '1px solid #ddd' }}>Account #</th>
+            <th style={{ padding: '8px', border: '1px solid #ddd' }}>Service Type</th>
+            <th style={{ padding: '8px', border: '1px solid #ddd' }}>Location</th>
+            <th style={{ padding: '8px', border: '1px solid #ddd' }}>Status</th>
+            <th style={{ padding: '8px', border: '1px solid #ddd' }}>Actions</th>
+          </tr></thead>
+          <tbody>
+            {users.filter(u => u.role === 'customer' && (!search || u.name?.toLowerCase().includes(search.toLowerCase())))
+              .map((u, i) => <tr key={u._id} style={{ background: i % 2 === 0 ? '#f9f9f9' : '#fff' }}>
+                <td style={{ padding: '8px', border: '1px solid #ddd' }}>{u.name}</td>
+                <td style={{ padding: '8px', border: '1px solid #ddd' }}>{u.phone || '-'}</td>
+                <td style={{ padding: '8px', border: '1px solid #ddd' }}>{u.email}</td>
+                <td style={{ padding: '8px', border: '1px solid #ddd' }}>{u.accountNumber || '-'}</td>
+                <td style={{ padding: '8px', border: '1px solid #ddd' }}>{u.serviceType || '-'}</td>
+                <td style={{ padding: '8px', border: '1px solid #ddd', maxWidth: '150px', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{u.location || '-'}</td>
+                <td style={{ padding: '8px', border: '1px solid #ddd' }}>
+                  <span style={{ 
+                    padding: '2px 8px', 
+                    borderRadius: '4px', 
+                    background: u.status === 'active' ? '#4caf50' : u.status === 'dormant' ? '#ff9800' : '#f44336',
+                    color: 'white',
+                    fontSize: '10px'
+                  }}>
+                    {u.status || 'active'}
+                  </span>
+                </td>
                 <td style={{ padding: '8px', border: '1px solid #ddd', display: 'flex', gap: '8px', alignItems: 'center' }}>
                   <button onClick={() => handleViewDetails(u)} title="View Details" style={{ background: 'none', border: 'none', cursor: 'pointer', fontSize: '14px', padding: '2px 4px' }}>👀</button>
                   <button onClick={() => handleEditPassword(u)} title="Edit Password" style={{ background: 'none', border: 'none', cursor: 'pointer', fontSize: '14px', padding: '2px 4px' }}>🔑</button>

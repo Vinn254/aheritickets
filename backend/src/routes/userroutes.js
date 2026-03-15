@@ -27,13 +27,13 @@ router.use(authMiddleware);
 
 // Allow CSRs to GET /users?role=technician or customer, admin to get all or filtered
 router.get('/', (req, res, next) => {
-	if (req.user.role === 'admin') return userController.listUsers(req, res, next);
+	if (req.user.role === 'admin' || req.user.role === 'superadmin' || req.user.role === 'hr') return userController.listUsers(req, res, next);
 	if (req.user.role === 'csr' && (req.query.role === 'technician' || req.query.role === 'customer')) return userController.listUsers(req, res, next);
 	return res.status(403).json({ message: 'Forbidden: insufficient privileges' });
 });
 
 // All other user management routes require admin
-router.use(requireRole(['admin']));
+router.use(requireRole(['admin', 'superadmin', 'hr']));
 router.post('/', userController.createUser);
 router.post('/bulk', upload.single('file'), userController.bulkCreateUsers);
 router.put('/:id', userController.updateUser);

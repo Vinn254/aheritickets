@@ -1,25 +1,27 @@
 // src/pages/Landing.js
 
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
 
 export default function Landing() {
   const navigate = useNavigate();
+  const [imageError, setImageError] = useState(false);
+  
   useEffect(() => {
     const token = localStorage.getItem('token');
     if (token) navigate('/dashboard');
   }, [navigate]);
 
-  const Package = ({ speed, price, color, index }) => (
+  const Package = ({ speed, price, speedUnit, color, index, features, popular }) => (
     <motion.div
       className={`package-card package-${index}`}
       style={{
-        background: `linear-gradient(135deg, ${color} 0%, ${color}CC 100%)`,
-        borderRadius: 16,
-        boxShadow: '0 8px 32px rgba(46,125,50,0.15)',
-        padding: '40px 32px',
-        minWidth: 240,
+        background: `linear-gradient(145deg, ${color}15 0%, ${color}25 100%)`,
+        borderRadius: 20,
+        boxShadow: popular ? `0 16px 48px ${color}40` : '0 8px 32px rgba(46,125,50,0.15)',
+        padding: '40px 28px',
+        minWidth: 260,
         maxWidth: 280,
         textAlign: 'center',
         marginBottom: 24,
@@ -27,27 +29,93 @@ export default function Landing() {
         flexDirection: 'column',
         alignItems: 'center',
         cursor: 'pointer',
-        color: 'white',
-        border: '1px solid rgba(255,255,255,0.1)'
+        color: '#1b5e20',
+        border: popular ? `3px solid ${color}` : '1px solid rgba(46,125,50,0.1)',
+        position: 'relative',
+        transform: popular ? 'scale(1.05)' : 'scale(1)',
+        zIndex: popular ? 10 : 1
       }}
       whileHover={{
-        y: -8,
-        boxShadow: '0 12px 40px rgba(46,125,50,0.2)',
-        transition: { duration: 0.2 }
+        y: -12,
+        boxShadow: `0 20px 56px ${color}50`,
+        transition: { duration: 0.25 }
       }}
       whileTap={{ scale: 0.98 }}
-      initial={{ opacity: 0, y: 20 }}
+      initial={{ opacity: 0, y: 30 }}
       animate={{ opacity: 1, y: 0 }}
-      transition={{ delay: index * 0.1, duration: 0.4 }}
+      transition={{ delay: index * 0.12, duration: 0.5, ease: 'easeOut' }}
       onClick={() => navigate('/login')}
     >
-      <svg width="48" height="48" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg" style={{ marginBottom: 16 }}>
-        <path d="M6 14C12 8 20 8 26 14" stroke="white" strokeWidth="2.5" strokeLinecap="round"/>
-        <path d="M10 19C13.5 16 18.5 16 22 19" stroke="white" strokeWidth="2.5" strokeLinecap="round"/>
-        <circle cx="16" cy="25" r="2.5" fill="white" />
-      </svg>
-      <div style={{ fontWeight: 800, fontSize: 28, marginBottom: 8, letterSpacing: 1 }}>{speed}</div>
-      <div style={{ fontSize: 20, fontWeight: 600 }}>KSh {price.toLocaleString()}/month</div>
+      {popular && (
+        <div style={{
+          position: 'absolute',
+          top: -14,
+          left: '50%',
+          transform: 'translateX(-50%)',
+          background: color,
+          color: 'white',
+          padding: '6px 20px',
+          borderRadius: 20,
+          fontSize: 12,
+          fontWeight: 700,
+          textTransform: 'uppercase',
+          letterSpacing: 1,
+          boxShadow: '0 4px 12px rgba(0,0,0,0.15)'
+        }}>
+          Most Popular
+        </div>
+      )}
+      <div style={{
+        width: 72,
+        height: 72,
+        borderRadius: '50%',
+        background: `linear-gradient(135deg, ${color} 0%, ${color}80 100%)`,
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+        marginBottom: 20,
+        boxShadow: `0 8px 24px ${color}40`
+      }}>
+        <svg width="32" height="32" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <path d="M6 14C12 8 20 8 26 14" stroke="white" strokeWidth="2.5" strokeLinecap="round"/>
+          <path d="M10 19C13.5 16 18.5 16 22 19" stroke="white" strokeWidth="2.5" strokeLinecap="round"/>
+          <circle cx="16" cy="25" r="2.5" fill="white" />
+        </svg>
+      </div>
+      <div style={{ fontWeight: 800, fontSize: 42, marginBottom: 4, letterSpacing: 1, color: '#1b5e20' }}>{speed}</div>
+      <div style={{ fontSize: 18, fontWeight: 600, color: '#2e7d32', marginBottom: 20, textTransform: 'uppercase', letterSpacing: 2 }}>{speedUnit}</div>
+      <div style={{ fontSize: 36, fontWeight: 800, color: color, marginBottom: 24 }}>KSh {price.toLocaleString()}<span style={{ fontSize: 16, fontWeight: 500, color: '#666' }}>/mo</span></div>
+      
+      <div style={{ width: '100%', borderTop: '1px solid rgba(46,125,50,0.1)', marginBottom: 20 }} />
+      
+      {features && features.map((feature, i) => (
+        <div key={i} style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 10, fontSize: 14, color: '#2e7d32' }}>
+          <svg width="16" height="16" viewBox="0 0 16 16" fill={color}>
+            <path d="M8 0C3.6 0 0 3.6 0 8s3.6 8 8 8 8-3.6 8-8-3.6-8-8-8zm3.5 6L7 10.5 4.5 8l1-1L7 8.5 10.5 5l1 1z" />
+          </svg>
+          {feature}
+        </div>
+      ))}
+      
+      <motion.button
+        style={{
+          marginTop: 16,
+          padding: '14px 32px',
+          background: color,
+          color: 'white',
+          border: 'none',
+          borderRadius: 12,
+          fontWeight: 700,
+          fontSize: 15,
+          cursor: 'pointer',
+          boxShadow: `0 4px 16px ${color}40`,
+          width: '100%'
+        }}
+        whileHover={{ scale: 1.02, boxShadow: `0 6px 20px ${color}60` }}
+        whileTap={{ scale: 0.98 }}
+      >
+        Get Started
+      </motion.button>
     </motion.div>
   );
 
@@ -59,18 +127,26 @@ export default function Landing() {
       overflow: 'hidden',
       display: 'flex',
       flexDirection: 'column',
+      background: '#1a5c2e', // Fallback background color
     }}>
       {/* Background image */}
-      <img src="/IMG 4.PNG" alt="ISP" style={{
-        position: 'absolute',
-        top: 0,
-        left: 0,
-        width: '100vw',
-        height: '100vh',
-        objectFit: 'cover',
-        zIndex: 0,
-        filter: 'brightness(0.7)'
-      }} />
+      {!imageError && (
+        <img 
+          src="/IMG 4.PNG" 
+          alt="ISP" 
+          onError={() => setImageError(true)}
+          style={{
+            position: 'absolute',
+            top: 0,
+            left: 0,
+            width: '100vw',
+            height: '100vh',
+            objectFit: 'cover',
+            zIndex: 0,
+            filter: 'brightness(0.7)'
+          }} 
+        />
+      )}
       {/* RGBA overlay */}
       <div style={{
         position: 'absolute',
@@ -78,7 +154,9 @@ export default function Landing() {
         left: 0,
         width: '100vw',
         height: '100vh',
-        background: 'rgba(34, 62, 60, 0.55)',
+        background: imageError 
+          ? 'linear-gradient(135deg, #1a5c2e 0%, #2d7a3e 50%, #43e97b 100%)' 
+          : 'rgba(34, 62, 60, 0.55)',
         zIndex: 1
       }} />
 
@@ -227,18 +305,22 @@ export default function Landing() {
 
       {/* Packages Section */}
       <section className="landing-packages" style={{
-        background: 'rgba(148, 230, 196, 0.1)',
-        padding: '64px 0 56px 0',
+        background: 'linear-gradient(180deg, #e8f5e9 0%, #c8e6c9 100%)',
+        padding: '80px 0 72px 0',
         display: 'flex',
         flexDirection: 'column',
         alignItems: 'center',
-        zIndex: 2
+        zIndex: 2,
+        borderTop: '3px solid #2d7a3e',
+        borderBottom: '3px solid #2d7a3e'
       }}>
-        <h2 style={{ color: '#2d7a3e', fontWeight: 700, fontSize: 30, marginBottom: 32 }}>Packages We Offer</h2>
-        <div style={{ display: 'flex', gap: 40, flexWrap: 'wrap', justifyContent: 'center' }}>
-          <Package speed="10Mbps" price="2000" color="#43e97b" index={0} />
-          <Package speed="15Mbps" price="2600" color="#38f9d7" index={1} />
-          <Package speed="20Mbps" price="3000" color="#ffc107" index={2} />
+        <h2 style={{ color: '#1b5e20', fontWeight: 800, fontSize: 36, marginBottom: 12, letterSpacing: 1, textTransform: 'uppercase' }}>Packages We Offer</h2>
+        <p style={{ color: '#2e7d32', fontSize: 18, marginBottom: 48, maxWidth: 600, textAlign: 'center' }}>Choose the perfect internet plan for your needs. All packages include free installation and 24/7 support.</p>
+        <div style={{ display: 'flex', gap: 32, flexWrap: 'wrap', justifyContent: 'center', maxWidth: 1200 }}>
+          <Package speed="10" price="2000" speedUnit="Mbps" color="#43e97b" index={0} features={['Unlimited Data', 'Free Router', '24/7 Support']} />
+          <Package speed="15" price="2600" speedUnit="Mbps" color="#38f9d7" index={1} features={['Unlimited Data', 'Free Router', '24/7 Support', 'Priority Support']} popular />
+          <Package speed="20" price="3000" speedUnit="Mbps" color="#ffc107" index={2} features={['Unlimited Data', 'Free Router', '24/7 Support']} />
+          <Package speed="30" price="5400" speedUnit="Mbps" color="#e91e63" index={3} features={['Unlimited Data', 'Premium Router', '24/7 Support', 'Static IP', 'Priority Support']} />
         </div>
       </section>
 

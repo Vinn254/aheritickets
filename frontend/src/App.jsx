@@ -5,6 +5,7 @@ import WhatsAppIcon from "./components/WhatsappWidget";
 import ErrorBoundary from "./components/ErrorBoundary";
 import Navbar from "./components/navbar";
 import Sidebar from "./components/sidebar";
+import { ROLES, ROLE_PERMISSIONS, hasPermission, PATH_TO_RESOURCE } from "./utils/permissions";
 
 // Lazy load components
 const Footer = lazy(() => import("./components/footer"));
@@ -37,7 +38,9 @@ import './watermark.css';
 function ProtectedRoute({ children, allowedRole }) {
   const token = localStorage.getItem("token");
   const role = localStorage.getItem("role");
+  
   if (!token) return <Navigate to="/login" replace />;
+  
   if (allowedRole) {
     if (Array.isArray(allowedRole)) {
       if (!allowedRole.includes(role)) return <Navigate to={`/dashboard/${role}`} replace />;
@@ -47,8 +50,6 @@ function ProtectedRoute({ children, allowedRole }) {
   }
   return children;
 }
-
-
 
 function App() {
   const navigate = useNavigate();
@@ -72,7 +73,25 @@ function App() {
     return () => window.removeEventListener('resize', handleResize);
   }, []);
 
-
+  // Get dashboard path based on role
+  const getDashboardPath = () => {
+    switch(role) {
+      case ROLES.ADMIN:
+      case ROLES.SUPER_ADMIN:
+      case ROLES.HR:
+        return '/manage-users';
+      case ROLES.CRS:
+        return '/dashboard/csr';
+      case ROLES.TECHNICIAN:
+        return '/dashboard/technician';
+      case ROLES.CUSTOMER:
+        return '/dashboard/customer';
+      case ROLES.CONTRACTOR:
+        return '/dashboard/contractor';
+      default:
+        return '/dashboard';
+    }
+  };
 
   return (
     <div style={{
@@ -131,7 +150,7 @@ function App() {
            <Route
              path="/analytics"
              element={
-               <ProtectedRoute allowedRole={["admin", "csr"]}>
+               <ProtectedRoute allowedRole={[ROLES.SUPER_ADMIN, ROLES.ADMIN, ROLES.HR, ROLES.CSR]}>
                  <ErrorBoundary>
                    <Analytics />
                  </ErrorBoundary>
@@ -141,7 +160,7 @@ function App() {
            <Route
              path="/network"
              element={
-               <ProtectedRoute allowedRole={["admin", "technician"]}>
+               <ProtectedRoute allowedRole={[ROLES.SUPER_ADMIN, ROLES.ADMIN, ROLES.TECHNICIAN]}>
                  <ErrorBoundary>
                    <NetworkManagement />
                  </ErrorBoundary>
@@ -151,7 +170,7 @@ function App() {
            <Route
              path="/inventory"
              element={
-               <ProtectedRoute allowedRole={["admin", "technician"]}>
+               <ProtectedRoute allowedRole={[ROLES.SUPER_ADMIN, ROLES.ADMIN, ROLES.TECHNICIAN]}>
                  <ErrorBoundary>
                    <Inventory />
                  </ErrorBoundary>
@@ -161,7 +180,7 @@ function App() {
            <Route
              path="/quotations"
              element={
-               <ProtectedRoute allowedRole={["admin", "csr", "customer"]}>
+               <ProtectedRoute allowedRole={[ROLES.SUPER_ADMIN, ROLES.ADMIN, ROLES.CSR, ROLES.CUSTOMER]}>
                  <ErrorBoundary>
                    <Quotations />
                  </ErrorBoundary>
@@ -171,7 +190,7 @@ function App() {
            <Route
              path="/invoices"
              element={
-               <ProtectedRoute allowedRole={["admin", "csr"]}>
+               <ProtectedRoute allowedRole={[ROLES.SUPER_ADMIN, ROLES.ADMIN, ROLES.HR, ROLES.CSR]}>
                  <ErrorBoundary>
                    <Invoices />
                  </ErrorBoundary>
@@ -181,7 +200,7 @@ function App() {
            <Route
              path="/request-installation"
              element={
-               <ProtectedRoute allowedRole="customer">
+               <ProtectedRoute allowedRole={ROLES.CUSTOMER}>
                  <ErrorBoundary>
                    <RequestInstallation />
                  </ErrorBoundary>
@@ -191,7 +210,7 @@ function App() {
            <Route
              path="/manage-installation-requests"
              element={
-               <ProtectedRoute allowedRole={["admin", "csr"]}>
+               <ProtectedRoute allowedRole={[ROLES.SUPER_ADMIN, ROLES.ADMIN, ROLES.CSR]}>
                  <ErrorBoundary>
                    <ManageInstallationRequests />
                  </ErrorBoundary>
@@ -201,7 +220,7 @@ function App() {
            <Route
              path="/my-installations"
              element={
-               <ProtectedRoute allowedRole="technician">
+               <ProtectedRoute allowedRole={[ROLES.SUPER_ADMIN, ROLES.ADMIN, ROLES.TECHNICIAN, ROLES.CONTRACTOR]}>
                  <ErrorBoundary>
                    <TechnicianInstallations />
                  </ErrorBoundary>
@@ -211,7 +230,7 @@ function App() {
            <Route
              path="/reports"
              element={
-               <ProtectedRoute allowedRole={["admin", "csr"]}>
+               <ProtectedRoute allowedRole={[ROLES.SUPER_ADMIN, ROLES.ADMIN, ROLES.HR, ROLES.CSR]}>
                  <ErrorBoundary>
                    <Reports />
                  </ErrorBoundary>
@@ -221,7 +240,7 @@ function App() {
            <Route
              path="/planning"
              element={
-               <ProtectedRoute allowedRole={["admin", "csr", "technician"]}>
+               <ProtectedRoute allowedRole={[ROLES.SUPER_ADMIN, ROLES.ADMIN, ROLES.CSR, ROLES.TECHNICIAN]}>
                  <ErrorBoundary>
                    <Planning />
                  </ErrorBoundary>
@@ -233,121 +252,103 @@ function App() {
            <Route path="/register" element={<Register />} />
            <Route path="/forgot-password" element={<ForgotPassword />} />
            <Route path="/reset-password/:token" element={<ResetPassword />} />
-          <Route
-            path="/dashboard"
-            element={
-              <ErrorBoundary>
-                {isAuthenticated && role === 'admin' ? (
-                  <ManageUsers />
-                ) : isAuthenticated && role === 'customer' ? (
-                  <Navigate to="/dashboard/customer" replace />
-                ) : isAuthenticated && role === 'csr' ? (
-                  <Navigate to="/dashboard/csr" replace />
-                ) : isAuthenticated && role === 'technician' ? (
-                  <Navigate to="/dashboard/technician" replace />
-                ) : <Navigate to="/login" replace />}
-              </ErrorBoundary>
-            }
-          />
-          <Route
-            path="/dashboard/customer"
-            element={
-              
-                <ProtectedRoute allowedRole="customer">
-                  <CustomerDashboard />
-                </ProtectedRoute>
-              
-            }
-          />
-          <Route
-            path="/dashboard/csr"
-            element={
-              
-                <ProtectedRoute allowedRole="csr">
-                  <CSRDashboard />
-                </ProtectedRoute>
-              
-            }
-          />
-          <Route
-            path="/dashboard/technician"
-            element={
-              
-                <ProtectedRoute allowedRole="technician">
-                  <TechnicianDashboard />
-                </ProtectedRoute>
-              
-            }
-          />
-          <Route
-            path="/dashboard/contractor"
-            element={
-              
-                <ProtectedRoute allowedRole="contractor">
-                  <ContractorDashboard />
-                </ProtectedRoute>
-              
-            }
-          />
-          <Route
-            path="/tickets/create"
-            element={
-              
-                <ProtectedRoute allowedRole="customer">
-                  <CreateTicket />
-                </ProtectedRoute>
-              
-            }
-          />
-          <Route
-            path="/manage-users"
-            element={
-              
-                <ProtectedRoute allowedRole={["admin", "csr"]}>
-                  <ManageUsers />
-                </ProtectedRoute>
-              
-            }
-          />
-          <Route
-            path="/customers"
-            element={
-              
-                <ProtectedRoute allowedRole={["admin", "technician"]}>
-                  <ErrorBoundary>
-                    <Customers />
-                  </ErrorBoundary>
-                </ProtectedRoute>
-              
-            }
-          />
-          <Route
-            path="/tickets/:id"
-            element={
-              
-                <ProtectedRoute allowedRole={["admin", "csr", "technician", "customer"]}>
-                  <ErrorBoundary>
-                    <TicketDetails />
-                  </ErrorBoundary>
-                </ProtectedRoute>
-              
-            }
-          />
-          {/* Redirect to dashboard if authenticated and tries to access unknown route */}
-          {isAuthenticated && role && (
-            <Route path="*" element={
-              
-                <Navigate to={`/dashboard/${role}`} replace />
-              
-            } />
-          )}
-          {/* Otherwise, redirect to landing */}
-          {!isAuthenticated && <Route path="*" element={
-            
-              <Navigate to="/" replace />
-            
-          } />}
-            </Routes>
+           <Route
+             path="/dashboard"
+             element={
+               <ErrorBoundary>
+                 {isAuthenticated && (role === ROLES.ADMIN || role === ROLES.SUPER_ADMIN || role === ROLES.HR) ? (
+                   <Navigate to="/manage-users" replace />
+                 ) : isAuthenticated && role === ROLES.CUSTOMER ? (
+                   <Navigate to="/dashboard/customer" replace />
+                 ) : isAuthenticated && role === ROLES.CSR ? (
+                   <Navigate to="/dashboard/csr" replace />
+                 ) : isAuthenticated && role === ROLES.TECHNICIAN ? (
+                   <Navigate to="/dashboard/technician" replace />
+                 ) : isAuthenticated && role === ROLES.CONTRACTOR ? (
+                   <Navigate to="/dashboard/contractor" replace />
+                 ) : <Navigate to="/login" replace />}
+               </ErrorBoundary>
+             }
+           />
+           <Route
+             path="/dashboard/customer"
+             element={
+               <ProtectedRoute allowedRole={ROLES.CUSTOMER}>
+                 <CustomerDashboard />
+               </ProtectedRoute>
+             }
+           />
+           <Route
+             path="/dashboard/csr"
+             element={
+               <ProtectedRoute allowedRole={[ROLES.CSR, ROLES.HR, ROLES.SUPER_ADMIN, ROLES.ADMIN]}>
+                 <CSRDashboard />
+               </ProtectedRoute>
+             }
+           />
+           <Route
+             path="/dashboard/technician"
+             element={
+               <ProtectedRoute allowedRole={[ROLES.TECHNICIAN, ROLES.SUPER_ADMIN, ROLES.ADMIN]}>
+                 <TechnicianDashboard />
+               </ProtectedRoute>
+             }
+           />
+           <Route
+             path="/dashboard/contractor"
+             element={
+               <ProtectedRoute allowedRole={ROLES.CONTRACTOR}>
+                 <ContractorDashboard />
+               </ProtectedRoute>
+             }
+           />
+           <Route
+             path="/tickets/create"
+             element={
+               <ProtectedRoute allowedRole={ROLES.CUSTOMER}>
+                 <CreateTicket />
+               </ProtectedRoute>
+             }
+           />
+           <Route
+             path="/manage-users"
+             element={
+               <ProtectedRoute allowedRole={[ROLES.SUPER_ADMIN, ROLES.ADMIN, ROLES.HR]}>
+                 <ManageUsers />
+               </ProtectedRoute>
+             }
+           />
+           <Route
+             path="/customers"
+             element={
+               <ProtectedRoute allowedRole={[ROLES.SUPER_ADMIN, ROLES.ADMIN, ROLES.CSR, ROLES.TECHNICIAN]}>
+                 <ErrorBoundary>
+                   <Customers />
+                 </ErrorBoundary>
+               </ProtectedRoute>
+             }
+           />
+           <Route
+             path="/tickets/:id"
+             element={
+               <ProtectedRoute allowedRole={[ROLES.SUPER_ADMIN, ROLES.ADMIN, ROLES.CSR, ROLES.TECHNICIAN, ROLES.CUSTOMER]}>
+                 <ErrorBoundary>
+                   <TicketDetails />
+                 </ErrorBoundary>
+               </ProtectedRoute>
+             }
+           />
+           {/* Redirect to dashboard if authenticated and tries to access unknown route */}
+           {isAuthenticated && role && (
+             <Route path="*" element={
+               <Navigate to={getDashboardPath()} replace />
+             } />
+           )}
+           {/* Otherwise, redirect to landing */}
+           {!isAuthenticated && <Route path="*" element={
+             <Navigate to="/" replace />
+           } />}
+         </Routes>
         </Suspense>
         {/* WhatsApp Icon visible for any authenticated user, on all pages */}
         {isAuthenticated && (

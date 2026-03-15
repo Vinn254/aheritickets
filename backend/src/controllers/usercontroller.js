@@ -41,7 +41,7 @@ exports.listUsers = async (req, res, next) => {
     }
 
     // Admin can list all; CSR can list technicians and customers; Technician can list customers
-    if (req.user.role !== 'admin' && req.user.role !== 'csr' && req.user.role !== 'technician') {
+    if (req.user.role !== 'admin' && req.user.role !== 'csr' && req.user.role !== 'technician' && req.user.role !== 'superadmin' && req.user.role !== 'hr') {
       return res.status(403).json({ message: 'Forbidden: insufficient privileges' });
     }
 
@@ -51,7 +51,13 @@ exports.listUsers = async (req, res, next) => {
       .limit(parseInt(limit, 10))
       .sort({ createdAt: -1 });
 
-    res.json({ users });
+    // Add permissions to each user
+    const usersWithPermissions = users.map(user => ({
+      ...user.toJSON(),
+      permissions: user.getPermissions()
+    }));
+
+    res.json({ users: usersWithPermissions });
   } catch (err) {
     next(err);
   }
@@ -62,7 +68,7 @@ exports.createUser = async (req, res, next) => {
   try {
     const { name, email, password, role, phone, specialization, deviceType, firstName, otherNames, accountNumber, customerSegment, serviceType, routerMacAddress, location, billingPlan, status, station, ipAddress } = req.body;
     if (!name || !email || !role || !phone) return res.status(400).json({ message: 'Missing required fields: name, email, role, phone' });
-    if (!['csr', 'technician', 'admin', 'customer', 'contractor'].includes(role)) return res.status(400).json({ message: 'Invalid role' });
+    if (!['csr', 'technician', 'admin', 'customer', 'contractor', 'superadmin', 'hr'].includes(role)) return res.status(400).json({ message: 'Invalid role' });
 
     const existing = await User.findOne({ email });
     if (existing) return res.status(409).json({ message: 'Email already in use' });
@@ -91,7 +97,8 @@ exports.createUser = async (req, res, next) => {
     }
     await user.save();
 
-    res.status(201).json({ user: user.toJSON() });
+    const permissions = user.getPermissions();
+    res.status(201).json({ user: { ...user.toJSON(), permissions } });
   } catch (err) {
     next(err);
   }
@@ -105,7 +112,8 @@ exports.updateUser = async (req, res, next) => {
     delete updates.password; // do not change password here
     const user = await User.findByIdAndUpdate(id, updates, { new: true }).select('-password');
     if (!user) return res.status(404).json({ message: 'User not found' });
-    res.json({ user });
+    const permissions = user.getPermissions();
+    res.json({ user: { ...user.toJSON(), permissions } });
   } catch (err) {
     next(err);
   }

@@ -1,31 +1,56 @@
-import React, { useState, useEffect } from 'react';
+import React from 'react';
 
-function ErrorBoundary({ children, componentName }) {
-  const [hasError, setHasError] = useState(false);
-  const [error, setError] = useState(null);
-
-  useEffect(() => {
-    const handleError = (err, errorInfo) => {
-      console.error('ErrorBoundary caught:', err, errorInfo);
-      setHasError(true);
-      setError(err);
-    };
-
-    // Set up error boundary
-    return () => {};
-  }, []);
-
-  if (hasError) {
-    const name = componentName || 'this component';
-    return (
-      <div style={{ color: 'red', padding: 16 }}>
-        Something went wrong in {name}.<br />
-        {String(error)}
-      </div>
-    );
+class ErrorBoundary extends React.Component {
+  constructor(props) {
+    super(props);
+    this.state = { hasError: false, error: null };
   }
 
-  return children;
+  static getDerivedStateFromError(error) {
+    return { hasError: true, error };
+  }
+
+  componentDidCatch(error, errorInfo) {
+    console.error('ErrorBoundary caught:', error, errorInfo);
+  }
+
+  render() {
+    if (this.state.hasError) {
+      const name = this.props.componentName || 'this component';
+      return (
+        <div style={{ 
+          color: '#d32f2f', 
+          padding: 32, 
+          textAlign: 'center',
+          minHeight: '100vh',
+          display: 'flex',
+          flexDirection: 'column',
+          justifyContent: 'center',
+          alignItems: 'center',
+          background: '#f5f5f5'
+        }}>
+          <h2 style={{ marginBottom: 16 }}>Something went wrong in {name}</h2>
+          <p style={{ color: '#666' }}>{this.state.error?.message || 'An unexpected error occurred'}</p>
+          <button 
+            onClick={() => window.location.reload()} 
+            style={{
+              marginTop: 16,
+              padding: '12px 24px',
+              background: '#2d7a3e',
+              color: 'white',
+              border: 'none',
+              borderRadius: 8,
+              cursor: 'pointer'
+            }}
+          >
+            Reload Page
+          </button>
+        </div>
+      );
+    }
+
+    return this.props.children;
+  }
 }
 
 export default ErrorBoundary;

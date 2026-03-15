@@ -23,7 +23,7 @@ const UserSchema = new mongoose.Schema(
     password: { type: String, required: true },
     role: {
       type: String,
-      enum: ['customer', 'csr', 'technician', 'admin', 'contractor'],
+      enum: ['customer', 'csr', 'technician', 'admin', 'contractor', 'superadmin', 'hr'],
       default: 'customer'
     },
     isActive: { type: Boolean, default: true },
@@ -65,6 +65,55 @@ UserSchema.methods.toJSON = function () {
   const obj = this.toObject();
   delete obj.password;
   return obj;
+};
+
+// Get permissions based on role
+UserSchema.methods.getPermissions = function () {
+  const rolePermissions = {
+    superadmin: {
+      canView: ['*'],
+      canEdit: ['*'],
+      canDelete: ['*'],
+      canCreate: ['*']
+    },
+    admin: {
+      canView: ['*'],
+      canEdit: ['users', 'customers', 'network', 'inventory', 'installations', 'planning', 'quotations', 'invoices', 'reports'],
+      canDelete: ['customers', 'network', 'inventory', 'installations', 'planning', 'quotations', 'invoices'],
+      canCreate: ['users', 'customers', 'network', 'inventory', 'installations', 'planning', 'quotations', 'invoices']
+    },
+    hr: {
+      canView: ['*'],
+      canEdit: ['users', 'invoices', 'receipts', 'reports'],
+      canDelete: ['users'],
+      canCreate: ['users', 'invoices', 'receipts']
+    },
+    csr: {
+      canView: ['customers', 'installations', 'quotations', 'invoices', 'reports', 'planning'],
+      canEdit: ['installations', 'quotations', 'customers'],
+      canDelete: ['quotations'],
+      canCreate: ['installations', 'quotations', 'customers']
+    },
+    technician: {
+      canView: ['customers', 'installations', 'network', 'inventory', 'planning'],
+      canEdit: ['installations', 'network'],
+      canDelete: [],
+      canCreate: ['installations']
+    },
+    customer: {
+      canView: ['tickets', 'quotations', 'dashboard'],
+      canEdit: ['tickets', 'profile'],
+      canDelete: ['tickets'],
+      canCreate: ['tickets', 'request-installation']
+    },
+    contractor: {
+      canView: ['installations', 'customers', 'planning'],
+      canEdit: ['installations'],
+      canDelete: [],
+      canCreate: ['installations']
+    }
+  };
+  return rolePermissions[this.role] || {};
 };
 
 module.exports = mongoose.model('User', UserSchema);

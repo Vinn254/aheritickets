@@ -16,7 +16,7 @@ body {
   z-index: 0;
   pointer-events: none;
   opacity: 0.08;
-  background: url('img5.PNG') center center/30vw no-repeat;
+  background: url('/img5.PNG') center center/30vw no-repeat;
   /* You can replace vite.svg with your logo or watermark image */
 }
 

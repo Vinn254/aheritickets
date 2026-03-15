@@ -15,13 +15,18 @@ export const AuthProvider = ({ children }) => {
 
   useEffect(() => {
     // optional: validate token on mount
+    // Only validate if we have a token and user data exists
     if (token && !user) {
-      API.get('/api/auth/me').then(res => {
-        setUser(res.data.user || res.data);
-        localStorage.setItem('user', JSON.stringify(res.data.user || res.data));
-      }).catch(() => {
-        logout();
-      });
+      API.get('/api/auth/me')
+        .then(res => {
+          setUser(res.data.user || res.data);
+          localStorage.setItem('user', JSON.stringify(res.data.user || res.data));
+        })
+        .catch(() => {
+          // Token invalid - don't logout immediately, just clear user
+          // This prevents white screen on auth failures
+          console.warn('Token validation failed');
+        });
     }
     // eslint-disable-next-line
   }, []);
@@ -31,6 +36,7 @@ export const AuthProvider = ({ children }) => {
     localStorage.setItem('user', JSON.stringify(userObj));
     localStorage.setItem('role', userObj.role);
     localStorage.setItem('name', userObj.name || userObj.username || userObj.email);
+    localStorage.setItem('permissions', JSON.stringify(userObj.permissions || {}));
     setUser(userObj);
     setToken(jwt);
   };
@@ -40,6 +46,7 @@ export const AuthProvider = ({ children }) => {
     localStorage.removeItem('user');
     localStorage.removeItem('role');
     localStorage.removeItem('name');
+    localStorage.removeItem('permissions');
     setUser(null);
     setToken(null);
     navigate('/login');

@@ -214,7 +214,7 @@ export default function RequestInstallation() {
                       textTransform: 'capitalize'
                     }}
                   >
-                    {type === 'fiber' && '🌐'} {type === 'wireless' && '📡'} {type}
+                                        {type === 'fiber' ? 'Fiber' : 'Wireless'} {type}
                   </button>
                 ))}
               </div>
@@ -340,11 +340,11 @@ export default function RequestInstallation() {
             <motion.div
               key={req._id}
               variants={cardVariants}
-              whileHover={{ transform: 'translateY(-8px)' }}
+              whileHover={{ transform: 'translateY(-8px)', boxShadow: '0 12px 24px rgba(0,0,0,0.15)' }}
               onClick={() => setViewing(req)}
               style={{
                 background: 'white',
-                borderRadius: '12px',
+                borderRadius: '16px',
                 overflow: 'hidden',
                 boxShadow: '0 4px 12px rgba(0,0,0,0.08)',
                 border: `2px solid ${getStatusBgColor(req.status)}`,
@@ -354,33 +354,34 @@ export default function RequestInstallation() {
             >
               <div style={{
                 background: getStatusBgColor(req.status),
-                padding: '12px 16px',
-                borderBottom: `3px solid ${getStatusColor(req.status)}`,
+                padding: '16px 20px',
+                borderBottom: `4px solid ${getStatusColor(req.status)}`,
                 display: 'flex',
                 justifyContent: 'space-between',
                 alignItems: 'center'
               }}>
-                <h3 style={{ margin: 0, color: '#2d7a3e', fontSize: '16px', fontWeight: '700' }}>
+                <h3 style={{ margin: 0, color: '#2d7a3e', fontSize: '18px', fontWeight: '700' }}>
                   {req.requestNumber}
                 </h3>
                 <div style={{
                   background: getStatusColor(req.status),
                   color: 'white',
-                  padding: '4px 12px',
+                  padding: '6px 14px',
                   borderRadius: '20px',
-                  fontSize: '11px',
+                  fontSize: '12px',
                   fontWeight: '700',
-                  textTransform: 'capitalize'
+                  textTransform: 'capitalize',
+                  boxShadow: '0 2px 4px rgba(0,0,0,0.1)'
                 }}>
                   {req.status}
                 </div>
               </div>
 
-              <div style={{ padding: '16px' }}>
+              <div style={{ padding: '20px' }}>
                 <div style={{ marginBottom: '12px' }}>
                   <p style={{ margin: '0 0 4px 0', color: '#666', fontSize: '12px', fontWeight: '600' }}>Type & Package</p>
-                  <p style={{ margin: 0, color: '#2d7a3e', fontSize: '14px', fontWeight: '700' }}>
-                    {req.installationType === 'fiber' ? '🌐' : '📡'} {req.installationType.charAt(0).toUpperCase() + req.installationType.slice(1)} - {req.package}
+                  <p style={{ margin: 0, color: '#2d7a3e', fontSize: '14px', fontWeight: '700', textTransform: 'capitalize' }}>
+                    {req.installationType} - {req.package}
                   </p>
                 </div>
 
@@ -401,10 +402,38 @@ export default function RequestInstallation() {
                 {req.quotation && (
                   <div style={{ marginTop: '12px', padding: '8px', background: '#e3f2fd', borderRadius: '6px' }}>
                     <p style={{ margin: 0, color: '#1976d2', fontSize: '12px', fontWeight: '600' }}>
-                      ✓ Quotation: {req.quotation.quotationNumber}
+                      Quotation: {req.quotation.quotationNumber}
                     </p>
                   </div>
                 )}
+
+                {/* Action Buttons */}
+                <div style={{ marginTop: '16px', display: 'flex', gap: '8px', justifyContent: 'flex-end' }}>
+                  <button
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      handleDelete(req._id);
+                    }}
+                    style={{
+                      padding: '8px 16px',
+                      background: '#ffebee',
+                      color: '#d32f2f',
+                      border: 'none',
+                      borderRadius: '6px',
+                      fontSize: '12px',
+                      fontWeight: '600',
+                      cursor: 'pointer',
+                      transition: 'all 0.2s ease',
+                      display: 'flex',
+                      alignItems: 'center',
+                      gap: '4px'
+                    }}
+                    onMouseOver={(e) => e.target.style.background = '#ffcdd2'}
+                    onMouseOut={(e) => e.target.style.background = '#ffebee'}
+                  >
+                    Delete
+                  </button>
+                </div>
               </div>
             </motion.div>
           ))
@@ -419,7 +448,7 @@ export default function RequestInstallation() {
               color: '#999'
             }}
           >
-            <div style={{ fontSize: '48px', marginBottom: '16px' }}>📝</div>
+            <div style={{ fontSize: '48px', marginBottom: '16px' }}>📋</div>
             <p style={{ fontSize: '16px', fontWeight: '500' }}>No installation requests yet</p>
             <p style={{ fontSize: '14px', marginTop: '8px' }}>Click "New Installation Request" to get started</p>
           </motion.div>

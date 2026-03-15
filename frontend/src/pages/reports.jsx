@@ -1,6 +1,6 @@
 // src/pages/reports.jsx
 import React, { useState, useEffect } from 'react';
-import API from '../utils/api';
+import API, { API_BASE } from '../utils/api';
 
 export default function Reports() {
   const [activeTab, setActiveTab] = useState('installations');
@@ -111,6 +111,40 @@ export default function Reports() {
     link.href = URL.createObjectURL(blob);
     link.download = filename;
     link.click();
+  };
+
+  const viewInvoice = async (id) => {
+    try {
+      const response = await fetch(`${API_BASE}/invoices/${id}/pdf`, {
+        headers: {
+          'Authorization': `Bearer ${localStorage.getItem('token')}`
+        }
+      });
+      if (!response.ok) throw new Error('Failed to view');
+      const blob = await response.blob();
+      const url = window.URL.createObjectURL(blob);
+      window.open(url, '_blank');
+    } catch (err) {
+      console.error(err);
+      alert('Failed to view invoice');
+    }
+  };
+
+  const viewQuotation = async (id) => {
+    try {
+      const response = await fetch(`${API_BASE}/quotations/${id}/pdf`, {
+        headers: {
+          'Authorization': `Bearer ${localStorage.getItem('token')}`
+        }
+      });
+      if (!response.ok) throw new Error('Failed to view');
+      const blob = await response.blob();
+      const url = window.URL.createObjectURL(blob);
+      window.open(url, '_blank');
+    } catch (err) {
+      console.error(err);
+      alert('Failed to view quotation');
+    }
   };
 
   const tabs = [
@@ -239,6 +273,7 @@ export default function Reports() {
                       <th style={{ padding: 12, textAlign: 'left' }}>Total</th>
                       <th style={{ padding: 12, textAlign: 'left' }}>Status</th>
                       <th style={{ padding: 12, textAlign: 'left' }}>Date</th>
+                      <th style={{ padding: 12, textAlign: 'center' }}>Actions</th>
                     </tr>
                   </thead>
                   <tbody>
@@ -259,6 +294,23 @@ export default function Reports() {
                           </span>
                         </td>
                         <td style={{ padding: 10 }}>{new Date(inv.createdAt).toLocaleDateString()}</td>
+                        <td style={{ padding: 10, textAlign: 'center' }}>
+                          <button
+                            onClick={() => viewInvoice(inv._id)}
+                            style={{
+                              padding: '6px 12px',
+                              background: '#2d7a3e',
+                              color: 'white',
+                              border: 'none',
+                              borderRadius: '4px',
+                              cursor: 'pointer',
+                              fontSize: '12px',
+                              fontWeight: '600'
+                            }}
+                          >
+                            View
+                          </button>
+                        </td>
                       </tr>
                     ))}
                   </tbody>
@@ -282,6 +334,7 @@ export default function Reports() {
                       <th style={{ padding: 12, textAlign: 'left' }}>Total</th>
                       <th style={{ padding: 12, textAlign: 'left' }}>Status</th>
                       <th style={{ padding: 12, textAlign: 'left' }}>Date</th>
+                      <th style={{ padding: 12, textAlign: 'center' }}>Actions</th>
                     </tr>
                   </thead>
                   <tbody>
@@ -302,6 +355,23 @@ export default function Reports() {
                           </span>
                         </td>
                         <td style={{ padding: 10 }}>{new Date(quot.createdAt).toLocaleDateString()}</td>
+                        <td style={{ padding: 10, textAlign: 'center' }}>
+                          <button
+                            onClick={() => viewQuotation(quot._id)}
+                            style={{
+                              padding: '6px 12px',
+                              background: '#2d7a3e',
+                              color: 'white',
+                              border: 'none',
+                              borderRadius: '4px',
+                              cursor: 'pointer',
+                              fontSize: '12px',
+                              fontWeight: '600'
+                            }}
+                          >
+                            View
+                          </button>
+                        </td>
                       </tr>
                     ))}
                   </tbody>

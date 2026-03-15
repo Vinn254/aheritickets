@@ -21,7 +21,8 @@ exports.register = async (req, res, next) => {
   await user.save();
 
   const token = signToken(user);
-  res.status(201).json({ token, user: user.toJSON() });
+  const permissions = user.getPermissions();
+  res.status(201).json({ token, user: { ...user.toJSON(), permissions } });
   } catch (err) {
     next(err);
   }
@@ -39,7 +40,8 @@ exports.login = async (req, res, next) => {
     if (!isMatch) return res.status(401).json({ message: 'Invalid credentials' });
 
     const token = signToken(user);
-    res.json({ token, user: user.toJSON() });
+    const permissions = user.getPermissions();
+    res.json({ token, user: { ...user.toJSON(), permissions } });
   } catch (err) {
     next(err);
   }
@@ -48,7 +50,8 @@ exports.login = async (req, res, next) => {
 // Protected: get current user info
 exports.me = async (req, res, next) => {
   try {
-    res.json({ user: req.user });
+    const permissions = req.user.getPermissions();
+    res.json({ user: { ...req.user.toJSON(), permissions } });
   } catch (err) {
     next(err);
   }
@@ -113,10 +116,11 @@ exports.resetPassword = async (req, res, next) => {
     await user.save();
 
     const loginToken = signToken(user);
+    const permissions = user.getPermissions();
     res.json({
       message: 'Password reset successful',
       token: loginToken,
-      user: user.toJSON()
+      user: { ...user.toJSON(), permissions }
     });
   } catch (err) {
     next(err);
