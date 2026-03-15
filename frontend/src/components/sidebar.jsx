@@ -155,10 +155,10 @@ export default function Sidebar({ showSidebar, setShowSidebar }) {
       variants={sidebarVariants}
       transition={{ duration: 0.3, ease: 'easeInOut' }}
       style={{
-        height: '100vh',
+        height: 'calc(100vh - 64px)',
         position: 'fixed',
         left: 0,
-        top: 0,
+        top: 64,
         zIndex: 1000,
         background: 'linear-gradient(180deg, #f0f7f0 0%, #e0f2e0 100%)',
         borderRight: '1px solid #c8e6c9',
@@ -179,8 +179,7 @@ export default function Sidebar({ showSidebar, setShowSidebar }) {
           flexDirection: 'column', 
           minWidth: 280,
           overflowY: 'auto',
-          overflowX: 'hidden',
-          paddingTop: '64px'
+          overflowX: 'hidden'
         }}
       >
         {/* Header */}
