@@ -742,110 +742,119 @@ export default function ManageInstallationRequests() {
         initial="hidden"
         animate="visible"
         style={{
-          display: 'grid',
-          gridTemplateColumns: 'repeat(auto-fill, minmax(300px, 1fr))',
-          gap: '16px'
+          display: 'block',
+          background: 'white',
+          borderRadius: '8px',
+          overflow: 'hidden',
+          boxShadow: '0 2px 8px rgba(0,0,0,0.08)'
         }}
       >
-        {filtered.length > 0 ? (
-          filtered.map((req) => (
-            <motion.div
-              key={req._id}
-              variants={cardVariants}
-              whileHover={{ transform: 'translateY(-8px)' }}
-              onClick={() => setViewing(req)}
-              style={{
-                background: 'white',
-                borderRadius: '12px',
-                overflow: 'hidden',
-                boxShadow: '0 4px 12px rgba(0,0,0,0.08)',
-                border: `2px solid ${getStatusBgColor(req.status)}`,
-                cursor: 'pointer',
-                transition: 'all 0.3s ease'
-              }}
-            >
-              <div style={{
+        {/* Table Header */}
+        <div style={{
+          display: 'grid',
+          gridTemplateColumns: '100px 1fr 1fr 120px 100px 80px',
+          gap: '12px',
+          padding: '14px 16px',
+          background: '#2d7a3e',
+          fontWeight: '600',
+          color: 'white',
+          fontSize: '12px',
+          textTransform: 'uppercase'
+        }}>
+          <div>Request #</div>
+          <div>Customer</div>
+          <div>Type/Package</div>
+          <div>Technician</div>
+          <div>Status</div>
+          <div>Action</div>
+        </div>
+      {filtered.length > 0 ? (
+        filtered.map((req) => (
+          <motion.div
+            key={req._id}
+            variants={cardVariants}
+            style={{
+              display: 'grid',
+              gridTemplateColumns: '100px 1fr 1fr 120px 100px 80px',
+              gap: '12px',
+              padding: '14px 16px',
+              borderBottom: '1px solid #e8e8e8',
+              alignItems: 'center',
+              cursor: 'pointer',
+              transition: 'all 0.2s ease'
+            }}
+            onClick={() => setViewing(req)}
+            whileHover={{ backgroundColor: '#f8f8f8' }}
+          >
+            <div style={{ fontWeight: '600', color: '#2d7a3e', fontSize: '13px' }}>
+              {req.requestNumber}
+            </div>
+            <div>
+              <div style={{ fontWeight: '600', color: '#333', fontSize: '13px' }}>
+                {req.customer?.name}
+              </div>
+              <div style={{ color: '#888', fontSize: '11px' }}>
+                {req.customer?.phone}
+              </div>
+            </div>
+            <div>
+              <div style={{ fontWeight: '500', color: '#333', fontSize: '12px' }}>
+                {req.installationType === 'fiber' ? 'Fiber' : 'Wireless'} - {req.package}
+              </div>
+              <div style={{ color: '#888', fontSize: '11px' }}>
+                {req.location || 'No location'}
+              </div>
+            </div>
+            <div style={{ fontSize: '12px', color: req.technician ? '#333' : '#888' }}>
+              {req.technician ? req.technician.name : 'Not assigned'}
+            </div>
+            <div>
+              <span style={{
                 background: getStatusBgColor(req.status),
-                padding: '12px 16px',
-                borderBottom: `3px solid ${getStatusColor(req.status)}`,
-                display: 'flex',
-                justifyContent: 'space-between',
-                alignItems: 'center'
+                color: getStatusColor(req.status),
+                padding: '4px 10px',
+                borderRadius: '12px',
+                fontSize: '10px',
+                fontWeight: '600',
+                textTransform: 'capitalize'
               }}>
-                <h3 style={{ margin: 0, color: '#2d7a3e', fontSize: '16px', fontWeight: '700' }}>
-                  {req.requestNumber}
-                </h3>
-                <div style={{
-                  background: getStatusColor(req.status),
+                {req.status}
+              </span>
+            </div>
+            <div>
+              <button
+                onClick={(e) => { e.stopPropagation(); setViewing(req); }}
+                style={{
+                  padding: '5px 10px',
+                  background: '#2d7a3e',
                   color: 'white',
-                  padding: '4px 12px',
-                  borderRadius: '20px',
+                  border: 'none',
+                  borderRadius: '4px',
                   fontSize: '11px',
-                  fontWeight: '700',
-                  textTransform: 'capitalize'
-                }}>
-                  {req.status}
-                </div>
-              </div>
-
-              <div style={{ padding: '16px' }}>
-                <div style={{ marginBottom: '12px' }}>
-                  <p style={{ margin: '0 0 4px 0', color: '#666', fontSize: '12px', fontWeight: '600' }}>Customer</p>
-                  <p style={{ margin: 0, color: '#2d7a3e', fontSize: '14px', fontWeight: '700' }}>
-                    {req.customer?.name}
-                  </p>
-                  <p style={{ margin: '2px 0 0 0', color: '#999', fontSize: '11px' }}>
-                    {req.customer?.phone}
-                  </p>
-                </div>
-
-                <div style={{ marginBottom: '12px' }}>
-                  <p style={{ margin: '0 0 4px 0', color: '#666', fontSize: '12px', fontWeight: '600' }}>Type & Package</p>
-                  <p style={{ margin: 0, color: '#333', fontSize: '13px', fontWeight: '600' }}>
-                    {req.installationType === 'fiber' ? 'Fiber' : 'Wireless'} - {req.package}
-                  </p>
-                </div>
-
-                <div style={{ marginBottom: '12px' }}>
-                  <p style={{ margin: '0 0 4px 0', color: '#666', fontSize: '12px', fontWeight: '600' }}>Technician</p>
-                  <p style={{ margin: 0, color: '#666', fontSize: '12px' }}>
-                    {req.technician ? `👤 ${req.technician.name}` : 'Not assigned'}
-                  </p>
-                </div>
-
-                <div style={{ marginBottom: '12px' }}>
-                  <p style={{ margin: '0 0 4px 0', color: '#666', fontSize: '12px', fontWeight: '600' }}>Location</p>
-                  <p style={{ margin: 0, color: '#666', fontSize: '12px' }}>
-                    {req.location || 'Not specified'}
-                  </p>
-                </div>
-
-                {req.quotation && (
-                  <div style={{ marginTop: '12px', padding: '8px', background: '#e3f2fd', borderRadius: '6px' }}>
-                    <p style={{ margin: 0, color: '#1976d2', fontSize: '11px', fontWeight: '600' }}>
-                      Quotation: {req.quotation.quotationNumber}
-                    </p>
-                  </div>
-                )}
-              </div>
-            </motion.div>
-          ))
-        ) : (
+                  cursor: 'pointer',
+                  fontWeight: '500'
+                }}
+              >
+                View
+              </button>
+            </div>
+          </motion.div>
+        ))
+      ) : (
           <motion.div
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             style={{
-              gridColumn: '1 / -1',
               textAlign: 'center',
               padding: '48px 20px',
-              color: '#999'
+              color: '#999',
+              background: 'white'
             }}
           >
-            <div style={{ fontSize: '48px', marginBottom: '16px' }}>📭</div>
             <p style={{ fontSize: '16px', fontWeight: '500' }}>No requests found</p>
           </motion.div>
         )}
-      </motion.div>
+    </motion.div>
 
       {/* Viewing Modal */}
       {viewing && (

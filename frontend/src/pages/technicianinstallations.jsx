@@ -213,103 +213,115 @@ export default function TechnicianInstallations() {
         initial="hidden"
         animate="visible"
         style={{
-          display: 'grid',
-          gridTemplateColumns: 'repeat(auto-fill, minmax(300px, 1fr))',
-          gap: '16px'
+          display: 'block',
+          background: 'white',
+          borderRadius: '8px',
+          overflow: 'hidden',
+          boxShadow: '0 2px 8px rgba(0,0,0,0.08)'
         }}
       >
-        {filtered.length > 0 ? (
-          filtered.map((inst) => (
-            <motion.div
-              key={inst._id}
-              variants={cardVariants}
-              whileHover={{ transform: 'translateY(-8px)' }}
-              onClick={() => setViewing(inst)}
-              style={{
-                background: 'white',
-                borderRadius: '12px',
-                overflow: 'hidden',
-                boxShadow: '0 4px 12px rgba(0,0,0,0.08)',
-                border: `2px solid ${getStatusBgColor(inst.status)}`,
-                cursor: 'pointer',
-                transition: 'all 0.3s ease'
-              }}
-            >
-              <div style={{
+        {/* Table Header */}
+        <div style={{
+          display: 'grid',
+          gridTemplateColumns: '100px 1fr 1fr 100px 80px',
+          gap: '12px',
+          padding: '14px 16px',
+          background: '#2d7a3e',
+          fontWeight: '600',
+          color: 'white',
+          fontSize: '12px',
+          textTransform: 'uppercase'
+        }}>
+          <div>Request #</div>
+          <div>Customer</div>
+          <div>Type/Package</div>
+          <div>Status</div>
+          <div>Action</div>
+        </div>
+      {filtered.length > 0 ? (
+        filtered.map((inst) => (
+          <motion.div
+            key={inst._id}
+            variants={cardVariants}
+            style={{
+              display: 'grid',
+              gridTemplateColumns: '100px 1fr 1fr 100px 80px',
+              gap: '12px',
+              padding: '14px 16px',
+              borderBottom: '1px solid #e8e8e8',
+              alignItems: 'center',
+              cursor: 'pointer',
+              transition: 'all 0.2s ease'
+            }}
+            onClick={() => setViewing(inst)}
+            whileHover={{ backgroundColor: '#f8f8f8' }}
+          >
+            <div style={{ fontWeight: '600', color: '#2d7a3e', fontSize: '13px' }}>
+              {inst.requestNumber}
+            </div>
+            <div>
+              <div style={{ fontWeight: '600', color: '#333', fontSize: '13px' }}>
+                {inst.customer?.name}
+              </div>
+              <div style={{ color: '#888', fontSize: '11px' }}>
+                {inst.customer?.phone}
+              </div>
+            </div>
+            <div>
+              <div style={{ fontWeight: '500', color: '#333', fontSize: '12px' }}>
+                {inst.installationType === 'fiber' ? 'Fiber' : 'Wireless'} - {inst.package}
+              </div>
+              <div style={{ color: '#888', fontSize: '11px' }}>
+                {inst.location || 'No location'}
+              </div>
+            </div>
+            <div>
+              <span style={{
                 background: getStatusBgColor(inst.status),
-                padding: '12px 16px',
-                borderBottom: `3px solid ${getStatusColor(inst.status)}`,
-                display: 'flex',
-                justifyContent: 'space-between',
-                alignItems: 'center'
+                color: getStatusColor(inst.status),
+                padding: '4px 10px',
+                borderRadius: '12px',
+                fontSize: '10px',
+                fontWeight: '600',
+                textTransform: 'capitalize'
               }}>
-                <h3 style={{ margin: 0, color: '#2d7a3e', fontSize: '16px', fontWeight: '700' }}>
-                  {inst.requestNumber}
-                </h3>
-                <div style={{
-                  background: getStatusColor(inst.status),
+                {inst.status}
+              </span>
+            </div>
+            <div>
+              <button
+                onClick={(e) => { e.stopPropagation(); setViewing(inst); }}
+                style={{
+                  padding: '5px 10px',
+                  background: '#2d7a3e',
                   color: 'white',
-                  padding: '4px 12px',
-                  borderRadius: '20px',
+                  border: 'none',
+                  borderRadius: '4px',
                   fontSize: '11px',
-                  fontWeight: '700',
-                  textTransform: 'capitalize'
-                }}>
-                  {inst.status}
-                </div>
-              </div>
-
-              <div style={{ padding: '16px' }}>
-                <div style={{ marginBottom: '12px' }}>
-                  <p style={{ margin: '0 0 4px 0', color: '#666', fontSize: '12px', fontWeight: '600' }}>Customer</p>
-                  <p style={{ margin: 0, color: '#2d7a3e', fontSize: '14px', fontWeight: '700' }}>
-                    {inst.customer?.name}
-                  </p>
-                  <p style={{ margin: '2px 0 0 0', color: '#999', fontSize: '11px' }}>
-                    📞 {inst.customer?.phone}
-                  </p>
-                </div>
-
-                <div style={{ marginBottom: '12px' }}>
-                  <p style={{ margin: '0 0 4px 0', color: '#666', fontSize: '12px', fontWeight: '600' }}>Type & Package</p>
-                  <p style={{ margin: 0, color: '#333', fontSize: '13px', fontWeight: '600' }}>
-                    {inst.installationType === 'fiber' ? 'Fiber' : 'Wireless'} - {inst.package}
-                  </p>
-                </div>
-
-                <div style={{ marginBottom: '12px' }}>
-                  <p style={{ margin: '0 0 4px 0', color: '#666', fontSize: '12px', fontWeight: '600' }}>Location</p>
-                  <p style={{ margin: 0, color: '#666', fontSize: '12px' }}>
-                    {inst.location || 'Not specified'}
-                  </p>
-                </div>
-
-                {inst.status === 'pending' && (
-                  <div style={{ marginTop: '12px', padding: '8px', background: '#fff3e0', borderRadius: '6px' }}>
-                    <p style={{ margin: 0, color: '#e65100', fontSize: '11px', fontWeight: '600' }}>
-                      🔧 Click to mark as completed
-                    </p>
-                  </div>
-                )}
-              </div>
-            </motion.div>
-          ))
-        ) : (
+                  cursor: 'pointer',
+                  fontWeight: '500'
+                }}
+              >
+                View
+              </button>
+            </div>
+          </motion.div>
+        ))
+      ) : (
           <motion.div
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             style={{
-              gridColumn: '1 / -1',
               textAlign: 'center',
               padding: '48px 20px',
-              color: '#999'
+              color: '#999',
+              background: 'white'
             }}
           >
-            <div style={{ fontSize: '48px', marginBottom: '16px' }}>📭</div>
             <p style={{ fontSize: '16px', fontWeight: '500' }}>No installations assigned</p>
           </motion.div>
         )}
-      </motion.div>
+    </motion.div>
 
       {/* Viewing Modal */}
       {viewing && (

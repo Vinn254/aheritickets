@@ -101,7 +101,31 @@ function App() {
       display: "flex",
       flexDirection: "column",
       overflowX: 'visible',
-      background: 'linear-gradient(135deg, #eafff3 0%, #f7fff7 100%)',
+      background: `
+        repeating-linear-gradient(
+          90deg,
+          transparent,
+          transparent 40px,
+          rgba(45, 122, 62, 0.08) 40px,
+          rgba(45, 122, 62, 0.08) 42px,
+          transparent 42px,
+          transparent 80px,
+          rgba(45, 122, 62, 0.05) 80px,
+          rgba(45, 122, 62, 0.05) 82px
+        ),
+        repeating-linear-gradient(
+          0deg,
+          transparent,
+          transparent 40px,
+          rgba(45, 122, 62, 0.08) 40px,
+          rgba(45, 122, 62, 0.08) 42px,
+          transparent 42px,
+          transparent 80px,
+          rgba(45, 122, 62, 0.05) 80px,
+          rgba(45, 122, 62, 0.05) 82px
+        ),
+        linear-gradient(135deg, #e8f5e9 0%, #f0f7f0 50%, #e8f5e9 100%)
+      `,
     }}>
       <div className="watermark-bg" />
 

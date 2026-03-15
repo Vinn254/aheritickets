@@ -15,9 +15,63 @@ body {
   height: 100vh;
   z-index: 0;
   pointer-events: none;
-  opacity: 0.08;
-  background: url('/img5.PNG') center center/30vw no-repeat;
-  /* You can replace vite.svg with your logo or watermark image */
+  opacity: 0.06;
+  /* Plaid/Tartan pattern using CSS gradients */
+  background: 
+    /* Vertical stripes */
+    repeating-linear-gradient(
+      90deg,
+      transparent,
+      transparent 40px,
+      rgba(45, 122, 62, 0.5) 40px,
+      rgba(45, 122, 62, 0.5) 42px,
+      transparent 42px,
+      transparent 80px,
+      rgba(45, 122, 62, 0.3) 80px,
+      rgba(45, 122, 62, 0.3) 82px,
+      transparent 82px,
+      transparent 120px,
+      rgba(45, 122, 62, 0.4) 120px,
+      rgba(45, 122, 62, 0.4) 122px
+    ),
+    /* Horizontal stripes */
+    repeating-linear-gradient(
+      0deg,
+      transparent,
+      transparent 40px,
+      rgba(45, 122, 62, 0.5) 40px,
+      rgba(45, 122, 62, 0.5) 42px,
+      transparent 42px,
+      transparent 80px,
+      rgba(45, 122, 62, 0.3) 80px,
+      rgba(45, 122, 62, 0.3) 82px,
+      transparent 82px,
+      transparent 120px,
+      rgba(45, 122, 62, 0.4) 120px,
+      rgba(45, 122, 62, 0.4) 122px
+    ),
+    /* Diagonal accent lines */
+    repeating-linear-gradient(
+      45deg,
+      transparent,
+      transparent 20px,
+      rgba(45, 122, 62, 0.15) 20px,
+      rgba(45, 122, 62, 0.15) 22px,
+      transparent 22px,
+      transparent 40px
+    ),
+    repeating-linear-gradient(
+      -45deg,
+      transparent,
+      transparent 20px,
+      rgba(45, 122, 62, 0.15) 20px,
+      rgba(45, 122, 62, 0.15) 22px,
+      transparent 22px,
+      transparent 40px
+    ),
+    /* Base color */
+    linear-gradient(135deg, #e8f5e9 0%, #f0f7f0 50%, #e8f5e9 100%);
+  background-size: 160px 160px;
 }
 
 .page-box {
