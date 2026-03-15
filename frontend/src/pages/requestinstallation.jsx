@@ -532,7 +532,7 @@ export default function RequestInstallation() {
               <div style={{ marginBottom: '16px', paddingBottom: '16px', borderBottom: '1px solid #eee' }}>
                 <p style={{ margin: '0 0 4px 0', color: '#666', fontSize: '12px', fontWeight: '600' }}>Installation Type & Package</p>
                 <p style={{ margin: 0, color: '#2d7a3e', fontSize: '16px', fontWeight: '700' }}>
-                  {viewing.installationType === 'fiber' ? '🌐' : '📡'} {viewing.installationType.charAt(0).toUpperCase() + viewing.installationType.slice(1)} - {viewing.package}
+                  {viewing.installationType.charAt(0).toUpperCase() + viewing.installationType.slice(1)} - {viewing.package}
                 </p>
               </div>
 

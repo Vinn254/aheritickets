@@ -238,6 +238,12 @@ function App() {
              }
            />
            <Route
+             path="/installations"
+             element={
+               <Navigate to={role === ROLES.TECHNICIAN || role === ROLES.CONTRACTOR ? '/my-installations' : '/manage-installation-requests'} replace />
+             }
+           />
+           <Route
              path="/planning"
              element={
                <ProtectedRoute allowedRole={[ROLES.SUPER_ADMIN, ROLES.ADMIN, ROLES.CSR, ROLES.TECHNICIAN]}>

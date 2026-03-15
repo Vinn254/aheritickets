@@ -273,14 +273,14 @@ export default function TechnicianInstallations() {
                 <div style={{ marginBottom: '12px' }}>
                   <p style={{ margin: '0 0 4px 0', color: '#666', fontSize: '12px', fontWeight: '600' }}>Type & Package</p>
                   <p style={{ margin: 0, color: '#333', fontSize: '13px', fontWeight: '600' }}>
-                    {inst.installationType === 'fiber' ? '🌐' : '📡'} {inst.installationType} - {inst.package}
+                    {inst.installationType === 'fiber' ? 'Fiber' : 'Wireless'} - {inst.package}
                   </p>
                 </div>
 
                 <div style={{ marginBottom: '12px' }}>
                   <p style={{ margin: '0 0 4px 0', color: '#666', fontSize: '12px', fontWeight: '600' }}>Location</p>
                   <p style={{ margin: 0, color: '#666', fontSize: '12px' }}>
-                    📍 {inst.location || 'Not specified'}
+                    {inst.location || 'Not specified'}
                   </p>
                 </div>
 
@@ -394,17 +394,17 @@ export default function TechnicianInstallations() {
                   📧 {viewing.customer?.email} | 📞 {viewing.customer?.phone}
                 </p>
                 <p style={{ margin: '2px 0 0 0', color: '#666', fontSize: '12px' }}>
-                  📍 {viewing.customer?.location}
+                  {viewing.customer?.location}
                 </p>
               </div>
 
               <div style={{ marginBottom: '16px', paddingBottom: '16px', borderBottom: '1px solid #eee' }}>
                 <p style={{ margin: '0 0 4px 0', color: '#666', fontSize: '12px', fontWeight: '600' }}>Installation Details</p>
                 <p style={{ margin: '0 0 4px 0', color: '#2d7a3e', fontSize: '14px', fontWeight: '700' }}>
-                  {viewing.installationType === 'fiber' ? '🌐' : '📡'} {viewing.installationType.charAt(0).toUpperCase() + viewing.installationType.slice(1)} - {viewing.package}
+                  {viewing.installationType.charAt(0).toUpperCase() + viewing.installationType.slice(1)} - {viewing.package}
                 </p>
                 <p style={{ margin: '4px 0 0 0', color: '#666', fontSize: '12px' }}>
-                  📍 Location: {viewing.location}
+                  Location: {viewing.location}
                 </p>
               </div>
 

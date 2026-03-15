@@ -36,8 +36,7 @@ export const MENU_CONFIG = [
     items: [
       { name: 'Network Infrastructure', path: '/network', roles: [ROLES.SUPER_ADMIN, ROLES.ADMIN, ROLES.TECHNICIAN] },
       { name: 'Customers', path: '/customers', roles: [ROLES.SUPER_ADMIN, ROLES.ADMIN, ROLES.CRS, ROLES.TECHNICIAN] },
-      { name: 'Installations', path: '/manage-installation-requests', roles: [ROLES.SUPER_ADMIN, ROLES.ADMIN, ROLES.CRS] },
-      { name: 'My Installations', path: '/my-installations', roles: [ROLES.SUPER_ADMIN, ROLES.ADMIN, ROLES.TECHNICIAN, ROLES.CONTRACTOR] },
+      { name: 'Installations', path: '/installations', roles: [ROLES.SUPER_ADMIN, ROLES.ADMIN, ROLES.CRS, ROLES.TECHNICIAN, ROLES.CONTRACTOR] },
       { name: 'Network Reports', path: '/reports', roles: [ROLES.SUPER_ADMIN, ROLES.ADMIN, ROLES.CRS] },
       { name: 'Planning', path: '/planning', roles: [ROLES.SUPER_ADMIN, ROLES.ADMIN, ROLES.CRS, ROLES.TECHNICIAN] }
     ]

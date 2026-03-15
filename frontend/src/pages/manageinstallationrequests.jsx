@@ -497,7 +497,7 @@ export default function ManageInstallationRequests() {
                       textTransform: 'capitalize'
                     }}
                   >
-                    {type === 'fiber' ? '🌐' : '📡'} {type}
+                    {type === 'fiber' ? 'Fiber' : 'Wireless'} 
                   </button>
                 ))}
               </div>
@@ -802,7 +802,7 @@ export default function ManageInstallationRequests() {
                 <div style={{ marginBottom: '12px' }}>
                   <p style={{ margin: '0 0 4px 0', color: '#666', fontSize: '12px', fontWeight: '600' }}>Type & Package</p>
                   <p style={{ margin: 0, color: '#333', fontSize: '13px', fontWeight: '600' }}>
-                    {req.installationType === 'fiber' ? '🌐' : '📡'} {req.installationType} - {req.package}
+                    {req.installationType === 'fiber' ? 'Fiber' : 'Wireless'} - {req.package}
                   </p>
                 </div>
 
@@ -816,14 +816,14 @@ export default function ManageInstallationRequests() {
                 <div style={{ marginBottom: '12px' }}>
                   <p style={{ margin: '0 0 4px 0', color: '#666', fontSize: '12px', fontWeight: '600' }}>Location</p>
                   <p style={{ margin: 0, color: '#666', fontSize: '12px' }}>
-                    📍 {req.location || 'Not specified'}
+                    {req.location || 'Not specified'}
                   </p>
                 </div>
 
                 {req.quotation && (
                   <div style={{ marginTop: '12px', padding: '8px', background: '#e3f2fd', borderRadius: '6px' }}>
                     <p style={{ margin: 0, color: '#1976d2', fontSize: '11px', fontWeight: '600' }}>
-                      ✓ Quotation: {req.quotation.quotationNumber}
+                      Quotation: {req.quotation.quotationNumber}
                     </p>
                   </div>
                 )}
@@ -933,17 +933,17 @@ export default function ManageInstallationRequests() {
                   📧 {viewing.customer?.email} | 📞 {viewing.customer?.phone}
                 </p>
                 <p style={{ margin: '2px 0 0 0', color: '#666', fontSize: '12px' }}>
-                  📍 {viewing.customer?.location}
+                  {viewing.customer?.location}
                 </p>
               </div>
 
               <div style={{ marginBottom: '16px', paddingBottom: '16px', borderBottom: '1px solid #eee' }}>
                 <p style={{ margin: '0 0 4px 0', color: '#666', fontSize: '12px', fontWeight: '600' }}>Installation Details</p>
                 <p style={{ margin: '0 0 4px 0', color: '#2d7a3e', fontSize: '14px', fontWeight: '700' }}>
-                  {viewing.installationType === 'fiber' ? '🌐' : '📡'} {viewing.installationType.charAt(0).toUpperCase() + viewing.installationType.slice(1)} - {viewing.package}
+                  {viewing.installationType.charAt(0).toUpperCase() + viewing.installationType.slice(1)} - {viewing.package}
                 </p>
                 <p style={{ margin: '4px 0 0 0', color: '#666', fontSize: '12px' }}>
-                  📍 Location: {viewing.location}
+                  Location: {viewing.location}
                 </p>
               </div>
 
@@ -998,7 +998,7 @@ export default function ManageInstallationRequests() {
 
               {viewing.quotation && (
                 <div style={{ marginBottom: '16px', padding: '12px', background: '#e3f2fd', borderRadius: '6px' }}>
-                  <p style={{ margin: '0 0 4px 0', color: '#1976d2', fontSize: '12px', fontWeight: '600' }}>✓ Quotation Created</p>
+                  <p style={{ margin: '0 0 4px 0', color: '#1976d2', fontSize: '12px', fontWeight: '600' }}>Quotation Created</p>
                   <p style={{ margin: 0, color: '#1976d2', fontSize: '14px', fontWeight: '700' }}>
                     {viewing.quotation.quotationNumber}
                   </p>
@@ -1078,7 +1078,7 @@ export default function ManageInstallationRequests() {
                       transition: 'all 0.3s ease'
                     }}
                   >
-                    ✓ Close Installation
+                    Close Installation
                   </button>
                   <p style={{ margin: '8px 0 0 0', color: '#666', fontSize: '11px', textAlign: 'center' }}>
                     Admin can close installation at any time
