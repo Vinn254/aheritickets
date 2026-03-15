@@ -155,14 +155,17 @@ export default function Sidebar({ showSidebar, setShowSidebar }) {
       variants={sidebarVariants}
       transition={{ duration: 0.3, ease: 'easeInOut' }}
       style={{
-        height: 'calc(100vh - 64px - 70px)',
+        height: '100vh',
+        position: 'fixed',
+        left: 0,
+        top: 0,
+        zIndex: 1000,
         background: 'linear-gradient(180deg, #f0f7f0 0%, #e0f2e0 100%)',
         borderRight: '1px solid #c8e6c9',
         boxShadow: showSidebar ? '4px 0 12px rgba(67, 160, 71, 0.08)' : 'none',
         padding: '0',
         display: 'flex',
         flexDirection: 'column',
-        position: 'relative',
         flexShrink: 0,
       }}
     >
@@ -177,7 +180,7 @@ export default function Sidebar({ showSidebar, setShowSidebar }) {
           minWidth: 280,
           overflowY: 'auto',
           overflowX: 'hidden',
-          paddingTop: '16px'
+          paddingTop: '64px'
         }}
       >
         {/* Header */}
