@@ -206,7 +206,7 @@ function App() {
       {/* Main content area */}
       <div style={{
         flex: 1,
-        height: 'calc(100vh - 64px)',
+        minHeight: 'calc(100vh - 64px - 70px)',
         width: '100%',
         boxSizing: 'border-box',
         display: 'flex',
@@ -220,7 +220,7 @@ function App() {
             position: 'fixed',
             left: 0,
             top: 64,
-            height: 'calc(100vh - 64px)',
+            height: 'calc(100vh - 64px - 70px)',
             zIndex: 999,
             backgroundColor: 'rgba(0,0,0,0.5)',
             display: showSidebar ? 'flex' : 'none',
@@ -236,12 +236,12 @@ function App() {
           flex: 1,
           display: 'flex',
           flexDirection: 'column',
-          height: 'calc(100vh - 64px)',
+          minHeight: 'calc(100vh - 64px - 70px)',
           width: '100%',
           maxWidth: '100%',
           overflowX: 'hidden',
           overflowY: 'auto',
-          marginLeft: showSidebar ? 280 : 0,
+          marginLeft: (isAuthenticated && showSidebar && !['/', '/login', '/register', '/forgot-password'].includes(location.pathname)) ? 280 : 0,
           transition: 'margin-left 0.3s ease-in-out, padding 0.3s ease-in-out',
           padding: '24px',
           boxSizing: 'border-box'
