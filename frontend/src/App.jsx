@@ -184,10 +184,12 @@ function App() {
     <div style={{
       fontFamily: "Arial, sans-serif",
       minHeight: "100vh",
+      height: "100vh",
       width: '100%',
       display: "flex",
       flexDirection: "column",
-      overflowX: 'visible',
+      overflowX: 'hidden',
+      overflowY: 'hidden',
       background: `
         radial-gradient(circle, rgba(45, 122, 62, 0.15) 1px, transparent 1px)
         0 0 / 20px 20px,
@@ -204,7 +206,7 @@ function App() {
       {/* Main content area */}
       <div style={{
         flex: 1,
-        minHeight: 'calc(100vh - 64px - 70px)',
+        height: 'calc(100vh - 64px)',
         width: '100%',
         boxSizing: 'border-box',
         display: 'flex',
@@ -234,8 +236,9 @@ function App() {
           flex: 1,
           display: 'flex',
           flexDirection: 'column',
+          height: 'calc(100vh - 64px)',
           width: '100%',
-          overflowX: 'visible',
+          overflowX: 'hidden',
           overflowY: 'auto',
           marginLeft: showSidebar && windowWidth >= 768 ? 280 : 0,
           transition: 'margin-left 0.3s ease-in-out, padding 0.3s ease-in-out',
