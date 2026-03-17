@@ -262,7 +262,7 @@ export default function NetworkManagement() {
             )}
 
             {/* Unified Form Fields based on Device Type */}
-            {((activeTab === 'pop' && !editing) || (editing && formData.address)) && activeTab !== 'backbone' && (
+            {(activeTab === 'pop' || activeTab === 'ap' || activeTab === 'station') && (
               <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16 }}>
                 <div>
                   <label style={{ display: 'block', marginBottom: 6, fontWeight: 600, color: '#2d7a3e' }}>Name *</label>
