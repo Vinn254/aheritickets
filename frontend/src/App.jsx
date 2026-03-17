@@ -73,6 +73,93 @@ function App() {
     return () => window.removeEventListener('resize', handleResize);
   }, []);
 
+  // Add responsive table styles
+  React.useEffect(() => {
+    const style = document.createElement('style');
+    style.textContent = `
+      /* Responsive table wrapper for all tables in page content */
+      .page-content > div > table,
+      .page-content > section > table,
+      .page-content > form + div table,
+      .page-content table[style*="minWidth"] {
+        display: table;
+        width: 100%;
+      }
+      
+      /* Force horizontal scroll on all tables */
+      .page-content table {
+        overflow-x: auto !important;
+        display: table !important;
+        table-layout: auto;
+        width: 100%;
+        max-width: 100%;
+        -webkit-overflow-scrolling: touch;
+      }
+      
+      /* Ensure parent divs allow overflow */
+      .page-content > div {
+        overflow-x: visible !important;
+        max-width: 100%;
+      }
+      
+      /* Table scroll indicator */
+      .table-scroll-hint {
+        display: none;
+        font-size: 12px;
+        color: #666;
+        text-align: center;
+        padding: 8px;
+        background: #f5f5f5;
+      }
+      
+      /* Responsive adjustments */
+      @media (max-width: 768px) {
+        .table-scroll-hint {
+          display: block;
+        }
+        
+        .page-content {
+          padding: 12px !important;
+        }
+        
+        table {
+          font-size: 11px !important;
+          min-width: 500px !important;
+        }
+        
+        table th, table td {
+          padding: 6px 8px !important;
+          font-size: 10px !important;
+          white-space: nowrap !important;
+        }
+        
+        /* Sidebar overlay fix */
+        [style*="position: fixed"] {
+          position: relative !important;
+        }
+      }
+      
+      /* Smooth page transitions */
+      .page-content {
+        transition: margin-left 0.3s ease-in-out, padding 0.3s ease-in-out;
+      }
+      
+      /* Mobile-friendly adjustments */
+      @media (max-width: 600px) {
+        .page-content {
+          padding: 8px !important;
+        }
+      }
+      
+      /* Ensure proper scrolling container */
+      .page-content [style*="overflowY: auto"] {
+        overflow-x: auto !important;
+      }
+    `;
+    document.head.appendChild(style);
+    return () => document.head.removeChild(style);
+  }, []);
+
   // Get dashboard path based on role
   const getDashboardPath = () => {
     switch(role) {
@@ -147,8 +234,12 @@ function App() {
           flexDirection: 'column',
           width: '100%',
           overflowX: 'visible',
-          overflowY: 'auto'
-        }}>
+          overflowY: 'auto',
+          marginLeft: showSidebar && windowWidth >= 768 ? 0 : 0,
+          transition: 'margin-left 0.3s ease-in-out, padding 0.3s ease-in-out',
+          padding: windowWidth < 768 ? '16px' : (showSidebar ? '24px' : '24px'),
+          boxSizing: 'border-box'
+        }} className="page-content">
         <Suspense fallback={<div>Loading...</div>}>
           <Routes>
            <Route

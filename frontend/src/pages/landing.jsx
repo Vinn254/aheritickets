@@ -317,9 +317,9 @@ export default function Landing() {
         <h2 style={{ color: '#1b5e20', fontWeight: 800, fontSize: 36, marginBottom: 12, letterSpacing: 1, textTransform: 'uppercase' }}>Packages We Offer</h2>
         <p style={{ color: '#2e7d32', fontSize: 18, marginBottom: 48, maxWidth: 600, textAlign: 'center' }}>Choose the perfect internet plan for your needs. All packages include free installation and 24/7 support.</p>
         <div style={{ display: 'flex', gap: 32, flexWrap: 'wrap', justifyContent: 'center', maxWidth: 1200 }}>
-          <Package speed="10" price="2000" speedUnit="Mbps" color="#43e97b" index={0} features={['Unlimited Data', 'Free Router', '24/7 Support']} />
-          <Package speed="15" price="2600" speedUnit="Mbps" color="#38f9d7" index={1} features={['Unlimited Data', 'Free Router', '24/7 Support', 'Priority Support']} popular />
-          <Package speed="20" price="3000" speedUnit="Mbps" color="#ffc107" index={2} features={['Unlimited Data', 'Free Router', '24/7 Support']} />
+          <Package speed="10" price="2000" speedUnit="Mbps" color="#43e97b" index={0} features={['Unlimited Data', '24/7 Support']} />
+          <Package speed="15" price="2600" speedUnit="Mbps" color="#38f9d7" index={1} features={['Unlimited Data', '24/7 Support', 'Priority Support']} popular />
+          <Package speed="20" price="3000" speedUnit="Mbps" color="#ffc107" index={2} features={['Unlimited Data', '24/7 Support']} />
           <Package speed="30" price="5400" speedUnit="Mbps" color="#e91e63" index={3} features={['Unlimited Data', 'Premium Router', '24/7 Support', 'Static IP', 'Priority Support']} />
         </div>
       </section>
