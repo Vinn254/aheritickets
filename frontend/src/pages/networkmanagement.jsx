@@ -518,7 +518,6 @@ export default function NetworkManagement() {
                     <th style={{ padding: 14, textAlign: 'left', color: '#fff', fontWeight: 600 }}>Address</th>
                     <th style={{ padding: 14, textAlign: 'left', color: '#fff', fontWeight: 600 }}>MAC Address</th>
                     <th style={{ padding: 14, textAlign: 'left', color: '#fff', fontWeight: 600 }}>Backbone</th>
-                    <th style={{ padding: 14, textAlign: 'left', color: '#fff', fontWeight: 600 }}>Status</th>
                     <th style={{ padding: 14, textAlign: 'center', color: '#fff', fontWeight: 600, width: 180 }}>Actions</th>
                   </tr>
                 </thead>
@@ -530,18 +529,6 @@ export default function NetworkManagement() {
                       <td style={{ padding: 14 }}>{pop.address}</td>
                       <td style={{ padding: 14, fontFamily: 'monospace', fontSize: 13 }}>{pop.macAddress || '-'}</td>
                       <td style={{ padding: 14 }}>{pop.backbone?.details || pop.backbone?.type || '-'}</td>
-                      <td style={{ padding: 14 }}>
-                        <span style={{ 
-                          padding: '4px 12px', 
-                          borderRadius: 20, 
-                          fontSize: 12, 
-                          fontWeight: 600, 
-                          background: pop.status === 'active' ? '#4caf50' : '#f44336', 
-                          color: '#fff' 
-                        }}>
-                          {pop.status?.toUpperCase() || 'ACTIVE'}
-                        </span>
-                      </td>
                       <td style={{ padding: 14, textAlign: 'center' }}>
                         <button 
                           onClick={() => handleEdit(pop, 'pops')}
@@ -589,7 +576,6 @@ export default function NetworkManagement() {
                     <th style={{ padding: 14, textAlign: 'left', color: '#fff', fontWeight: 600 }}>Address</th>
                     <th style={{ padding: 14, textAlign: 'left', color: '#fff', fontWeight: 600 }}>MAC Address</th>
                     <th style={{ padding: 14, textAlign: 'left', color: '#fff', fontWeight: 600 }}>Connected POP</th>
-                    <th style={{ padding: 14, textAlign: 'left', color: '#fff', fontWeight: 600 }}>Status</th>
                     <th style={{ padding: 14, textAlign: 'center', color: '#fff', fontWeight: 600, width: 180 }}>Actions</th>
                   </tr>
                 </thead>
@@ -601,18 +587,6 @@ export default function NetworkManagement() {
                       <td style={{ padding: 14 }}>{ap.address}</td>
                       <td style={{ padding: 14, fontFamily: 'monospace', fontSize: 13 }}>{ap.macAddress || '-'}</td>
                       <td style={{ padding: 14 }}>{ap.pop?.name || '-'}</td>
-                      <td style={{ padding: 14 }}>
-                        <span style={{ 
-                          padding: '4px 12px', 
-                          borderRadius: 20, 
-                          fontSize: 12, 
-                          fontWeight: 600, 
-                          background: ap.status === 'active' ? '#4caf50' : '#f44336', 
-                          color: '#fff' 
-                        }}>
-                          {ap.status?.toUpperCase() || 'ACTIVE'}
-                        </span>
-                      </td>
                       <td style={{ padding: 14, textAlign: 'center' }}>
                         <button 
                           onClick={() => handleEdit(ap, 'aps')}
@@ -660,7 +634,6 @@ export default function NetworkManagement() {
                     <th style={{ padding: 14, textAlign: 'left', color: '#fff', fontWeight: 600 }}>IP Address</th>
                     <th style={{ padding: 14, textAlign: 'left', color: '#fff', fontWeight: 600 }}>MAC Address</th>
                     <th style={{ padding: 14, textAlign: 'left', color: '#fff', fontWeight: 600 }}>Connected AP</th>
-                    <th style={{ padding: 14, textAlign: 'left', color: '#fff', fontWeight: 600 }}>Status</th>
                     <th style={{ padding: 14, textAlign: 'center', color: '#fff', fontWeight: 600, width: 180 }}>Actions</th>
                   </tr>
                 </thead>
@@ -672,18 +645,6 @@ export default function NetworkManagement() {
                       <td style={{ padding: 14, fontFamily: 'monospace', fontSize: 13 }}>{station.address || '-'}</td>
                       <td style={{ padding: 14, fontFamily: 'monospace', fontSize: 13 }}>{station.macAddress || '-'}</td>
                       <td style={{ padding: 14 }}>{station.ap?.name || '-'}</td>
-                      <td style={{ padding: 14 }}>
-                        <span style={{ 
-                          padding: '4px 12px', 
-                          borderRadius: 20, 
-                          fontSize: 12, 
-                          fontWeight: 600, 
-                          background: station.status === 'active' ? '#4caf50' : '#f44336', 
-                          color: '#fff' 
-                        }}>
-                          {station.status?.toUpperCase() || 'ACTIVE'}
-                        </span>
-                      </td>
                       <td style={{ padding: 14, textAlign: 'center' }}>
                         <button 
                           onClick={() => handleEdit(station, 'stations')}
@@ -728,7 +689,6 @@ export default function NetworkManagement() {
                   <tr style={{ background: 'linear-gradient(90deg, #43e97b 0%, #38f9d7 100%)' }}>
                     <th style={{ padding: 14, textAlign: 'left', color: '#fff', fontWeight: 600 }}>Type</th>
                     <th style={{ padding: 14, textAlign: 'left', color: '#fff', fontWeight: 600 }}>Details</th>
-                    <th style={{ padding: 14, textAlign: 'left', color: '#fff', fontWeight: 600 }}>Status</th>
                     <th style={{ padding: 14, textAlign: 'center', color: '#fff', fontWeight: 600, width: 180 }}>Actions</th>
                   </tr>
                 </thead>
@@ -737,18 +697,6 @@ export default function NetworkManagement() {
                     <tr key={bb._id} style={{ background: idx % 2 === 0 ? '#f9fcf9' : '#fff', transition: 'background 0.2s' }}>
                       <td style={{ padding: 14, fontWeight: 600, color: '#2d7a3e', textTransform: 'capitalize' }}>{bb.type || '-'}</td>
                       <td style={{ padding: 14 }}>{bb.details || '-'}</td>
-                      <td style={{ padding: 14 }}>
-                        <span style={{ 
-                          padding: '4px 12px', 
-                          borderRadius: 20, 
-                          fontSize: 12, 
-                          fontWeight: 600, 
-                          background: bb.status === 'active' ? '#4caf50' : '#f44336', 
-                          color: '#fff' 
-                        }}>
-                          {bb.status?.toUpperCase() || 'ACTIVE'}
-                        </span>
-                      </td>
                       <td style={{ padding: 14, textAlign: 'center' }}>
                         <button 
                           onClick={() => handleEdit(bb, 'backbones')}
