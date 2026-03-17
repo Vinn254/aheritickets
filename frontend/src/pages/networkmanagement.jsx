@@ -370,23 +370,55 @@ export default function NetworkManagement() {
             {((activeTab === 'backbone' && !editing) || (editing && formData.type)) && (
               <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16 }}>
                 <div>
-                  <label style={{ display: 'block', marginBottom: 6, fontWeight: 600, color: '#2d7a3e' }}>Type *</label>
+                  <label style={{ display: 'block', marginBottom: 6, fontWeight: 600, color: '#2d7a3e' }}>Device Type *</label>
                   <select
                     value={formData.type || ''}
                     onChange={(e) => setFormData({ ...formData, type: e.target.value })}
                     required
                     style={selectStyle}
                   >
-                    <option value="">Select Type</option>
+                    <option value="">Select Device Type</option>
                     <option value="wireless">Wireless</option>
                     <option value="fibre">Fibre</option>
+                    <option value="microwave">Microwave</option>
+                    <option value="ftth">FTTH</option>
                   </select>
                 </div>
                 <div>
+                  <label style={{ display: 'block', marginBottom: 6, fontWeight: 600, color: '#2d7a3e' }}>IP Address</label>
+                  <input
+                    type="text"
+                    placeholder="Enter IP address"
+                    value={formData.ipAddress || ''}
+                    onChange={(e) => setFormData({ ...formData, ipAddress: e.target.value })}
+                    style={inputStyle}
+                  />
+                </div>
+                <div>
+                  <label style={{ display: 'block', marginBottom: 6, fontWeight: 600, color: '#2d7a3e' }}>MAC Address</label>
+                  <input
+                    type="text"
+                    placeholder="Enter MAC address"
+                    value={formData.macAddress || ''}
+                    onChange={(e) => setFormData({ ...formData, macAddress: e.target.value })}
+                    style={inputStyle}
+                  />
+                </div>
+                <div>
+                  <label style={{ display: 'block', marginBottom: 6, fontWeight: 600, color: '#2d7a3e' }}>Location/Address</label>
+                  <input
+                    type="text"
+                    placeholder="Enter location or address"
+                    value={formData.address || ''}
+                    onChange={(e) => setFormData({ ...formData, address: e.target.value })}
+                    style={inputStyle}
+                  />
+                </div>
+                <div style={{ gridColumn: '1 / -1' }}>
                   <label style={{ display: 'block', marginBottom: 6, fontWeight: 600, color: '#2d7a3e' }}>Details</label>
                   <input
                     type="text"
-                    placeholder="Enter details"
+                    placeholder="Enter additional details"
                     value={formData.details || ''}
                     onChange={(e) => setFormData({ ...formData, details: e.target.value })}
                     style={inputStyle}
@@ -607,10 +639,13 @@ export default function NetworkManagement() {
               </div>
             ) : (
               <div style={{ overflowX: 'auto', maxHeight: '500px' }}>
-              <table style={{ width: '100%', borderCollapse: 'collapse', minWidth: '600px' }}>
+              <table style={{ width: '100%', borderCollapse: 'collapse', minWidth: '900px' }}>
                 <thead>
                   <tr style={{ background: 'linear-gradient(90deg, #43e97b 0%, #38f9d7 100%)' }}>
-                    <th style={{ padding: 14, textAlign: 'left', color: '#fff', fontWeight: 600 }}>Type</th>
+                    <th style={{ padding: 14, textAlign: 'left', color: '#fff', fontWeight: 600 }}>Device Type</th>
+                    <th style={{ padding: 14, textAlign: 'left', color: '#fff', fontWeight: 600 }}>IP Address</th>
+                    <th style={{ padding: 14, textAlign: 'left', color: '#fff', fontWeight: 600 }}>MAC Address</th>
+                    <th style={{ padding: 14, textAlign: 'left', color: '#fff', fontWeight: 600 }}>Address</th>
                     <th style={{ padding: 14, textAlign: 'left', color: '#fff', fontWeight: 600 }}>Details</th>
                     <th style={{ padding: 14, textAlign: 'center', color: '#fff', fontWeight: 600, width: 180 }}>Actions</th>
                   </tr>
@@ -619,6 +654,9 @@ export default function NetworkManagement() {
                   {backbones.map((bb, idx) => (
                     <tr key={bb._id} style={{ background: idx % 2 === 0 ? '#f9fcf9' : '#fff', transition: 'background 0.2s' }}>
                       <td style={{ padding: 14, fontWeight: 600, color: '#2d7a3e', textTransform: 'capitalize' }}>{bb.type || '-'}</td>
+                      <td style={{ padding: 14, fontFamily: 'monospace', fontSize: 13 }}>{bb.ipAddress || '-'}</td>
+                      <td style={{ padding: 14, fontFamily: 'monospace', fontSize: 13 }}>{bb.macAddress || '-'}</td>
+                      <td style={{ padding: 14 }}>{bb.address || '-'}</td>
                       <td style={{ padding: 14 }}>{bb.details || '-'}</td>
                       <td style={{ padding: 14, textAlign: 'center' }}>
                         <button 
