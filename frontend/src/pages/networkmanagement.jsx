@@ -70,6 +70,7 @@ export default function NetworkManagement() {
   const [formData, setFormData] = useState({});
   const [activeTab, setActiveTab] = useState('pop');
   const [showForm, setShowForm] = useState(false);
+  const [deviceType, setDeviceType] = useState('pop'); // For unified form
 
   useEffect(() => {
     fetchAllData();
@@ -135,6 +136,7 @@ export default function NetworkManagement() {
 
   const handleNewClick = () => {
     setActiveTab('pop');
+    setDeviceType('pop');
     setFormData({});
     setEditing(null);
     setShowForm(true);
@@ -236,13 +238,37 @@ export default function NetworkManagement() {
           </div>
           
           <form onSubmit={handleSubmit}>
-            {activeTab === 'pop' && (
+            {/* Device Type Selector - Only show when adding new (not editing) */}
+            {!editing && (
+              <div style={{ marginBottom: 20 }}>
+                <label style={{ display: 'block', marginBottom: 6, fontWeight: 600, color: '#2d7a3e' }}>Device Type *</label>
+                <select
+                  value={deviceType}
+                  onChange={(e) => { setDeviceType(e.target.value); setActiveTab(e.target.value); setFormData({}); }}
+                  style={selectStyle}
+                >
+                  <option value="pop">POP (Point of Presence)</option>
+                  <option value="ap">Access Point</option>
+                  <option value="station">Station</option>
+                  <option value="backbone">Backbone</option>
+                </select>
+                <p style={{ marginTop: 8, fontSize: 12, color: '#666' }}>
+                  {deviceType === 'backbone' && 'Backbone is the main network infrastructure (fiber/wireless). No connection needed.'}
+                  {deviceType === 'pop' && 'POP connects to a Backbone. Contains APs.'}
+                  {deviceType === 'ap' && 'AP connects to a POP. Contains Stations.'}
+                  {deviceType === 'station' && 'Station connects to an AP. End user设备.'}
+                </p>
+              </div>
+            )}
+
+            {/* Unified Form Fields based on Device Type */}
+            {((activeTab === 'pop' && !editing) || (editing && formData.address)) && activeTab !== 'backbone' && (
               <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16 }}>
                 <div>
                   <label style={{ display: 'block', marginBottom: 6, fontWeight: 600, color: '#2d7a3e' }}>Name *</label>
                   <input
                     type="text"
-                    placeholder="Enter POP name"
+                    placeholder={activeTab === 'pop' ? 'Enter POP name' : activeTab === 'ap' ? 'Enter AP name' : 'Enter Station name'}
                     value={formData.name || ''}
                     onChange={(e) => setFormData({ ...formData, name: e.target.value })}
                     required
@@ -264,10 +290,10 @@ export default function NetworkManagement() {
                   <label style={{ display: 'block', marginBottom: 6, fontWeight: 600, color: '#2d7a3e' }}>Address *</label>
                   <input
                     type="text"
-                    placeholder="Enter address"
+                    placeholder="Enter address/location"
                     value={formData.address || ''}
                     onChange={(e) => setFormData({ ...formData, address: e.target.value })}
-                    required
+                    required={activeTab !== 'station'}
                     style={inputStyle}
                   />
                 </div>
@@ -281,87 +307,52 @@ export default function NetworkManagement() {
                     style={inputStyle}
                   />
                 </div>
-                <div>
-                  <label style={{ display: 'block', marginBottom: 6, fontWeight: 600, color: '#2d7a3e' }}>Connected Backbone</label>
-                  <select
-                    value={formData.backbone || ''}
-                    onChange={(e) => setFormData({ ...formData, backbone: e.target.value })}
-                    style={selectStyle}
-                  >
-                    <option value="">Select Backbone</option>
-                    {backbones.map(bb => <option key={bb._id} value={bb._id}>{bb.type} - {bb.details}</option>)}
-                  </select>
-                </div>
-                <div>
-                  <label style={{ display: 'block', marginBottom: 6, fontWeight: 600, color: '#2d7a3e' }}>Details</label>
-                  <input
-                    type="text"
-                    placeholder="Enter additional details"
-                    value={formData.details || ''}
-                    onChange={(e) => setFormData({ ...formData, details: e.target.value })}
-                    style={inputStyle}
-                  />
-                </div>
-              </div>
-            )}
-
-            {activeTab === 'ap' && (
-              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16 }}>
-                <div>
-                  <label style={{ display: 'block', marginBottom: 6, fontWeight: 600, color: '#2d7a3e' }}>Name *</label>
-                  <input
-                    type="text"
-                    placeholder="Enter AP name"
-                    value={formData.name || ''}
-                    onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-                    required
-                    style={inputStyle}
-                  />
-                </div>
-                <div>
-                  <label style={{ display: 'block', marginBottom: 6, fontWeight: 600, color: '#2d7a3e' }}>Brand/Model *</label>
-                  <input
-                    type="text"
-                    placeholder="Enter brand/model"
-                    value={formData.brand || ''}
-                    onChange={(e) => setFormData({ ...formData, brand: e.target.value })}
-                    required
-                    style={inputStyle}
-                  />
-                </div>
-                <div>
-                  <label style={{ display: 'block', marginBottom: 6, fontWeight: 600, color: '#2d7a3e' }}>Address *</label>
-                  <input
-                    type="text"
-                    placeholder="Enter address"
-                    value={formData.address || ''}
-                    onChange={(e) => setFormData({ ...formData, address: e.target.value })}
-                    required
-                    style={inputStyle}
-                  />
-                </div>
-                <div>
-                  <label style={{ display: 'block', marginBottom: 6, fontWeight: 600, color: '#2d7a3e' }}>Connected POP *</label>
-                  <select
-                    value={formData.pop || ''}
-                    onChange={(e) => setFormData({ ...formData, pop: e.target.value })}
-                    required
-                    style={selectStyle}
-                  >
-                    <option value="">Select POP</option>
-                    {pops.map(pop => <option key={pop._id} value={pop._id}>{pop.name}</option>)}
-                  </select>
-                </div>
-                <div>
-                  <label style={{ display: 'block', marginBottom: 6, fontWeight: 600, color: '#2d7a3e' }}>MAC Address</label>
-                  <input
-                    type="text"
-                    placeholder="Enter MAC address"
-                    value={formData.macAddress || ''}
-                    onChange={(e) => setFormData({ ...formData, macAddress: e.target.value })}
-                    style={inputStyle}
-                  />
-                </div>
+                
+                {/* Connection Fields based on hierarchy */}
+                {activeTab === 'pop' && (
+                  <div>
+                    <label style={{ display: 'block', marginBottom: 6, fontWeight: 600, color: '#2d7a3e' }}>Connected Backbone</label>
+                    <select
+                      value={formData.backbone || ''}
+                      onChange={(e) => setFormData({ ...formData, backbone: e.target.value })}
+                      style={selectStyle}
+                    >
+                      <option value="">Select Backbone</option>
+                      {backbones.map(bb => <option key={bb._id} value={bb._id}>{bb.type} - {bb.details}</option>)}
+                    </select>
+                  </div>
+                )}
+                
+                {activeTab === 'ap' && (
+                  <div>
+                    <label style={{ display: 'block', marginBottom: 6, fontWeight: 600, color: '#2d7a3e' }}>Connected POP *</label>
+                    <select
+                      value={formData.pop || ''}
+                      onChange={(e) => setFormData({ ...formData, pop: e.target.value })}
+                      required
+                      style={selectStyle}
+                    >
+                      <option value="">Select POP</option>
+                      {pops.map(pop => <option key={pop._id} value={pop._id}>{pop.name}</option>)}
+                    </select>
+                  </div>
+                )}
+                
+                {activeTab === 'station' && (
+                  <div>
+                    <label style={{ display: 'block', marginBottom: 6, fontWeight: 600, color: '#2d7a3e' }}>Connected AP *</label>
+                    <select
+                      value={formData.ap || ''}
+                      onChange={(e) => setFormData({ ...formData, ap: e.target.value })}
+                      required
+                      style={selectStyle}
+                    >
+                      <option value="">Select AP</option>
+                      {aps.map(ap => <option key={ap._id} value={ap._id}>{ap.name}</option>)}
+                    </select>
+                  </div>
+                )}
+                
                 <div>
                   <label style={{ display: 'block', marginBottom: 6, fontWeight: 600, color: '#2d7a3e' }}>Details</label>
                   <input
@@ -375,76 +366,8 @@ export default function NetworkManagement() {
               </div>
             )}
 
-            {activeTab === 'station' && (
-              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16 }}>
-                <div>
-                  <label style={{ display: 'block', marginBottom: 6, fontWeight: 600, color: '#2d7a3e' }}>Name *</label>
-                  <input
-                    type="text"
-                    placeholder="Enter station name"
-                    value={formData.name || ''}
-                    onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-                    required
-                    style={inputStyle}
-                  />
-                </div>
-                <div>
-                  <label style={{ display: 'block', marginBottom: 6, fontWeight: 600, color: '#2d7a3e' }}>Brand/Model *</label>
-                  <input
-                    type="text"
-                    placeholder="Enter brand/model"
-                    value={formData.brand || ''}
-                    onChange={(e) => setFormData({ ...formData, brand: e.target.value })}
-                    required
-                    style={inputStyle}
-                  />
-                </div>
-                <div>
-                  <label style={{ display: 'block', marginBottom: 6, fontWeight: 600, color: '#2d7a3e' }}>IP Address</label>
-                  <input
-                    type="text"
-                    placeholder="Enter IP address"
-                    value={formData.address || ''}
-                    onChange={(e) => setFormData({ ...formData, address: e.target.value })}
-                    style={inputStyle}
-                  />
-                </div>
-                <div>
-                  <label style={{ display: 'block', marginBottom: 6, fontWeight: 600, color: '#2d7a3e' }}>Connected AP *</label>
-                  <select
-                    value={formData.ap || ''}
-                    onChange={(e) => setFormData({ ...formData, ap: e.target.value })}
-                    required
-                    style={selectStyle}
-                  >
-                    <option value="">Select AP</option>
-                    {aps.map(ap => <option key={ap._id} value={ap._id}>{ap.name}</option>)}
-                  </select>
-                </div>
-                <div>
-                  <label style={{ display: 'block', marginBottom: 6, fontWeight: 600, color: '#2d7a3e' }}>MAC Address</label>
-                  <input
-                    type="text"
-                    placeholder="Enter MAC address"
-                    value={formData.macAddress || ''}
-                    onChange={(e) => setFormData({ ...formData, macAddress: e.target.value })}
-                    style={inputStyle}
-                  />
-                </div>
-                <div>
-                  <label style={{ display: 'block', marginBottom: 6, fontWeight: 600, color: '#2d7a3e' }}>Details</label>
-                  <input
-                    type="text"
-                    placeholder="Enter additional details"
-                    value={formData.details || ''}
-                    onChange={(e) => setFormData({ ...formData, details: e.target.value })}
-                    style={inputStyle}
-                  />
-                </div>
-              </div>
-            )}
-
-            {activeTab === 'backbone' && (
+            {/* Backbone Form */}
+            {((activeTab === 'backbone' && !editing) || (editing && formData.type)) && (
               <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16 }}>
                 <div>
                   <label style={{ display: 'block', marginBottom: 6, fontWeight: 600, color: '#2d7a3e' }}>Type *</label>
