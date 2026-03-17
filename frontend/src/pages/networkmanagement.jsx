@@ -469,18 +469,6 @@ export default function NetworkManagement() {
                     style={inputStyle}
                   />
                 </div>
-                <div>
-                  <label style={{ display: 'block', marginBottom: 6, fontWeight: 600, color: '#2d7a3e' }}>Connected POPs</label>
-                  <select
-                    multiple
-                    value={formData.pops || []}
-                    onChange={(e) => setFormData({ ...formData, pops: Array.from(e.target.selectedOptions, option => option.value) })}
-                    style={{ ...selectStyle, minHeight: 80 }}
-                  >
-                    {pops.map(pop => <option key={pop._id} value={pop._id}>{pop.name}</option>)}
-                  </select>
-                  <small style={{ color: '#666' }}>Hold Ctrl/Cmd to select multiple</small>
-                </div>
               </div>
             )}
 
@@ -496,7 +484,7 @@ export default function NetworkManagement() {
                 type="submit" 
                 style={actionButtonStyle('primary')}
               >
-                {editing ? '💾 Update' : '➕ Add'} {activeTab.toUpperCase()}
+                {editing ? 'Update' : 'Add'} {activeTab.toUpperCase()}
               </button>
             </div>
           </form>
@@ -531,7 +519,7 @@ export default function NetworkManagement() {
                     <th style={{ padding: 14, textAlign: 'left', color: '#fff', fontWeight: 600 }}>MAC Address</th>
                     <th style={{ padding: 14, textAlign: 'left', color: '#fff', fontWeight: 600 }}>Backbone</th>
                     <th style={{ padding: 14, textAlign: 'left', color: '#fff', fontWeight: 600 }}>Status</th>
-                    <th style={{ padding: 14, textAlign: 'center', color: '#fff', fontWeight: 600 }}>Actions</th>
+                    <th style={{ padding: 14, textAlign: 'center', color: '#fff', fontWeight: 600, width: 180 }}>Actions</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -561,7 +549,7 @@ export default function NetworkManagement() {
                           onMouseOut={(e) => e.currentTarget.style.transform = 'scale(1)'}
                           style={actionButtonStyle('edit')}
                         >
-                          ✏️ Edit
+                          Edit
                         </button>
                         <button 
                           onClick={() => handleDelete(pop._id, 'pops')}
@@ -569,7 +557,7 @@ export default function NetworkManagement() {
                           onMouseOut={(e) => e.currentTarget.style.transform = 'scale(1)'}
                           style={{ ...actionButtonStyle('delete'), marginLeft: 8 }}
                         >
-                          🗑️ Delete
+                          Delete
                         </button>
                       </td>
                     </tr>
@@ -592,7 +580,8 @@ export default function NetworkManagement() {
                 <p style={{ color: '#666', marginBottom: 16 }}>No Access Points found. Click "Add New Device" to create one.</p>
               </div>
             ) : (
-              <table style={{ width: '100%', borderCollapse: 'collapse' }}>
+              <div style={{ overflowX: 'auto', maxHeight: '500px' }}>
+              <table style={{ width: '100%', borderCollapse: 'collapse', minWidth: '800px' }}>
                 <thead>
                   <tr style={{ background: 'linear-gradient(90deg, #43e97b 0%, #38f9d7 100%)' }}>
                     <th style={{ padding: 14, textAlign: 'left', color: '#fff', fontWeight: 600 }}>Name</th>
@@ -601,7 +590,7 @@ export default function NetworkManagement() {
                     <th style={{ padding: 14, textAlign: 'left', color: '#fff', fontWeight: 600 }}>MAC Address</th>
                     <th style={{ padding: 14, textAlign: 'left', color: '#fff', fontWeight: 600 }}>Connected POP</th>
                     <th style={{ padding: 14, textAlign: 'left', color: '#fff', fontWeight: 600 }}>Status</th>
-                    <th style={{ padding: 14, textAlign: 'center', color: '#fff', fontWeight: 600 }}>Actions</th>
+                    <th style={{ padding: 14, textAlign: 'center', color: '#fff', fontWeight: 600, width: 180 }}>Actions</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -631,7 +620,7 @@ export default function NetworkManagement() {
                           onMouseOut={(e) => e.currentTarget.style.transform = 'scale(1)'}
                           style={actionButtonStyle('edit')}
                         >
-                          ✏️ Edit
+                          Edit
                         </button>
                         <button 
                           onClick={() => handleDelete(ap._id, 'aps')}
@@ -639,13 +628,14 @@ export default function NetworkManagement() {
                           onMouseOut={(e) => e.currentTarget.style.transform = 'scale(1)'}
                           style={{ ...actionButtonStyle('delete'), marginLeft: 8 }}
                         >
-                          🗑️ Delete
+                          Delete
                         </button>
                       </td>
                     </tr>
                   ))}
                 </tbody>
               </table>
+              </div>
             )}
           </div>
         )}
@@ -661,7 +651,8 @@ export default function NetworkManagement() {
                 <p style={{ color: '#666', marginBottom: 16 }}>No Stations found. Click "Add New Device" to create one.</p>
               </div>
             ) : (
-              <table style={{ width: '100%', borderCollapse: 'collapse' }}>
+              <div style={{ overflowX: 'auto', maxHeight: '500px' }}>
+              <table style={{ width: '100%', borderCollapse: 'collapse', minWidth: '800px' }}>
                 <thead>
                   <tr style={{ background: 'linear-gradient(90deg, #43e97b 0%, #38f9d7 100%)' }}>
                     <th style={{ padding: 14, textAlign: 'left', color: '#fff', fontWeight: 600 }}>Name</th>
@@ -670,7 +661,7 @@ export default function NetworkManagement() {
                     <th style={{ padding: 14, textAlign: 'left', color: '#fff', fontWeight: 600 }}>MAC Address</th>
                     <th style={{ padding: 14, textAlign: 'left', color: '#fff', fontWeight: 600 }}>Connected AP</th>
                     <th style={{ padding: 14, textAlign: 'left', color: '#fff', fontWeight: 600 }}>Status</th>
-                    <th style={{ padding: 14, textAlign: 'center', color: '#fff', fontWeight: 600 }}>Actions</th>
+                    <th style={{ padding: 14, textAlign: 'center', color: '#fff', fontWeight: 600, width: 180 }}>Actions</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -700,7 +691,7 @@ export default function NetworkManagement() {
                           onMouseOut={(e) => e.currentTarget.style.transform = 'scale(1)'}
                           style={actionButtonStyle('edit')}
                         >
-                          ✏️ Edit
+                          Edit
                         </button>
                         <button 
                           onClick={() => handleDelete(station._id, 'stations')}
@@ -708,13 +699,14 @@ export default function NetworkManagement() {
                           onMouseOut={(e) => e.currentTarget.style.transform = 'scale(1)'}
                           style={{ ...actionButtonStyle('delete'), marginLeft: 8 }}
                         >
-                          🗑️ Delete
+                          Delete
                         </button>
                       </td>
                     </tr>
                   ))}
                 </tbody>
               </table>
+              </div>
             )}
           </div>
         )}
@@ -730,14 +722,14 @@ export default function NetworkManagement() {
                 <p style={{ color: '#666', marginBottom: 16 }}>No Backbones found. Click "Add New Device" to create one.</p>
               </div>
             ) : (
-              <table style={{ width: '100%', borderCollapse: 'collapse' }}>
+              <div style={{ overflowX: 'auto', maxHeight: '500px' }}>
+              <table style={{ width: '100%', borderCollapse: 'collapse', minWidth: '600px' }}>
                 <thead>
                   <tr style={{ background: 'linear-gradient(90deg, #43e97b 0%, #38f9d7 100%)' }}>
                     <th style={{ padding: 14, textAlign: 'left', color: '#fff', fontWeight: 600 }}>Type</th>
                     <th style={{ padding: 14, textAlign: 'left', color: '#fff', fontWeight: 600 }}>Details</th>
-                    <th style={{ padding: 14, textAlign: 'left', color: '#fff', fontWeight: 600 }}>Connected POPs</th>
                     <th style={{ padding: 14, textAlign: 'left', color: '#fff', fontWeight: 600 }}>Status</th>
-                    <th style={{ padding: 14, textAlign: 'center', color: '#fff', fontWeight: 600 }}>Actions</th>
+                    <th style={{ padding: 14, textAlign: 'center', color: '#fff', fontWeight: 600, width: 180 }}>Actions</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -745,9 +737,6 @@ export default function NetworkManagement() {
                     <tr key={bb._id} style={{ background: idx % 2 === 0 ? '#f9fcf9' : '#fff', transition: 'background 0.2s' }}>
                       <td style={{ padding: 14, fontWeight: 600, color: '#2d7a3e', textTransform: 'capitalize' }}>{bb.type || '-'}</td>
                       <td style={{ padding: 14 }}>{bb.details || '-'}</td>
-                      <td style={{ padding: 14 }}>
-                        {bb.pops?.map(p => p.name).join(', ') || '-'}
-                      </td>
                       <td style={{ padding: 14 }}>
                         <span style={{ 
                           padding: '4px 12px', 
@@ -767,7 +756,7 @@ export default function NetworkManagement() {
                           onMouseOut={(e) => e.currentTarget.style.transform = 'scale(1)'}
                           style={actionButtonStyle('edit')}
                         >
-                          ✏️ Edit
+                          Edit
                         </button>
                         <button 
                           onClick={() => handleDelete(bb._id, 'backbones')}
@@ -775,13 +764,14 @@ export default function NetworkManagement() {
                           onMouseOut={(e) => e.currentTarget.style.transform = 'scale(1)'}
                           style={{ ...actionButtonStyle('delete'), marginLeft: 8 }}
                         >
-                          🗑️ Delete
+                          Delete
                         </button>
                       </td>
                     </tr>
                   ))}
                 </tbody>
               </table>
+              </div>
             )}
           </div>
         )}
