@@ -215,14 +215,14 @@ function App() {
         {/* Sidebar for authenticated users */}
         {isAuthenticated && !['/', '/login', '/register'].includes(location.pathname) && (
           <div style={{
-            position: windowWidth < 768 ? 'fixed' : 'relative',
+            position: 'fixed',
             left: 0,
             top: 64,
-            height: windowWidth < 768 ? 'calc(100vh - 64px)' : '100%',
-            zIndex: windowWidth < 768 ? 999 : 'auto',
-            backgroundColor: windowWidth < 768 ? 'rgba(0,0,0,0.5)' : 'transparent',
+            height: 'calc(100vh - 64px)',
+            zIndex: 999,
+            backgroundColor: 'rgba(0,0,0,0.5)',
             display: showSidebar ? 'flex' : 'none',
-            width: windowWidth < 768 ? '100%' : (showSidebar ? 280 : 0),
+            width: showSidebar ? 280 : 0,
             transition: 'width 0.3s ease-in-out',
             flexShrink: 0
           }}>
@@ -237,8 +237,7 @@ function App() {
           width: '100%',
           overflowX: 'visible',
           overflowY: 'auto',
-          marginLeft: showSidebar ? 280 : 0,
-          transition: 'margin-left 0.3s ease-in-out, padding 0.3s ease-in-out',
+          marginLeft: 0,
           padding: '24px',
           boxSizing: 'border-box'
         }} className="page-content">
