@@ -215,15 +215,15 @@ function App() {
         {/* Sidebar for authenticated users */}
         {isAuthenticated && !['/', '/login', '/register'].includes(location.pathname) && (
           <div style={{
-            position: 'fixed',
+            position: windowWidth < 768 ? 'fixed' : 'fixed',
             left: 0,
             top: 64,
             height: 'calc(100vh - 64px)',
             zIndex: 999,
             backgroundColor: 'rgba(0,0,0,0.5)',
             display: showSidebar ? 'flex' : 'none',
-            width: showSidebar ? 280 : 0,
-            transition: 'width 0.3s ease-in-out',
+            width: windowWidth < 768 ? '100%' : '280px',
+            transition: 'width 0.3s ease-in-out, opacity 0.3s ease-in-out',
             flexShrink: 0
           }}>
             <Sidebar showSidebar={showSidebar} setShowSidebar={setShowSidebar} />
@@ -237,8 +237,9 @@ function App() {
           width: '100%',
           overflowX: 'visible',
           overflowY: 'auto',
-          marginLeft: 0,
-          padding: '24px',
+          marginLeft: showSidebar && windowWidth >= 768 ? 280 : 0,
+          transition: 'margin-left 0.3s ease-in-out, padding 0.3s ease-in-out',
+          padding: windowWidth < 768 ? '16px' : '24px',
           boxSizing: 'border-box'
         }} className="page-content">
         <Suspense fallback={<div>Loading...</div>}>
