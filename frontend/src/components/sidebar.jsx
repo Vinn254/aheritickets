@@ -155,7 +155,7 @@ export default function Sidebar({ showSidebar, setShowSidebar }) {
       variants={sidebarVariants}
       transition={{ duration: 0.3, ease: 'easeInOut' }}
       style={{
-        height: 'calc(100vh - 64px)',
+        height: 'calc(100vh - 64px - 70px)',
         position: 'fixed',
         left: 0,
         top: 64,
