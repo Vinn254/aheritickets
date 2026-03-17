@@ -222,7 +222,9 @@ function App() {
             zIndex: windowWidth < 768 ? 999 : 'auto',
             backgroundColor: windowWidth < 768 ? 'rgba(0,0,0,0.5)' : 'transparent',
             display: showSidebar ? 'flex' : 'none',
-            width: windowWidth < 768 ? '100%' : 'auto'
+            width: windowWidth < 768 ? '100%' : (showSidebar ? 280 : 0),
+            transition: 'width 0.3s ease-in-out',
+            flexShrink: 0
           }}>
             <Sidebar showSidebar={showSidebar} setShowSidebar={setShowSidebar} />
           </div>
@@ -235,9 +237,9 @@ function App() {
           width: '100%',
           overflowX: 'visible',
           overflowY: 'auto',
-          marginLeft: showSidebar && windowWidth >= 768 ? 0 : 0,
+          marginLeft: showSidebar ? 280 : 0,
           transition: 'margin-left 0.3s ease-in-out, padding 0.3s ease-in-out',
-          padding: windowWidth < 768 ? '16px' : (showSidebar ? '24px' : '24px'),
+          padding: '24px',
           boxSizing: 'border-box'
         }} className="page-content">
         <Suspense fallback={<div>Loading...</div>}>
