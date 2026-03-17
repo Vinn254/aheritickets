@@ -212,7 +212,7 @@ export default function Analytics() {
           </form>
         )}
         <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '12px' }}>
-          <thead><tr style={{ background: '#2d7a3e', color: 'white' }}>
+          <thead><tr style={{ background: 'linear-gradient(90deg, #43e97b 0%, #38f9d7 100%)', color: 'white' }}>
             <th style={{ padding: '10px', border: '1px solid #ddd' }}>ID</th>
             <th style={{ padding: '10px', border: '1px solid #ddd' }}>Title</th>
             <th style={{ padding: '10px', border: '1px solid #ddd' }}>Status</th>

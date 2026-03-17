@@ -222,7 +222,7 @@ export default function Reports() {
               ) : (
                 <table style={{ width: '100%', borderCollapse: 'collapse' }}>
                   <thead>
-                    <tr style={{ background: '#43e97b', color: '#fff' }}>
+                    <tr style={{ background: 'linear-gradient(90deg, #43e97b 0%, #38f9d7 100%)', color: '#fff' }}>
                       <th style={{ padding: 12, textAlign: 'left' }}>Request #</th>
                       <th style={{ padding: 12, textAlign: 'left' }}>Customer</th>
                       <th style={{ padding: 12, textAlign: 'left' }}>Type</th>
@@ -267,7 +267,7 @@ export default function Reports() {
               ) : (
                 <table style={{ width: '100%', borderCollapse: 'collapse' }}>
                   <thead>
-                    <tr style={{ background: '#43e97b', color: '#fff' }}>
+                    <tr style={{ background: 'linear-gradient(90deg, #43e97b 0%, #38f9d7 100%)', color: '#fff' }}>
                       <th style={{ padding: 12, textAlign: 'left' }}>Invoice #</th>
                       <th style={{ padding: 12, textAlign: 'left' }}>Customer</th>
                       <th style={{ padding: 12, textAlign: 'left' }}>Total</th>
@@ -328,7 +328,7 @@ export default function Reports() {
               ) : (
                 <table style={{ width: '100%', borderCollapse: 'collapse' }}>
                   <thead>
-                    <tr style={{ background: '#43e97b', color: '#fff' }}>
+                    <tr style={{ background: 'linear-gradient(90deg, #43e97b 0%, #38f9d7 100%)', color: '#fff' }}>
                       <th style={{ padding: 12, textAlign: 'left' }}>Quotation #</th>
                       <th style={{ padding: 12, textAlign: 'left' }}>Customer</th>
                       <th style={{ padding: 12, textAlign: 'left' }}>Total</th>
@@ -389,7 +389,7 @@ export default function Reports() {
               ) : (
                 <table style={{ width: '100%', borderCollapse: 'collapse' }}>
                   <thead>
-                    <tr style={{ background: '#43e97b', color: '#fff' }}>
+                    <tr style={{ background: 'linear-gradient(90deg, #43e97b 0%, #38f9d7 100%)', color: '#fff' }}>
                       <th style={{ padding: 12, textAlign: 'left' }}>Name</th>
                       <th style={{ padding: 12, textAlign: 'left' }}>Email</th>
                       <th style={{ padding: 12, textAlign: 'left' }}>Phone</th>

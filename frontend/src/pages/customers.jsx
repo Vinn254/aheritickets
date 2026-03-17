@@ -295,7 +295,7 @@ export default function Customers() {
         }}>
           <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '13px', minWidth: '1200px' }}>
             <thead>
-              <tr style={{ background: '#2d7a3e', color: 'white' }}>
+              <tr style={{ background: 'linear-gradient(90deg, #43e97b 0%, #38f9d7 100%)', color: 'white' }}>
                 <th style={{ padding: '12px', textAlign: 'left' }}>Name</th>
                 <th style={{ padding: '12px', textAlign: 'left' }}>Account #</th>
                 <th style={{ padding: '12px', textAlign: 'left' }}>Phone</th>

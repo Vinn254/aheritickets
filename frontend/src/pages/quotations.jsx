@@ -238,7 +238,7 @@ export default function Quotations() {
         ) : (
           <table style={{ width: '100%', borderCollapse: 'collapse', background: '#eafff3', borderRadius: 10, overflow: 'hidden', boxShadow: '0 4px 12px rgba(0,0,0,0.05)', border: '1.5px solid #43e97b' }}>
             <thead>
-              <tr style={{ background: '#2d7a3e', color: 'white' }}>
+              <tr style={{ background: 'linear-gradient(90deg, #43e97b 0%, #38f9d7 100%)', color: 'white' }}>
                 <th style={{ padding: 15, textAlign: 'left', fontWeight: 700 }}>Number</th>
                 {!isCustomer && <th style={{ padding: 15, textAlign: 'left', fontWeight: 700 }}>Customer</th>}
                 <th style={{ padding: 15, textAlign: 'left', fontWeight: 700 }}>Total</th>
@@ -377,7 +377,7 @@ export default function Quotations() {
               <h3 style={{ color: '#186a3b', marginBottom: 10, fontWeight: 700 }}>Services</h3>
               <table style={{ width: '100%', borderCollapse: 'collapse', border: '1px solid #d0e8d8', background: '#eafff3' }}>
                 <thead>
-                  <tr style={{ background: '#2d7a3e', color: 'white' }}>
+                  <tr style={{ background: 'linear-gradient(90deg, #43e97b 0%, #38f9d7 100%)', color: 'white' }}>
                     <th style={{ padding: 10, border: '1px solid #d0e8d8', textAlign: 'left', fontWeight: 700 }}>Service</th>
                     <th style={{ padding: 10, border: '1px solid #d0e8d8', textAlign: 'center', fontWeight: 700 }}>Qty</th>
                     <th style={{ padding: 10, border: '1px solid #d0e8d8', textAlign: 'right', fontWeight: 700 }}>Unit Price</th>

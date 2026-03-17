@@ -210,7 +210,7 @@ ${user.billingPlan ? 'Billing Plan: ' + user.billingPlan : ''}
         <h3 style={{ color: '#186a3b', fontWeight: 700 }}>Staff</h3>
         <div style={{ overflowX: 'auto' }}>
           <table className="responsive-table" style={{ width: '100%', borderCollapse: 'collapse', fontSize: '12px', marginBottom: '20px', minWidth: '600px' }}>
-          <thead><tr style={{ background: '#2d7a3e', color: 'white' }}>
+          <thead><tr style={{ background: 'linear-gradient(90deg, #43e97b 0%, #38f9d7 100%)', color: 'white' }}>
             <th style={{ padding: '8px', border: '1px solid #ddd' }}>Name</th>
             <th style={{ padding: '8px', border: '1px solid #ddd' }}>Phone</th>
             <th style={{ padding: '8px', border: '1px solid #ddd' }}>Email</th>
