@@ -71,8 +71,8 @@ const createPlan = async (req, res) => {
       startDate, endDate, assignedTo 
     } = req.body;
     
-    if (!planType || !title) {
-      return res.status(400).json({ error: 'Plan type and title are required' });
+    if (!planType || !activityPlanned) {
+      return res.status(400).json({ error: 'Plan type and activity planned are required' });
     }
     
     // Verify client exists if provided

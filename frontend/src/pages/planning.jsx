@@ -15,13 +15,9 @@ export default function Planning() {
   
   const [formData, setFormData] = useState({
     planType: 'daily',
-    title: '',
     description: '',
     date: '',
     time: '',
-    location: '',
-    client: '',
-    activity: '',
     activityPlanned: '',
     technicalApproach: '',
     inputs: '',
@@ -123,13 +119,9 @@ export default function Planning() {
   const resetForm = () => {
     setFormData({
       planType: 'daily',
-      title: '',
       description: '',
       date: '',
       time: '',
-      location: '',
-      client: '',
-      activity: '',
       activityPlanned: '',
       technicalApproach: '',
       inputs: '',
@@ -147,13 +139,9 @@ export default function Planning() {
     setViewing(plan);
     setFormData({
       planType: plan.planType,
-      title: plan.title || '',
       description: plan.description || '',
       date: plan.date ? new Date(plan.date).toISOString().split('T')[0] : '',
       time: plan.time || '',
-      location: plan.location || '',
-      client: plan.client?._id || '',
-      activity: plan.activity || '',
       activityPlanned: plan.activityPlanned || '',
       technicalApproach: plan.technicalApproach || '',
       inputs: plan.inputs || '',
@@ -486,27 +474,6 @@ export default function Planning() {
                   </select>
                 </div>
 
-                <div style={{ marginBottom: '16px' }}>
-                  <label style={{ display: 'block', color: '#666', fontSize: '12px', fontWeight: '600', marginBottom: '4px' }}>
-                    Title *
-                  </label>
-                  <input
-                    type="text"
-                    value={formData.title}
-                    onChange={(e) => setFormData({ ...formData, title: e.target.value })}
-                    placeholder="Plan title"
-                    style={{
-                      width: '100%',
-                      padding: '10px',
-                      borderRadius: '8px',
-                      border: '2px solid #43e97b',
-                      fontSize: '14px',
-                      boxSizing: 'border-box'
-                    }}
-                    required
-                  />
-                </div>
-
                 {formData.planType === 'daily' && (
                   <>
                     <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px', marginBottom: '16px' }}>
@@ -544,48 +511,6 @@ export default function Planning() {
                           }}
                         />
                       </div>
-                    </div>
-
-                    <div style={{ marginBottom: '16px' }}>
-                      <label style={{ display: 'block', color: '#666', fontSize: '12px', fontWeight: '600', marginBottom: '4px' }}>
-                        Location
-                      </label>
-                      <input
-                        type="text"
-                        value={formData.location}
-                        onChange={(e) => setFormData({ ...formData, location: e.target.value })}
-                        placeholder="Installation location"
-                        style={{
-                          width: '100%',
-                          padding: '10px',
-                          borderRadius: '8px',
-                          border: '2px solid #43e97b',
-                          fontSize: '14px',
-                          boxSizing: 'border-box'
-                        }}
-                      />
-                    </div>
-
-                    <div style={{ marginBottom: '16px' }}>
-                      <label style={{ display: 'block', color: '#666', fontSize: '12px', fontWeight: '600', marginBottom: '4px' }}>
-                        Client/Customer
-                      </label>
-                      <select
-                        value={formData.client}
-                        onChange={(e) => setFormData({ ...formData, client: e.target.value })}
-                        style={{
-                          width: '100%',
-                          padding: '10px',
-                          borderRadius: '8px',
-                          border: '2px solid #43e97b',
-                          fontSize: '14px'
-                        }}
-                      >
-                        <option value="">Select Customer</option>
-                        {customers.map(c => (
-                          <option key={c._id} value={c._id}>{c.name}</option>
-                        ))}
-                      </select>
                     </div>
 
                     <div style={{ marginBottom: '16px' }}>

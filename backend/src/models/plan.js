@@ -8,7 +8,7 @@ const PlanSchema = new Schema({
     enum: ['daily', 'weekly', 'quarterly'], 
     required: true 
   },
-  title: { type: String, required: true },
+  title: { type: String },
   description: { type: String },
   // For daily plans
   date: { type: Date },
