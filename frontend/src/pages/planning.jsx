@@ -24,7 +24,6 @@ export default function Planning() {
     output: '',
     outcome: '',
     resources: '',
-    personnel: [],
     remarks: '',
     status: 'draft'
   });
@@ -128,7 +127,6 @@ export default function Planning() {
       output: '',
       outcome: '',
       resources: '',
-      personnel: [],
       remarks: '',
       status: 'draft'
     });
@@ -148,7 +146,6 @@ export default function Planning() {
       output: plan.output || '',
       outcome: plan.outcome || '',
       resources: plan.resources || '',
-      personnel: plan.personnel?.map(p => p._id || p) || [],
       remarks: plan.remarks || '',
       status: plan.status || 'draft'
     });
@@ -658,30 +655,6 @@ export default function Planning() {
 
                     <div style={{ marginBottom: '16px' }}>
                       <label style={{ display: 'block', color: '#666', fontSize: '12px', fontWeight: '600', marginBottom: '4px' }}>
-                        Personnel/Technicians
-                      </label>
-                      <select
-                        multiple
-                        value={formData.personnel}
-                        onChange={(e) => setFormData({ ...formData, personnel: Array.from(e.target.selectedOptions, option => option.value) })}
-                        style={{
-                          width: '100%',
-                          padding: '10px',
-                          borderRadius: '8px',
-                          border: '2px solid #43e97b',
-                          fontSize: '14px',
-                          minHeight: '80px'
-                        }}
-                      >
-                        {technicians.map(t => (
-                          <option key={t._id} value={t._id}>{t.name}</option>
-                        ))}
-                      </select>
-                      <p style={{ margin: '4px 0 0 0', fontSize: '11px', color: '#999' }}>Hold Ctrl/Cmd to select multiple</p>
-                    </div>
-
-                    <div style={{ marginBottom: '16px' }}>
-                      <label style={{ display: 'block', color: '#666', fontSize: '12px', fontWeight: '600', marginBottom: '4px' }}>
                         Remarks
                       </label>
                       <textarea
@@ -896,12 +869,6 @@ export default function Planning() {
               {viewing.resources && (
                 <p style={{ margin: '0 0 12px 0', color: '#666', fontSize: '14px' }}>
                   <strong>🧰 Resources:</strong> {viewing.resources}
-                </p>
-              )}
-              
-              {viewing.personnel?.length > 0 && (
-                <p style={{ margin: '0 0 12px 0', color: '#666', fontSize: '14px' }}>
-                  <strong>👷 Personnel:</strong> {viewing.personnel.map(p => p.name).join(', ')}
                 </p>
               )}
               
