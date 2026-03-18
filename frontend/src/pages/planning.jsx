@@ -615,26 +615,6 @@ export default function Planning() {
 
                     <div style={{ marginBottom: '16px' }}>
                       <label style={{ display: 'block', color: '#666', fontSize: '12px', fontWeight: '600', marginBottom: '4px' }}>
-                        Activity
-                      </label>
-                      <input
-                        type="text"
-                        value={formData.activity}
-                        onChange={(e) => setFormData({ ...formData, activity: e.target.value })}
-                        placeholder="What needs to be done"
-                        style={{
-                          width: '100%',
-                          padding: '10px',
-                          borderRadius: '8px',
-                          border: '2px solid #43e97b',
-                          fontSize: '14px',
-                          boxSizing: 'border-box'
-                        }}
-                      />
-                    </div>
-
-                    <div style={{ marginBottom: '16px' }}>
-                      <label style={{ display: 'block', color: '#666', fontSize: '12px', fontWeight: '600', marginBottom: '4px' }}>
                         Resources
                       </label>
                       <input
