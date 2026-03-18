@@ -177,7 +177,7 @@ export default function Planning() {
     visible: { opacity: 1, y: 0 }
   };
 
-  const canEdit = userRole === 'admin' || userRole === 'csr' || userRole === 'technician';
+  const canEdit = userRole === 'admin';
 
   return (
     <div style={{
@@ -345,7 +345,7 @@ export default function Planning() {
 
                 <div style={{ padding: '16px' }}>
                   <h3 style={{ margin: '0 0 8px 0', color: '#2d7a3e', fontSize: '16px', fontWeight: '700' }}>
-                    {plan.title}
+                    {plan.activityPlanned || 'Plan'}
                   </h3>
                   
                   {plan.date && (
@@ -703,27 +703,29 @@ export default function Planning() {
                   </>
                 )}
 
-                <div style={{ marginBottom: '16px' }}>
-                  <label style={{ display: 'block', color: '#666', fontSize: '12px', fontWeight: '600', marginBottom: '4px' }}>
-                    Status
-                  </label>
-                  <select
-                    value={formData.status}
-                    onChange={(e) => setFormData({ ...formData, status: e.target.value })}
-                    style={{
-                      width: '100%',
-                      padding: '10px',
-                      borderRadius: '8px',
-                      border: '2px solid #43e97b',
-                      fontSize: '14px'
-                    }}
-                  >
-                    <option value="draft">Draft</option>
-                    <option value="active">Active</option>
-                    <option value="completed">Completed</option>
-                    <option value="cancelled">Cancelled</option>
-                  </select>
-                </div>
+                {isSuperAdmin && (
+                  <div style={{ marginBottom: '16px' }}>
+                    <label style={{ display: 'block', color: '#666', fontSize: '12px', fontWeight: '600', marginBottom: '4px' }}>
+                      Status
+                    </label>
+                    <select
+                      value={formData.status}
+                      onChange={(e) => setFormData({ ...formData, status: e.target.value })}
+                      style={{
+                        width: '100%',
+                        padding: '10px',
+                        borderRadius: '8px',
+                        border: '2px solid #43e97b',
+                        fontSize: '14px'
+                      }}
+                    >
+                      <option value="draft">Draft</option>
+                      <option value="active">Active</option>
+                      <option value="completed">Completed</option>
+                      <option value="cancelled">Cancelled</option>
+                    </select>
+                  </div>
+                )}
 
                 <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px' }}>
                   <button
@@ -833,7 +835,7 @@ export default function Planning() {
             </div>
 
             <div style={{ padding: '20px' }}>
-              <h2 style={{ margin: '0 0 16px 0', color: '#2d7a3e' }}>{viewing.title}</h2>
+              <h2 style={{ margin: '0 0 16px 0', color: '#2d7a3e' }}>{viewing.activityPlanned || 'Plan Details'}</h2>
               
               {viewing.description && (
                 <p style={{ margin: '0 0 12px 0', color: '#666', fontSize: '14px' }}>
@@ -854,18 +856,6 @@ export default function Planning() {
                   </p>
                 )}
               </div>
-              
-              {viewing.location && (
-                <p style={{ margin: '0 0 12px 0', color: '#666', fontSize: '14px' }}>
-                  <strong>📍 Location:</strong> {viewing.location}
-                </p>
-              )}
-              
-              {viewing.client && (
-                <p style={{ margin: '0 0 12px 0', color: '#666', fontSize: '14px' }}>
-                  <strong>👤 Client:</strong> {viewing.client.name}
-                </p>
-              )}
               
               {viewing.activityPlanned && (
                 <p style={{ margin: '0 0 12px 0', color: '#666', fontSize: '14px' }}>
