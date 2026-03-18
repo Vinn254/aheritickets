@@ -12,7 +12,8 @@ const PlanSchema = new Schema({
   description: { type: String },
   // For daily plans
   date: { type: Date },
-  time: { type: String },
+  startTime: { type: String },
+  endTime: { type: String },
   location: { type: String },
   client: { type: Schema.Types.ObjectId, ref: 'User' },
   activity: { type: String },

@@ -17,7 +17,8 @@ export default function Planning() {
     planType: 'daily',
     description: '',
     date: '',
-    time: '',
+    startTime: '',
+    endTime: '',
     activityPlanned: '',
     technicalApproach: '',
     inputs: '',
@@ -120,7 +121,8 @@ export default function Planning() {
       planType: 'daily',
       description: '',
       date: '',
-      time: '',
+      startTime: '',
+      endTime: '',
       activityPlanned: '',
       technicalApproach: '',
       inputs: '',
@@ -139,7 +141,8 @@ export default function Planning() {
       planType: plan.planType,
       description: plan.description || '',
       date: plan.date ? new Date(plan.date).toISOString().split('T')[0] : '',
-      time: plan.time || '',
+      startTime: plan.startTime || '',
+      endTime: plan.endTime || '',
       activityPlanned: plan.activityPlanned || '',
       technicalApproach: plan.technicalApproach || '',
       inputs: plan.inputs || '',
@@ -493,12 +496,29 @@ export default function Planning() {
                       </div>
                       <div>
                         <label style={{ display: 'block', color: '#666', fontSize: '12px', fontWeight: '600', marginBottom: '4px' }}>
-                          Time
+                          Start Time
                         </label>
                         <input
                           type="time"
-                          value={formData.time}
-                          onChange={(e) => setFormData({ ...formData, time: e.target.value })}
+                          value={formData.startTime || ''}
+                          onChange={(e) => setFormData({ ...formData, startTime: e.target.value })}
+                          style={{
+                            width: '100%',
+                            padding: '10px',
+                            borderRadius: '8px',
+                            border: '2px solid #43e97b',
+                            fontSize: '14px'
+                          }}
+                        />
+                      </div>
+                      <div>
+                        <label style={{ display: 'block', color: '#666', fontSize: '12px', fontWeight: '600', marginBottom: '4px' }}>
+                          End Time
+                        </label>
+                        <input
+                          type="time"
+                          value={formData.endTime || ''}
+                          onChange={(e) => setFormData({ ...formData, endTime: e.target.value })}
                           style={{
                             width: '100%',
                             padding: '10px',
@@ -803,9 +823,9 @@ export default function Planning() {
                   </p>
                 )}
                 
-                {viewing.time && (
+                {(viewing.startTime || viewing.endTime) && (
                   <p style={{ margin: '0 0 12px 0', color: '#666', fontSize: '14px' }}>
-                    <strong>🕐 Time:</strong> {viewing.time}
+                    <strong>🕐 Time:</strong> {viewing.startTime && `Start: ${viewing.startTime}`}{viewing.startTime && viewing.endTime && ' - '}{viewing.endTime && `End: ${viewing.endTime}`}
                   </p>
                 )}
               </div>

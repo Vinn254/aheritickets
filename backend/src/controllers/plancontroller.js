@@ -65,7 +65,7 @@ const getPlan = async (req, res) => {
 const createPlan = async (req, res) => {
   try {
     const { 
-      planType, title, description, date, time, location, 
+      planType, title, description, date, startTime, endTime, location, 
       client, activity, activityPlanned, technicalApproach, 
       inputs, output, outcome, resources, personnel, remarks,
       startDate, endDate, assignedTo 
@@ -98,7 +98,8 @@ const createPlan = async (req, res) => {
       title,
       description,
       date: date ? new Date(date) : null,
-      time,
+      startTime,
+      endTime,
       location,
       client,
       activity,
@@ -131,7 +132,7 @@ const createPlan = async (req, res) => {
 const updatePlan = async (req, res) => {
   try {
     const { 
-      title, description, date, time, location, 
+      title, description, date, startTime, endTime, location, 
       client, activity, activityPlanned, technicalApproach,
       inputs, output, outcome, resources, personnel, remarks,
       startDate, endDate, assignedTo, status 
@@ -144,7 +145,8 @@ const updatePlan = async (req, res) => {
     if (title) plan.title = title;
     if (description !== undefined) plan.description = description;
     if (date) plan.date = new Date(date);
-    if (time) plan.time = time;
+    if (startTime) plan.startTime = startTime;
+    if (endTime) plan.endTime = endTime;
     if (location !== undefined) plan.location = location;
     if (client) plan.client = client;
     if (activity !== undefined) plan.activity = activity;
