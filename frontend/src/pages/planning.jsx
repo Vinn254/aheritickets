@@ -381,7 +381,6 @@ export default function Planning() {
                 boxShadow: '0 4px 12px rgba(0,0,0,0.08)'
               }}
             >
-              <div style={{ fontSize: '48px', marginBottom: '16px' }}>📋</div>
               <p style={{ fontSize: '16px', fontWeight: '500' }}>No plans found</p>
             </div>
           )}
@@ -769,57 +768,57 @@ export default function Planning() {
               
               {viewing.description && (
                 <p style={{ margin: '0 0 12px 0', color: '#666', fontSize: '14px' }}>
-                  <strong>📋 Description:</strong> {viewing.description}
+                  <strong>Description:</strong> {viewing.description}
                 </p>
               )}
               
               <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px' }}>
                 {viewing.date && (
                   <p style={{ margin: '0 0 12px 0', color: '#666', fontSize: '14px' }}>
-                    <strong>📅 Date:</strong> {new Date(viewing.date).toLocaleDateString()}
+                    <strong>Date:</strong> {new Date(viewing.date).toLocaleDateString()}
                   </p>
                 )}
                 
                 {(viewing.startTime || viewing.endTime) && (
                   <p style={{ margin: '0 0 12px 0', color: '#666', fontSize: '14px' }}>
-                    <strong>🕐 Time:</strong> {viewing.startTime && `Start: ${viewing.startTime}`}{viewing.startTime && viewing.endTime && ' - '}{viewing.endTime && `End: ${viewing.endTime}`}
+                    <strong>Time:</strong> {viewing.startTime && `Start: ${viewing.startTime}`}{viewing.startTime && viewing.endTime && ' - '}{viewing.endTime && `End: ${viewing.endTime}`}
                   </p>
                 )}
               </div>
               
               {viewing.activityPlanned && (
                 <p style={{ margin: '0 0 12px 0', color: '#666', fontSize: '14px' }}>
-                  <strong>🎯 Activity Planned:</strong> {viewing.activityPlanned}
+                  <strong>Activity Planned:</strong> {viewing.activityPlanned}
                 </p>
               )}
               
               {viewing.activity && (
                 <p style={{ margin: '0 0 12px 0', color: '#666', fontSize: '14px' }}>
-                  <strong>🔧 Activity:</strong> {viewing.activity}
+                  <strong>Activity:</strong> {viewing.activity}
                 </p>
               )}
               
               {viewing.technicalApproach && (
                 <p style={{ margin: '0 0 12px 0', color: '#666', fontSize: '14px' }}>
-                  <strong>🔬 Technical Approach:</strong> {viewing.technicalApproach}
+                  <strong>Technical Approach:</strong> {viewing.technicalApproach}
                 </p>
               )}
               
               {viewing.inputs && (
                 <p style={{ margin: '0 0 12px 0', color: '#666', fontSize: '14px' }}>
-                  <strong>🛠️ Inputs (Resources & Tools):</strong> {viewing.inputs}
+                  <strong>Inputs (Resources & Tools):</strong> {viewing.inputs}
                 </p>
               )}
               
               {viewing.output && (
                 <p style={{ margin: '0 0 12px 0', color: '#666', fontSize: '14px' }}>
-                  <strong>📊 Output (Success Metrics):</strong> {viewing.output}
+                  <strong>Output (Success Metrics):</strong> {viewing.output}
                 </p>
               )}
               
               {viewing.outcome && (
                 <p style={{ margin: '0 0 12px 0', color: '#666', fontSize: '14px' }}>
-                  <strong>✅ Outcome:</strong> {viewing.outcome}
+                  <strong>Outcome:</strong> {viewing.outcome}
                 </p>
               )}
               
