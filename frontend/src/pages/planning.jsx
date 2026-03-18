@@ -24,8 +24,6 @@ export default function Planning() {
     inputs: '',
     output: '',
     outcome: '',
-    resources: '',
-    remarks: '',
     status: 'draft'
   });
   
@@ -54,7 +52,7 @@ export default function Planning() {
       if (filter.planType !== 'all') params.append('planType', filter.planType);
       if (filter.status !== 'all') params.append('status', filter.status);
       
-      const data = await API.get(`/plans?${params.toString()}`);
+      const data = await API.get(`/api/plans?${params.toString()}`);
       setPlans(Array.isArray(data) ? data : []);
     } catch (err) {
       console.error('Error fetching plans:', err);
@@ -88,10 +86,10 @@ export default function Planning() {
     e.preventDefault();
     try {
       if (viewing) {
-        await API.put(`/plans/${viewing._id}`, formData);
+        await API.put(`/api/plans/${viewing._id}`, formData);
         alert('Plan updated successfully!');
       } else {
-        await API.post('/plans', formData);
+        await API.post('/api/plans', formData);
         alert('Plan created successfully!');
       }
       setShowForm(false);
@@ -107,7 +105,7 @@ export default function Planning() {
   const handleDelete = async (id) => {
     if (!confirm('Are you sure you want to delete this plan?')) return;
     try {
-      await API.delete(`/plans/${id}`);
+      await API.delete(`/api/plans/${id}`);
       alert('Plan deleted!');
       fetchPlans();
     } catch (err) {
@@ -128,8 +126,6 @@ export default function Planning() {
       inputs: '',
       output: '',
       outcome: '',
-      resources: '',
-      remarks: '',
       status: 'draft'
     });
     setCommentText('');
@@ -148,8 +144,6 @@ export default function Planning() {
       inputs: plan.inputs || '',
       output: plan.output || '',
       outcome: plan.outcome || '',
-      resources: plan.resources || '',
-      remarks: plan.remarks || '',
       status: plan.status || 'draft'
     });
     setShowForm(true);
@@ -633,46 +627,7 @@ export default function Planning() {
                       />
                     </div>
 
-                    <div style={{ marginBottom: '16px' }}>
-                      <label style={{ display: 'block', color: '#666', fontSize: '12px', fontWeight: '600', marginBottom: '4px' }}>
-                        Resources
-                      </label>
-                      <input
-                        type="text"
-                        value={formData.resources}
-                        onChange={(e) => setFormData({ ...formData, resources: e.target.value })}
-                        placeholder="Equipment, materials needed"
-                        style={{
-                          width: '100%',
-                          padding: '10px',
-                          borderRadius: '8px',
-                          border: '2px solid #43e97b',
-                          fontSize: '14px',
-                          boxSizing: 'border-box'
-                        }}
-                      />
-                    </div>
 
-                    <div style={{ marginBottom: '16px' }}>
-                      <label style={{ display: 'block', color: '#666', fontSize: '12px', fontWeight: '600', marginBottom: '4px' }}>
-                        Remarks
-                      </label>
-                      <textarea
-                        value={formData.remarks}
-                        onChange={(e) => setFormData({ ...formData, remarks: e.target.value })}
-                        placeholder="Additional notes"
-                        rows={3}
-                        style={{
-                          width: '100%',
-                          padding: '10px',
-                          borderRadius: '8px',
-                          border: '2px solid #43e97b',
-                          fontSize: '14px',
-                          boxSizing: 'border-box',
-                          resize: 'vertical'
-                        }}
-                      />
-                    </div>
                   </>
                 )}
 
@@ -866,18 +821,7 @@ export default function Planning() {
                 </p>
               )}
               
-              {viewing.resources && (
-                <p style={{ margin: '0 0 12px 0', color: '#666', fontSize: '14px' }}>
-                  <strong>🧰 Resources:</strong> {viewing.resources}
-                </p>
-              )}
-              
-              {viewing.remarks && (
-                <p style={{ margin: '0 0 12px 0', color: '#666', fontSize: '14px' }}>
-                  <strong>📝 Remarks:</strong> {viewing.remarks}
-                </p>
-              )}
-              
+
               <p style={{ margin: '0 0 12px 0', color: '#999', fontSize: '12px' }}>
                 Created by: {viewing.createdBy?.name}
               </p>
@@ -921,11 +865,11 @@ export default function Planning() {
                     onClick={async () => {
                       if (!commentText.trim()) return;
                       try {
-                        await API.post(`/plans/${viewing._id}/comments`, { text: commentText });
+                        await API.post(`/api/plans/${viewing._id}/comments`, { text: commentText });
                         setCommentText('');
                         fetchPlans();
                         // Update the viewing plan with new comments
-                        const updatedPlan = await API.get(`/plans/${viewing._id}`);
+                        const updatedPlan = await API.get(`/api/plans/${viewing._id}`);
                         setViewing(updatedPlan);
                         alert('Comment added successfully!');
                       } catch (err) {
