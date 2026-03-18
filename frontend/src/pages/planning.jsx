@@ -270,120 +270,122 @@ export default function Planning() {
         )}
       </div>
 
-      {/* Plans Grid */}
+      {/* Plans Table */}
       {loading ? (
         <div style={{ textAlign: 'center', padding: '48px', color: '#666' }}>
           Loading plans...
         </div>
       ) : (
-        <motion.div
-          variants={containerVariants}
-          initial="hidden"
-          animate="visible"
-          style={{
-            display: 'grid',
-            gridTemplateColumns: 'repeat(auto-fill, minmax(300px, 1fr))',
-            gap: '16px'
-          }}
-        >
+        <div style={{ overflowX: 'auto' }}>
           {filteredPlans.length > 0 ? (
-            filteredPlans.map((plan) => (
-              <motion.div
-                key={plan._id}
-                variants={cardVariants}
-                whileHover={{ transform: 'translateY(-4px)' }}
-                onClick={() => setViewing(plan)}
-                style={{
-                  background: 'white',
-                  borderRadius: '12px',
-                  overflow: 'hidden',
-                  boxShadow: '0 4px 12px rgba(0,0,0,0.08)',
-                  border: `2px solid ${getStatusColor(plan.status)}20`,
-                  cursor: 'pointer',
-                  transition: 'all 0.3s ease'
-                }}
-              >
-                <div style={{
-                  background: `${getStatusColor(plan.status)}15`,
-                  padding: '12px 16px',
-                  borderBottom: `3px solid ${getStatusColor(plan.status)}`,
-                  display: 'flex',
-                  justifyContent: 'space-between',
-                  alignItems: 'center'
-                }}>
-                  <div>
-                    <span style={{
-                      background: '#43e97b',
-                      color: '#2d7a3e',
-                      padding: '2px 8px',
-                      borderRadius: '4px',
-                      fontSize: '10px',
-                      fontWeight: '700',
-                      textTransform: 'uppercase'
-                    }}>
-                      {plan.planType}
-                    </span>
-                  </div>
-                  <span style={{
-                    background: getStatusColor(plan.status),
-                    color: 'white',
-                    padding: '4px 12px',
-                    borderRadius: '20px',
-                    fontSize: '11px',
-                    fontWeight: '700',
-                    textTransform: 'capitalize'
-                  }}>
-                    {plan.status}
-                  </span>
-                </div>
-
-                <div style={{ padding: '16px' }}>
-                  <h3 style={{ margin: '0 0 8px 0', color: '#2d7a3e', fontSize: '16px', fontWeight: '700' }}>
-                    {plan.activityPlanned || 'Plan'}
-                  </h3>
-                  
-                  {plan.date && (
-                    <p style={{ margin: '0 0 8px 0', color: '#666', fontSize: '13px' }}>
-                      📅 {new Date(plan.date).toLocaleDateString()}
-                    </p>
-                  )}
-                  
-                  {plan.location && (
-                    <p style={{ margin: '0 0 8px 0', color: '#666', fontSize: '13px' }}>
-                      📍 {plan.location}
-                    </p>
-                  )}
-                  
-                  {plan.activity && (
-                    <p style={{ margin: '0 0 8px 0', color: '#666', fontSize: '13px' }}>
-                      🔧 {plan.activity}
-                    </p>
-                  )}
-                  
-                  {plan.personnel?.length > 0 && (
-                    <p style={{ margin: '0', color: '#666', fontSize: '12px' }}>
-                      👤 {plan.personnel.map(p => p.name || p).join(', ')}
-                    </p>
-                  )}
-                </div>
-              </motion.div>
-            ))
+            <table style={{
+              width: '100%',
+              borderCollapse: 'collapse',
+              background: 'white',
+              borderRadius: '12px',
+              overflow: 'hidden',
+              boxShadow: '0 4px 12px rgba(0,0,0,0.08)'
+            }}>
+              <thead>
+                <tr style={{ background: '#f8f9fa' }}>
+                  <th style={{ padding: '14px 16px', textAlign: 'left', fontSize: '12px', fontWeight: '700', color: '#666', borderBottom: '2px solid #e0e0e0' }}>Plan Type</th>
+                  <th style={{ padding: '14px 16px', textAlign: 'left', fontSize: '12px', fontWeight: '700', color: '#666', borderBottom: '2px solid #e0e0e0' }}>Activity</th>
+                  <th style={{ padding: '14px 16px', textAlign: 'left', fontSize: '12px', fontWeight: '700', color: '#666', borderBottom: '2px solid #e0e0e0' }}>Date</th>
+                  <th style={{ padding: '14px 16px', textAlign: 'left', fontSize: '12px', fontWeight: '700', color: '#666', borderBottom: '2px solid #e0e0e0' }}>Time</th>
+                  <th style={{ padding: '14px 16px', textAlign: 'left', fontSize: '12px', fontWeight: '700', color: '#666', borderBottom: '2px solid #e0e0e0' }}>Status</th>
+                  <th style={{ padding: '14px 16px', textAlign: 'left', fontSize: '12px', fontWeight: '700', color: '#666', borderBottom: '2px solid #e0e0e0' }}>Created By</th>
+                  <th style={{ padding: '14px 16px', textAlign: 'center', fontSize: '12px', fontWeight: '700', color: '#666', borderBottom: '2px solid #e0e0e0' }}>Actions</th>
+                </tr>
+              </thead>
+              <tbody>
+                {filteredPlans.map((plan) => (
+                  <tr 
+                    key={plan._id}
+                    onClick={() => setViewing(plan)}
+                    style={{ 
+                      cursor: 'pointer',
+                      borderBottom: '1px solid #f0f0f0',
+                      transition: 'background 0.2s'
+                    }}
+                  >
+                    <td style={{ padding: '12px 16px', fontSize: '13px' }}>
+                      <span style={{
+                        background: '#43e97b',
+                        color: '#2d7a3e',
+                        padding: '2px 8px',
+                        borderRadius: '4px',
+                        fontSize: '10px',
+                        fontWeight: '700',
+                        textTransform: 'uppercase'
+                      }}>
+                        {plan.planType}
+                      </span>
+                    </td>
+                    <td style={{ padding: '12px 16px', fontSize: '13px', color: '#2d7a3e', fontWeight: '600' }}>
+                      {plan.activityPlanned || 'N/A'}
+                    </td>
+                    <td style={{ padding: '12px 16px', fontSize: '13px', color: '#666' }}>
+                      {plan.date ? new Date(plan.date).toLocaleDateString() : 'N/A'}
+                    </td>
+                    <td style={{ padding: '12px 16px', fontSize: '13px', color: '#666' }}>
+                      {plan.startTime && plan.endTime ? `${plan.startTime} - ${plan.endTime}` : plan.startTime || 'N/A'}
+                    </td>
+                    <td style={{ padding: '12px 16px' }}>
+                      <span style={{
+                        background: getStatusColor(plan.status),
+                        color: 'white',
+                        padding: '4px 12px',
+                        borderRadius: '20px',
+                        fontSize: '11px',
+                        fontWeight: '700',
+                        textTransform: 'capitalize'
+                      }}>
+                        {plan.status}
+                      </span>
+                    </td>
+                    <td style={{ padding: '12px 16px', fontSize: '13px', color: '#666' }}>
+                      {plan.createdBy?.name || 'N/A'}
+                    </td>
+                    <td style={{ padding: '12px 16px', textAlign: 'center' }}>
+                      <button
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          editPlan(plan);
+                        }}
+                        style={{
+                          padding: '6px 12px',
+                          background: '#2196f3',
+                          color: 'white',
+                          border: 'none',
+                          borderRadius: '4px',
+                          fontSize: '12px',
+                          cursor: 'pointer',
+                          marginRight: '8px'
+                        }}
+                      >
+                        Edit
+                      </button>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
           ) : (
-            <motion.div
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
+            <div
               style={{
-                gridColumn: '1 / -1',
                 textAlign: 'center',
                 padding: '48px',
-                color: '#999'
+                color: '#999',
+                background: 'white',
+                borderRadius: '12px',
+                boxShadow: '0 4px 12px rgba(0,0,0,0.08)'
               }}
             >
               <div style={{ fontSize: '48px', marginBottom: '16px' }}>📋</div>
               <p style={{ fontSize: '16px', fontWeight: '500' }}>No plans found</p>
-            </motion.div>
+            </div>
           )}
-        </motion.div>
+        </div>
       )}
 
       {/* Create/Edit Form Modal */}
