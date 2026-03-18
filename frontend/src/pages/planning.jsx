@@ -22,15 +22,24 @@ export default function Planning() {
     location: '',
     client: '',
     activity: '',
+    activityPlanned: '',
+    technicalApproach: '',
+    inputs: '',
+    output: '',
+    outcome: '',
     resources: '',
     personnel: [],
     remarks: '',
     status: 'draft'
   });
+  
+  const [commentText, setCommentText] = useState('');
+  const [isSuperAdmin, setIsSuperAdmin] = useState(false);
 
   useEffect(() => {
     const user = JSON.parse(localStorage.getItem('user') || '{}');
     setUserRole(user.role);
+    setIsSuperAdmin(user.role === 'admin');
     fetchPlans();
     if (user.role === 'admin' || user.role === 'csr') {
       fetchTechnicians();
@@ -121,11 +130,17 @@ export default function Planning() {
       location: '',
       client: '',
       activity: '',
+      activityPlanned: '',
+      technicalApproach: '',
+      inputs: '',
+      output: '',
+      outcome: '',
       resources: '',
       personnel: [],
       remarks: '',
       status: 'draft'
     });
+    setCommentText('');
   };
 
   const editPlan = (plan) => {
@@ -139,6 +154,11 @@ export default function Planning() {
       location: plan.location || '',
       client: plan.client?._id || '',
       activity: plan.activity || '',
+      activityPlanned: plan.activityPlanned || '',
+      technicalApproach: plan.technicalApproach || '',
+      inputs: plan.inputs || '',
+      output: plan.output || '',
+      outcome: plan.outcome || '',
       resources: plan.resources || '',
       personnel: plan.personnel?.map(p => p._id || p) || [],
       remarks: plan.remarks || '',
@@ -570,6 +590,109 @@ export default function Planning() {
 
                     <div style={{ marginBottom: '16px' }}>
                       <label style={{ display: 'block', color: '#666', fontSize: '12px', fontWeight: '600', marginBottom: '4px' }}>
+                        Activity Planned *
+                      </label>
+                      <input
+                        type="text"
+                        value={formData.activityPlanned}
+                        onChange={(e) => setFormData({ ...formData, activityPlanned: e.target.value })}
+                        placeholder="What activity is planned"
+                        style={{
+                          width: '100%',
+                          padding: '10px',
+                          borderRadius: '8px',
+                          border: '2px solid #43e97b',
+                          fontSize: '14px',
+                          boxSizing: 'border-box'
+                        }}
+                        required
+                      />
+                    </div>
+
+                    <div style={{ marginBottom: '16px' }}>
+                      <label style={{ display: 'block', color: '#666', fontSize: '12px', fontWeight: '600', marginBottom: '4px' }}>
+                        Technical Approach
+                      </label>
+                      <textarea
+                        value={formData.technicalApproach}
+                        onChange={(e) => setFormData({ ...formData, technicalApproach: e.target.value })}
+                        placeholder="Describe the technical approach to be used"
+                        rows={3}
+                        style={{
+                          width: '100%',
+                          padding: '10px',
+                          borderRadius: '8px',
+                          border: '2px solid #43e97b',
+                          fontSize: '14px',
+                          boxSizing: 'border-box',
+                          resize: 'vertical'
+                        }}
+                      />
+                    </div>
+
+                    <div style={{ marginBottom: '16px' }}>
+                      <label style={{ display: 'block', color: '#666', fontSize: '12px', fontWeight: '600', marginBottom: '4px' }}>
+                        Inputs (Resources & Tools)
+                      </label>
+                      <input
+                        type="text"
+                        value={formData.inputs}
+                        onChange={(e) => setFormData({ ...formData, inputs: e.target.value })}
+                        placeholder="Equipment, materials, tools needed"
+                        style={{
+                          width: '100%',
+                          padding: '10px',
+                          borderRadius: '8px',
+                          border: '2px solid #43e97b',
+                          fontSize: '14px',
+                          boxSizing: 'border-box'
+                        }}
+                      />
+                    </div>
+
+                    <div style={{ marginBottom: '16px' }}>
+                      <label style={{ display: 'block', color: '#666', fontSize: '12px', fontWeight: '600', marginBottom: '4px' }}>
+                        Output (Success Metrics)
+                      </label>
+                      <input
+                        type="text"
+                        value={formData.output}
+                        onChange={(e) => setFormData({ ...formData, output: e.target.value })}
+                        placeholder="How success will be measured"
+                        style={{
+                          width: '100%',
+                          padding: '10px',
+                          borderRadius: '8px',
+                          border: '2px solid #43e97b',
+                          fontSize: '14px',
+                          boxSizing: 'border-box'
+                        }}
+                      />
+                    </div>
+
+                    <div style={{ marginBottom: '16px' }}>
+                      <label style={{ display: 'block', color: '#666', fontSize: '12px', fontWeight: '600', marginBottom: '4px' }}>
+                        Outcome
+                      </label>
+                      <textarea
+                        value={formData.outcome}
+                        onChange={(e) => setFormData({ ...formData, outcome: e.target.value })}
+                        placeholder="Expected outcome/results"
+                        rows={3}
+                        style={{
+                          width: '100%',
+                          padding: '10px',
+                          borderRadius: '8px',
+                          border: '2px solid #43e97b',
+                          fontSize: '14px',
+                          boxSizing: 'border-box',
+                          resize: 'vertical'
+                        }}
+                      />
+                    </div>
+
+                    <div style={{ marginBottom: '16px' }}>
+                      <label style={{ display: 'block', color: '#666', fontSize: '12px', fontWeight: '600', marginBottom: '4px' }}>
                         Activity
                       </label>
                       <input
@@ -743,9 +866,9 @@ export default function Planning() {
             style={{
               background: 'white',
               borderRadius: '12px',
-              maxWidth: '500px',
+              maxWidth: '650px',
               width: '100%',
-              maxHeight: '80vh',
+              maxHeight: '90vh',
               overflow: 'auto',
               boxShadow: '0 20px 60px rgba(0,0,0,0.3)'
             }}
@@ -787,17 +910,25 @@ export default function Planning() {
             <div style={{ padding: '20px' }}>
               <h2 style={{ margin: '0 0 16px 0', color: '#2d7a3e' }}>{viewing.title}</h2>
               
-              {viewing.date && (
+              {viewing.description && (
                 <p style={{ margin: '0 0 12px 0', color: '#666', fontSize: '14px' }}>
-                  <strong>📅 Date:</strong> {new Date(viewing.date).toLocaleDateString()}
+                  <strong>📋 Description:</strong> {viewing.description}
                 </p>
               )}
               
-              {viewing.time && (
-                <p style={{ margin: '0 0 12px 0', color: '#666', fontSize: '14px' }}>
-                  <strong>🕐 Time:</strong> {viewing.time}
-                </p>
-              )}
+              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px' }}>
+                {viewing.date && (
+                  <p style={{ margin: '0 0 12px 0', color: '#666', fontSize: '14px' }}>
+                    <strong>📅 Date:</strong> {new Date(viewing.date).toLocaleDateString()}
+                  </p>
+                )}
+                
+                {viewing.time && (
+                  <p style={{ margin: '0 0 12px 0', color: '#666', fontSize: '14px' }}>
+                    <strong>🕐 Time:</strong> {viewing.time}
+                  </p>
+                )}
+              </div>
               
               {viewing.location && (
                 <p style={{ margin: '0 0 12px 0', color: '#666', fontSize: '14px' }}>
@@ -811,15 +942,45 @@ export default function Planning() {
                 </p>
               )}
               
+              {viewing.activityPlanned && (
+                <p style={{ margin: '0 0 12px 0', color: '#666', fontSize: '14px' }}>
+                  <strong>🎯 Activity Planned:</strong> {viewing.activityPlanned}
+                </p>
+              )}
+              
               {viewing.activity && (
                 <p style={{ margin: '0 0 12px 0', color: '#666', fontSize: '14px' }}>
                   <strong>🔧 Activity:</strong> {viewing.activity}
                 </p>
               )}
               
+              {viewing.technicalApproach && (
+                <p style={{ margin: '0 0 12px 0', color: '#666', fontSize: '14px' }}>
+                  <strong>🔬 Technical Approach:</strong> {viewing.technicalApproach}
+                </p>
+              )}
+              
+              {viewing.inputs && (
+                <p style={{ margin: '0 0 12px 0', color: '#666', fontSize: '14px' }}>
+                  <strong>🛠️ Inputs (Resources & Tools):</strong> {viewing.inputs}
+                </p>
+              )}
+              
+              {viewing.output && (
+                <p style={{ margin: '0 0 12px 0', color: '#666', fontSize: '14px' }}>
+                  <strong>📊 Output (Success Metrics):</strong> {viewing.output}
+                </p>
+              )}
+              
+              {viewing.outcome && (
+                <p style={{ margin: '0 0 12px 0', color: '#666', fontSize: '14px' }}>
+                  <strong>✅ Outcome:</strong> {viewing.outcome}
+                </p>
+              )}
+              
               {viewing.resources && (
                 <p style={{ margin: '0 0 12px 0', color: '#666', fontSize: '14px' }}>
-                  <strong>🛠️ Resources:</strong> {viewing.resources}
+                  <strong>🧰 Resources:</strong> {viewing.resources}
                 </p>
               )}
               
@@ -839,6 +1000,73 @@ export default function Planning() {
                 Created by: {viewing.createdBy?.name}
               </p>
 
+              {/* Comments Section - visible to all users */}
+              {viewing.comments && viewing.comments.length > 0 && (
+                <div style={{ marginTop: '20px', padding: '16px', background: '#f8f9fa', borderRadius: '8px' }}>
+                  <h3 style={{ margin: '0 0 12px 0', color: '#2d7a3e', fontSize: '14px' }}>💬 Comments from Admin</h3>
+                  {viewing.comments.map((comment, index) => (
+                    <div key={comment._id || index} style={{ marginBottom: '12px', paddingBottom: '12px', borderBottom: index < viewing.comments.length - 1 ? '1px solid #e0e0e0' : 'none' }}>
+                      <p style={{ margin: '0 0 4px 0', color: '#333', fontSize: '13px' }}>{comment.text}</p>
+                      <p style={{ margin: '0', color: '#999', fontSize: '11px' }}>
+                        - {comment.commentedBy?.name || 'Admin'} ({comment.commentedBy?.role || 'admin'}) on {new Date(comment.createdAt).toLocaleString()}
+                      </p>
+                    </div>
+                  ))}
+                </div>
+              )}
+
+              {/* Add Comment Form - only for super admin */}
+              {isSuperAdmin && (
+                <div style={{ marginTop: '20px', padding: '16px', background: '#e8f5e9', borderRadius: '8px' }}>
+                  <h3 style={{ margin: '0 0 12px 0', color: '#2d7a3e', fontSize: '14px' }}>💬 Add Comment</h3>
+                  <textarea
+                    value={commentText}
+                    onChange={(e) => setCommentText(e.target.value)}
+                    placeholder="Write a comment for this plan..."
+                    rows={3}
+                    style={{
+                      width: '100%',
+                      padding: '10px',
+                      borderRadius: '8px',
+                      border: '2px solid #43e97b',
+                      fontSize: '14px',
+                      boxSizing: 'border-box',
+                      resize: 'vertical',
+                      marginBottom: '12px'
+                    }}
+                  />
+                  <button
+                    onClick={async () => {
+                      if (!commentText.trim()) return;
+                      try {
+                        await API.post(`/plans/${viewing._id}/comments`, { text: commentText });
+                        setCommentText('');
+                        fetchPlans();
+                        // Update the viewing plan with new comments
+                        const updatedPlan = await API.get(`/plans/${viewing._id}`);
+                        setViewing(updatedPlan);
+                        alert('Comment added successfully!');
+                      } catch (err) {
+                        console.error('Error adding comment:', err);
+                        alert('Failed to add comment');
+                      }
+                    }}
+                    style={{
+                      padding: '10px 20px',
+                      background: 'linear-gradient(90deg, #43e97b 0%, #38f9d7 100%)',
+                      color: '#2d7a3e',
+                      border: 'none',
+                      borderRadius: '8px',
+                      fontSize: '14px',
+                      fontWeight: '600',
+                      cursor: 'pointer'
+                    }}
+                  >
+                    Submit Comment
+                  </button>
+                </div>
+              )}
+              
               {canEdit && (
                 <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px', marginTop: '20px' }}>
                   <button

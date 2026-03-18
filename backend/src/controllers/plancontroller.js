@@ -33,6 +33,7 @@ const getPlans = async (req, res) => {
       .populate('personnel', 'name email')
       .populate('createdBy', 'name')
       .populate('assignedTo', 'name email')
+      .populate('comments.commentedBy', 'name role')
       .sort({ createdAt: -1 });
     
     res.json(plans);
@@ -50,7 +51,8 @@ const getPlan = async (req, res) => {
       .populate('createdBy', 'name')
       .populate('assignedTo', 'name email')
       .populate('dailyPlans')
-      .populate('weeklyPlans');
+      .populate('weeklyPlans')
+      .populate('comments.commentedBy', 'name role');
     
     if (!plan) return res.status(404).json({ error: 'Plan not found' });
     res.json(plan);
@@ -64,7 +66,8 @@ const createPlan = async (req, res) => {
   try {
     const { 
       planType, title, description, date, time, location, 
-      client, activity, resources, personnel, remarks,
+      client, activity, activityPlanned, technicalApproach, 
+      inputs, output, outcome, resources, personnel, remarks,
       startDate, endDate, assignedTo 
     } = req.body;
     
@@ -99,6 +102,11 @@ const createPlan = async (req, res) => {
       location,
       client,
       activity,
+      activityPlanned,
+      technicalApproach,
+      inputs,
+      output,
+      outcome,
       resources,
       personnel: personnel || [],
       remarks,
@@ -124,7 +132,8 @@ const updatePlan = async (req, res) => {
   try {
     const { 
       title, description, date, time, location, 
-      client, activity, resources, personnel, remarks,
+      client, activity, activityPlanned, technicalApproach,
+      inputs, output, outcome, resources, personnel, remarks,
       startDate, endDate, assignedTo, status 
     } = req.body;
     
@@ -139,6 +148,11 @@ const updatePlan = async (req, res) => {
     if (location !== undefined) plan.location = location;
     if (client) plan.client = client;
     if (activity !== undefined) plan.activity = activity;
+    if (activityPlanned !== undefined) plan.activityPlanned = activityPlanned;
+    if (technicalApproach !== undefined) plan.technicalApproach = technicalApproach;
+    if (inputs !== undefined) plan.inputs = inputs;
+    if (output !== undefined) plan.output = output;
+    if (outcome !== undefined) plan.outcome = outcome;
     if (resources !== undefined) plan.resources = resources;
     if (personnel) plan.personnel = personnel;
     if (remarks !== undefined) plan.remarks = remarks;
@@ -313,6 +327,57 @@ const getInstallationReport = async (req, res) => {
   }
 };
 
+// Add comment to plan (super admin only)
+const addComment = async (req, res) => {
+  try {
+    const { text } = req.body;
+    
+    if (!text) {
+      return res.status(400).json({ error: 'Comment text is required' });
+    }
+    
+    const plan = await Plan.findById(req.params.id);
+    if (!plan) {
+      return res.status(404).json({ error: 'Plan not found' });
+    }
+    
+    plan.comments.push({
+      text,
+      commentedBy: req.user.id
+    });
+    
+    await plan.save();
+    await plan.populate('comments.commentedBy', 'name role');
+    
+    res.json(plan);
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+};
+
+// Delete comment from plan (super admin only)
+const deleteComment = async (req, res) => {
+  try {
+    const { commentId } = req.params;
+    
+    const plan = await Plan.findById(req.params.id);
+    if (!plan) {
+      return res.status(404).json({ error: 'Plan not found' });
+    }
+    
+    plan.comments = plan.comments.filter(
+      comment => comment._id.toString() !== commentId
+    );
+    
+    await plan.save();
+    await plan.populate('comments.commentedBy', 'name role');
+    
+    res.json(plan);
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+};
+
 module.exports = {
   getPlans,
   getPlan,
@@ -322,5 +387,7 @@ module.exports = {
   getInvoiceReport,
   getCustomerReport,
   getNetworkReport,
-  getInstallationReport
+  getInstallationReport,
+  addComment,
+  deleteComment
 };

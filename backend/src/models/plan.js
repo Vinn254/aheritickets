@@ -16,9 +16,20 @@ const PlanSchema = new Schema({
   location: { type: String },
   client: { type: Schema.Types.ObjectId, ref: 'User' },
   activity: { type: String },
+  activityPlanned: { type: String },
+  technicalApproach: { type: String },
+  inputs: { type: String }, // resources & tools
+  output: { type: String }, // success metrics
+  outcome: { type: String },
   resources: { type: String },
   personnel: [{ type: Schema.Types.ObjectId, ref: 'User' }],
   remarks: { type: String },
+  // Comments from super admin
+  comments: [{
+    text: { type: String, required: true },
+    commentedBy: { type: Schema.Types.ObjectId, ref: 'User', required: true },
+    createdAt: { type: Date, default: Date.now }
+  }],
   // For weekly plans - contains multiple daily plans
   dailyPlans: [{ type: Schema.Types.ObjectId, ref: 'Plan' }],
   // For quarterly plans - contains multiple weekly plans
