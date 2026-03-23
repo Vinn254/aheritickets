@@ -313,7 +313,9 @@ const financeReview = async (req, res) => {
   } catch (err) {
     res.status(500).json({ error: err.message });
   }
+};
 
+// Get single request
 const getInstallationRequest = async (req, res) => {
   try {
     const request = await InstallationRequest.findById(req.params.id)
