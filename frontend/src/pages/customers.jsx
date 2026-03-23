@@ -216,7 +216,7 @@ export default function Customers() {
   };
 
   return (
-    <div style={{ padding: '20px', maxWidth: '1400px', margin: '0 auto', overflowX: 'visible' }}>
+    <div style={{ padding: '20px', maxWidth: '100%', margin: '0 auto', width: '100%', boxSizing: 'border-box', overflowX: 'auto' }}>
         {/* Header */}
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '24px' }}>
           <div>

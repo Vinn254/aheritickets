@@ -122,9 +122,9 @@ export default function Landing() {
   return (
     <div style={{
       minHeight: '100vh',
-      width: '100vw',
+      width: '100%',
       position: 'relative',
-      overflow: 'hidden',
+      overflowX: 'hidden',
       display: 'flex',
       flexDirection: 'column',
       background: '#1a5c2e', // Fallback background color
@@ -139,8 +139,8 @@ export default function Landing() {
             position: 'absolute',
             top: 0,
             left: 0,
-            width: '100vw',
-            height: '100vh',
+            width: '100%',
+            height: '100%',
             objectFit: 'cover',
             zIndex: 0,
             filter: 'brightness(0.7)'
@@ -152,8 +152,8 @@ export default function Landing() {
         position: 'absolute',
         top: 0,
         left: 0,
-        width: '100vw',
-        height: '100vh',
+        width: '100%',
+        height: '100%',
         background: imageError 
           ? 'linear-gradient(135deg, #1a5c2e 0%, #2d7a3e 50%, #43e97b 100%)' 
           : 'rgba(34, 62, 60, 0.55)',
@@ -254,7 +254,7 @@ export default function Landing() {
 
       {/* Hero Section */}
       <section className="landing-hero" style={{
-        flex: 1,
+        width: '100%',
         minHeight: 530,
         padding: 0,
         margin: 0,

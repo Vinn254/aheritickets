@@ -15,6 +15,7 @@ export default function Planning() {
   
   const [formData, setFormData] = useState({
     planType: 'daily',
+    dayOfWeek: '',
     description: '',
     date: '',
     startTime: '',
@@ -117,6 +118,7 @@ export default function Planning() {
   const resetForm = () => {
     setFormData({
       planType: 'daily',
+      dayOfWeek: '',
       description: '',
       date: '',
       startTime: '',
@@ -135,6 +137,7 @@ export default function Planning() {
     setViewing(plan);
     setFormData({
       planType: plan.planType,
+      dayOfWeek: plan.dayOfWeek || '',
       description: plan.description || '',
       date: plan.date ? new Date(plan.date).toISOString().split('T')[0] : '',
       startTime: plan.startTime || '',
@@ -288,13 +291,17 @@ export default function Planning() {
             }}>
               <thead>
                 <tr style={{ background: '#f8f9fa' }}>
-                  <th style={{ padding: '14px 16px', textAlign: 'left', fontSize: '12px', fontWeight: '700', color: '#666', borderBottom: '2px solid #e0e0e0' }}>Plan Type</th>
-                  <th style={{ padding: '14px 16px', textAlign: 'left', fontSize: '12px', fontWeight: '700', color: '#666', borderBottom: '2px solid #e0e0e0' }}>Activity</th>
-                  <th style={{ padding: '14px 16px', textAlign: 'left', fontSize: '12px', fontWeight: '700', color: '#666', borderBottom: '2px solid #e0e0e0' }}>Date</th>
-                  <th style={{ padding: '14px 16px', textAlign: 'left', fontSize: '12px', fontWeight: '700', color: '#666', borderBottom: '2px solid #e0e0e0' }}>Time</th>
-                  <th style={{ padding: '14px 16px', textAlign: 'left', fontSize: '12px', fontWeight: '700', color: '#666', borderBottom: '2px solid #e0e0e0' }}>Status</th>
-                  <th style={{ padding: '14px 16px', textAlign: 'left', fontSize: '12px', fontWeight: '700', color: '#666', borderBottom: '2px solid #e0e0e0' }}>Created By</th>
-                  <th style={{ padding: '14px 16px', textAlign: 'center', fontSize: '12px', fontWeight: '700', color: '#666', borderBottom: '2px solid #e0e0e0' }}>Actions</th>
+                  <th style={{ padding: '12px 10px', textAlign: 'left', fontSize: '14px', fontWeight: '700', color: '#000000', borderBottom: '2px solid #e0e0e0' }}>Plan Type</th>
+                  <th style={{ padding: '12px 10px', textAlign: 'left', fontSize: '14px', fontWeight: '700', color: '#000000', borderBottom: '2px solid #e0e0e0' }}>Day</th>
+                  <th style={{ padding: '12px 10px', textAlign: 'left', fontSize: '14px', fontWeight: '700', color: '#000000', borderBottom: '2px solid #e0e0e0' }}>Activity</th>
+                  <th style={{ padding: '12px 10px', textAlign: 'left', fontSize: '14px', fontWeight: '700', color: '#000000', borderBottom: '2px solid #e0e0e0' }}>Date</th>
+                  <th style={{ padding: '12px 10px', textAlign: 'left', fontSize: '14px', fontWeight: '700', color: '#000000', borderBottom: '2px solid #e0e0e0' }}>Time</th>
+                  <th style={{ padding: '12px 10px', textAlign: 'left', fontSize: '14px', fontWeight: '700', color: '#000000', borderBottom: '2px solid #e0e0e0' }}>Technical Approach</th>
+                  <th style={{ padding: '12px 10px', textAlign: 'left', fontSize: '14px', fontWeight: '700', color: '#000000', borderBottom: '2px solid #e0e0e0' }}>Inputs</th>
+                  <th style={{ padding: '12px 10px', textAlign: 'left', fontSize: '14px', fontWeight: '700', color: '#000000', borderBottom: '2px solid #e0e0e0' }}>Output</th>
+                  <th style={{ padding: '12px 10px', textAlign: 'left', fontSize: '14px', fontWeight: '700', color: '#000000', borderBottom: '2px solid #e0e0e0' }}>Outcome</th>
+                  <th style={{ padding: '12px 10px', textAlign: 'left', fontSize: '14px', fontWeight: '700', color: '#000000', borderBottom: '2px solid #e0e0e0' }}>Status</th>
+                  <th style={{ padding: '12px 10px', textAlign: 'center', fontSize: '14px', fontWeight: '700', color: '#000000', borderBottom: '2px solid #e0e0e0' }}>Actions</th>
                 </tr>
               </thead>
               <tbody>
@@ -308,7 +315,7 @@ export default function Planning() {
                       transition: 'background 0.2s'
                     }}
                   >
-                    <td style={{ padding: '12px 16px', fontSize: '13px' }}>
+                    <td style={{ padding: '12px 16px', fontSize: '14px', color: '#000000' }}>
                       <span style={{
                         background: '#43e97b',
                         color: '#2d7a3e',
@@ -321,32 +328,44 @@ export default function Planning() {
                         {plan.planType}
                       </span>
                     </td>
-                    <td style={{ padding: '12px 16px', fontSize: '13px', color: '#2d7a3e', fontWeight: '600' }}>
+                    <td style={{ padding: '12px 16px', fontSize: '14px', color: '#000000', fontWeight: '600' }}>
+                      {plan.dayOfWeek || '-'}
+                    </td>
+                    <td style={{ padding: '12px 16px', fontSize: '14px', color: '#000000', fontWeight: '600' }}>
                       {plan.activityPlanned || 'N/A'}
                     </td>
-                    <td style={{ padding: '12px 16px', fontSize: '13px', color: '#666' }}>
+                    <td style={{ padding: '12px 16px', fontSize: '14px', color: '#000000' }}>
                       {plan.date ? new Date(plan.date).toLocaleDateString() : 'N/A'}
                     </td>
-                    <td style={{ padding: '12px 16px', fontSize: '13px', color: '#666' }}>
+                    <td style={{ padding: '12px 16px', fontSize: '14px', color: '#000000' }}>
                       {plan.startTime && plan.endTime ? `${plan.startTime} - ${plan.endTime}` : plan.startTime || 'N/A'}
                     </td>
-                    <td style={{ padding: '12px 16px' }}>
+                    <td style={{ padding: '10px 10px', fontSize: '14px', color: '#000000' }}>
+                      {plan.technicalApproach || 'N/A'}
+                    </td>
+                    <td style={{ padding: '10px 10px', fontSize: '14px', color: '#000000' }}>
+                      {plan.inputs || 'N/A'}
+                    </td>
+                    <td style={{ padding: '10px 10px', fontSize: '14px', color: '#000000' }}>
+                      {plan.output || 'N/A'}
+                    </td>
+                    <td style={{ padding: '10px 10px', fontSize: '14px', color: '#000000' }}>
+                      {plan.outcome || 'N/A'}
+                    </td>
+                    <td style={{ padding: '10px 10px' }}>
                       <span style={{
                         background: getStatusColor(plan.status),
                         color: 'white',
                         padding: '4px 12px',
                         borderRadius: '20px',
-                        fontSize: '11px',
+                        fontSize: '14px',
                         fontWeight: '700',
                         textTransform: 'capitalize'
                       }}>
                         {plan.status}
                       </span>
                     </td>
-                    <td style={{ padding: '12px 16px', fontSize: '13px', color: '#666' }}>
-                      {plan.createdBy?.name || 'N/A'}
-                    </td>
-                    <td style={{ padding: '12px 16px', textAlign: 'center' }}>
+                    <td style={{ padding: '10px 10px', textAlign: 'center' }}>
                       <button
                         onClick={(e) => {
                           e.stopPropagation();
@@ -470,6 +489,36 @@ export default function Planning() {
                 </div>
 
                 {formData.planType === 'daily' && (
+                  <>
+                    <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px', marginBottom: '16px' }}>
+                      <div>
+                        <label style={{ display: 'block', color: '#666', fontSize: '12px', fontWeight: '600', marginBottom: '4px' }}>
+                          Day of Week
+                        </label>
+                        <select
+                          value={formData.dayOfWeek}
+                          onChange={(e) => setFormData({ ...formData, dayOfWeek: e.target.value })}
+                          style={{
+                            width: '100%',
+                            padding: '10px',
+                            borderRadius: '8px',
+                            border: '2px solid #43e97b',
+                            fontSize: '14px'
+                          }}
+                        >
+                          <option value="">Select Day</option>
+                          <option value="Monday">Monday</option>
+                          <option value="Tuesday">Tuesday</option>
+                          <option value="Wednesday">Wednesday</option>
+                          <option value="Thursday">Thursday</option>
+                          <option value="Friday">Friday</option>
+                        </select>
+                      </div>
+                    </div>
+                  </>
+                )}
+
+                {(formData.planType === 'daily' || formData.planType === 'weekly' || formData.planType === 'quarterly') && (
                   <>
                     <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px', marginBottom: '16px' }}>
                       <div>
