@@ -26,6 +26,8 @@ const Ticketing = () => {
     assignedTo: '',
     notes: ''
   });
+  const [statusDropdown, setStatusDropdown] = useState({});
+  const [modalStatusDropdown, setModalStatusDropdown] = useState(false);
 
   useEffect(() => {
     const user = JSON.parse(localStorage.getItem('user') || '{}');
@@ -402,9 +404,9 @@ const Ticketing = () => {
                   </button>
                 )}
                 {ticket.assignedTo && (ticket.status === 'assigned' || ticket.status === 'in_progress') && (
-                  <>
+                  <div style={{ position: 'relative' }}>
                     <button
-                      onClick={() => handleUpdateTicketStatus(ticket._id, 'in_progress')}
+                      onClick={() => setStatusDropdown({ ...statusDropdown, [ticket._id]: !statusDropdown[ticket._id] })}
                       style={{
                         padding: '4px 8px',
                         background: '#9c27b0',
@@ -412,54 +414,59 @@ const Ticketing = () => {
                         border: 'none',
                         borderRadius: '4px',
                         fontSize: '10px',
-                        cursor: 'pointer'
+                        cursor: 'pointer',
+                        width: '100%'
                       }}
                     >
-                      In Progress
+                      {formatStatus(ticket.status)}
                     </button>
-                    <button
-                      onClick={() => handleUpdateTicketStatus(ticket._id, 'on_site')}
-                      style={{
-                        padding: '4px 8px',
-                        background: '#00bcd4',
-                        color: 'white',
-                        border: 'none',
+                    {statusDropdown[ticket._id] && (
+                      <div style={{
+                        position: 'absolute',
+                        top: '100%',
+                        left: '0',
+                        background: 'white',
+                        border: '1px solid #ddd',
                         borderRadius: '4px',
-                        fontSize: '10px',
-                        cursor: 'pointer'
-                      }}
-                    >
-                      On Site
-                    </button>
-                    <button
-                      onClick={() => handleUpdateTicketStatus(ticket._id, 'waiting_customer')}
-                      style={{
-                        padding: '4px 8px',
-                        background: '#ffeb3b',
-                        color: '#333',
-                        border: 'none',
-                        borderRadius: '4px',
-                        fontSize: '10px',
-                        cursor: 'pointer'
-                      }}
-                    >
-                      Waiting
-                    </button>
-                    <button
-                      onClick={() => handleResolveTicket(ticket._id)}
-                      style={{
-                        padding: '4px 8px',
-                        background: '#4caf50',
-                        color: 'white',
-                        border: 'none',
-                        borderRadius: '4px',
-                        fontSize: '10px',
-                        cursor: 'pointer'
-                      }}
-                    >
-                      Resolve
-                    </button>
-                  </>
+                        boxShadow: '0 2px 8px rgba(0,0,0,0.15)',
+                        zIndex: 100,
+                        minWidth: '120px'
+                      }}>
+                        <div
+                          onClick={() => { handleUpdateTicketStatus(ticket._id, 'in_progress'); setStatusDropdown({ ...statusDropdown, [ticket._id]: false }); }}
+                          style={{ padding: '8px 12px', cursor: 'pointer', fontSize: '11px', borderBottom: '1px solid #eee' }}
+                          onMouseOver={(e) => e.target.style.background = '#f5f5f5'}
+                          onMouseOut={(e) => e.target.style.background = 'white'}
+                        >
+                          In Progress
+                        </div>
+                        <div
+                          onClick={() => { handleUpdateTicketStatus(ticket._id, 'on_site'); setStatusDropdown({ ...statusDropdown, [ticket._id]: false }); }}
+                          style={{ padding: '8px 12px', cursor: 'pointer', fontSize: '11px', borderBottom: '1px solid #eee' }}
+                          onMouseOver={(e) => e.target.style.background = '#f5f5f5'}
+                          onMouseOut={(e) => e.target.style.background = 'white'}
+                        >
+                          On Site
+                        </div>
+                        <div
+                          onClick={() => { handleUpdateTicketStatus(ticket._id, 'waiting_customer'); setStatusDropdown({ ...statusDropdown, [ticket._id]: false }); }}
+                          style={{ padding: '8px 12px', cursor: 'pointer', fontSize: '11px', borderBottom: '1px solid #eee' }}
+                          onMouseOver={(e) => e.target.style.background = '#f5f5f5'}
+                          onMouseOut={(e) => e.target.style.background = 'white'}
+                        >
+                          Waiting Customer
+                        </div>
+                        <div
+                          onClick={() => { handleResolveTicket(ticket._id); setStatusDropdown({ ...statusDropdown, [ticket._id]: false }); }}
+                          style={{ padding: '8px 12px', cursor: 'pointer', fontSize: '11px', color: '#4caf50', fontWeight: '600' }}
+                          onMouseOver={(e) => e.target.style.background = '#f5f5f5'}
+                          onMouseOut={(e) => e.target.style.background = 'white'}
+                        >
+                          Resolve
+                        </div>
+                      </div>
+                    )}
+                  </div>
                 )}
                 {ticket.status === 'resolved' && isAdminOrCSR && (
                   <button
@@ -796,25 +803,76 @@ const Ticketing = () => {
               </div>
             )}
 
-            {/* Resolution Section */}
+            {/* Status Update Section */}
             {viewing.assignedTo && (viewing.status === 'in_progress' || viewing.status === 'assigned') && (
-              <div style={{ marginTop: '20px' }}>
+              <div style={{ marginTop: '20px', position: 'relative' }}>
                 <button
-                  onClick={() => handleResolveTicket(viewing._id)}
+                  onClick={() => setModalStatusDropdown(!modalStatusDropdown)}
                   style={{
                     width: '100%',
                     padding: '12px',
-                    background: '#4caf50',
+                    background: '#9c27b0',
                     color: 'white',
                     border: 'none',
                     borderRadius: '8px',
                     fontSize: '14px',
                     fontWeight: '600',
-                    cursor: 'pointer'
+                    cursor: 'pointer',
+                    display: 'flex',
+                    justifyContent: 'space-between',
+                    alignItems: 'center'
                   }}
                 >
-                  Mark as Resolved
+                  <span>Status: {formatStatus(viewing.status)}</span>
+                  <span>{modalStatusDropdown ? '▲' : '▼'}</span>
                 </button>
+                {modalStatusDropdown && (
+                  <div style={{
+                    position: 'absolute',
+                    top: '100%',
+                    left: '0',
+                    right: '0',
+                    background: 'white',
+                    border: '1px solid #ddd',
+                    borderRadius: '8px',
+                    boxShadow: '0 4px 12px rgba(0,0,0,0.15)',
+                    zIndex: 100,
+                    overflow: 'hidden'
+                  }}>
+                    <div
+                      onClick={() => { handleUpdateTicketStatus(viewing._id, 'in_progress'); setModalStatusDropdown(false); setViewing({...viewing, status: 'in_progress'}); }}
+                      style={{ padding: '12px 16px', cursor: 'pointer', fontSize: '13px', borderBottom: '1px solid #eee' }}
+                      onMouseOver={(e) => e.target.style.background = '#f5f5f5'}
+                      onMouseOut={(e) => e.target.style.background = 'white'}
+                    >
+                      In Progress
+                    </div>
+                    <div
+                      onClick={() => { handleUpdateTicketStatus(viewing._id, 'on_site'); setModalStatusDropdown(false); setViewing({...viewing, status: 'on_site'}); }}
+                      style={{ padding: '12px 16px', cursor: 'pointer', fontSize: '13px', borderBottom: '1px solid #eee' }}
+                      onMouseOver={(e) => e.target.style.background = '#f5f5f5'}
+                      onMouseOut={(e) => e.target.style.background = 'white'}
+                    >
+                      On Site
+                    </div>
+                    <div
+                      onClick={() => { handleUpdateTicketStatus(viewing._id, 'waiting_customer'); setModalStatusDropdown(false); setViewing({...viewing, status: 'waiting_customer'}); }}
+                      style={{ padding: '12px 16px', cursor: 'pointer', fontSize: '13px', borderBottom: '1px solid #eee' }}
+                      onMouseOver={(e) => e.target.style.background = '#f5f5f5'}
+                      onMouseOut={(e) => e.target.style.background = 'white'}
+                    >
+                      Waiting Customer
+                    </div>
+                    <div
+                      onClick={() => { handleResolveTicket(viewing._id); setModalStatusDropdown(false); }}
+                      style={{ padding: '12px 16px', cursor: 'pointer', fontSize: '13px', color: '#4caf50', fontWeight: '600' }}
+                      onMouseOver={(e) => e.target.style.background = '#f5f5f5'}
+                      onMouseOut={(e) => e.target.style.background = 'white'}
+                    >
+                      Resolve
+                    </div>
+                  </div>
+                )}
               </div>
             )}
 
