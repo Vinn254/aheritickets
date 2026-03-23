@@ -89,7 +89,7 @@ const Ticketing = () => {
   const handleAssignTicket = async (ticketId) => {
     try {
       await API.patch(`/api/tickets/${ticketId}/assign`, {
-        assignedTo: assignForm.assignedTo,
+        technicianId: assignForm.assignedTo,
         notes: assignForm.notes
       });
       alert('Ticket assigned successfully!');
@@ -112,6 +112,17 @@ const Ticketing = () => {
     } catch (err) {
       console.error('Error resolving ticket:', err);
       alert('Failed to resolve ticket: ' + (err.response?.data?.message || err.message));
+    }
+  };
+
+  const handleUpdateTicketStatus = async (ticketId, newStatus) => {
+    try {
+      await API.put(`/api/tickets/${ticketId}`, { status: newStatus });
+      alert('Ticket status updated to ' + formatStatus(newStatus));
+      fetchTickets();
+    } catch (err) {
+      console.error('Error updating ticket status:', err);
+      alert('Failed to update status: ' + (err.response?.data?.message || err.message));
     }
   };
 
@@ -373,49 +384,93 @@ const Ticketing = () => {
                   {ticket.priority}
                 </span>
               </div>
-              <div onClick={(e) => e.stopPropagation()}>
+              <div onClick={(e) => e.stopPropagation()} style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
                 {isAdminOrCSR && !ticket.assignedTo && ticket.status === 'open' && (
                   <button
                     onClick={() => setViewing(ticket)}
                     style={{
-                      padding: '6px 12px',
+                      padding: '4px 8px',
                       background: '#2196f3',
                       color: 'white',
                       border: 'none',
-                      borderRadius: '6px',
-                      fontSize: '11px',
+                      borderRadius: '4px',
+                      fontSize: '10px',
                       cursor: 'pointer'
                     }}
                   >
                     Assign
                   </button>
                 )}
-                {ticket.assignedTo && (ticket.status === 'in_progress' || ticket.status === 'assigned') && (
-                  <button
-                    onClick={() => handleResolveTicket(ticket._id)}
-                    style={{
-                      padding: '6px 12px',
-                      background: '#4caf50',
-                      color: 'white',
-                      border: 'none',
-                      borderRadius: '6px',
-                      fontSize: '11px',
-                      cursor: 'pointer'
-                    }}
-                  >
-                    Resolve
-                  </button>
+                {ticket.assignedTo && (ticket.status === 'assigned' || ticket.status === 'in_progress') && (
+                  <>
+                    <button
+                      onClick={() => handleUpdateTicketStatus(ticket._id, 'in_progress')}
+                      style={{
+                        padding: '4px 8px',
+                        background: '#9c27b0',
+                        color: 'white',
+                        border: 'none',
+                        borderRadius: '4px',
+                        fontSize: '10px',
+                        cursor: 'pointer'
+                      }}
+                    >
+                      In Progress
+                    </button>
+                    <button
+                      onClick={() => handleUpdateTicketStatus(ticket._id, 'on_site')}
+                      style={{
+                        padding: '4px 8px',
+                        background: '#00bcd4',
+                        color: 'white',
+                        border: 'none',
+                        borderRadius: '4px',
+                        fontSize: '10px',
+                        cursor: 'pointer'
+                      }}
+                    >
+                      On Site
+                    </button>
+                    <button
+                      onClick={() => handleUpdateTicketStatus(ticket._id, 'waiting_customer')}
+                      style={{
+                        padding: '4px 8px',
+                        background: '#ffeb3b',
+                        color: '#333',
+                        border: 'none',
+                        borderRadius: '4px',
+                        fontSize: '10px',
+                        cursor: 'pointer'
+                      }}
+                    >
+                      Waiting
+                    </button>
+                    <button
+                      onClick={() => handleResolveTicket(ticket._id)}
+                      style={{
+                        padding: '4px 8px',
+                        background: '#4caf50',
+                        color: 'white',
+                        border: 'none',
+                        borderRadius: '4px',
+                        fontSize: '10px',
+                        cursor: 'pointer'
+                      }}
+                    >
+                      Resolve
+                    </button>
+                  </>
                 )}
                 {ticket.status === 'resolved' && isAdminOrCSR && (
                   <button
                     onClick={() => handleCloseTicket(ticket._id)}
                     style={{
-                      padding: '6px 12px',
+                      padding: '4px 8px',
                       background: '#9e9e9e',
                       color: 'white',
                       border: 'none',
-                      borderRadius: '6px',
-                      fontSize: '11px',
+                      borderRadius: '4px',
+                      fontSize: '10px',
                       cursor: 'pointer'
                     }}
                   >

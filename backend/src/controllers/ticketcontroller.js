@@ -104,7 +104,7 @@ exports.getTicketById = async (req, res, next) => {
 exports.updateTicket = async (req, res, next) => {
   try {
     const { id } = req.params;
-    const { title, description, priority } = req.body;
+    const { title, description, priority, status } = req.body;
     const ticket = await Ticket.findById(id);
     if (!ticket) return res.status(404).json({ message: 'Ticket not found' });
 
@@ -116,6 +116,12 @@ exports.updateTicket = async (req, res, next) => {
     if (title) ticket.title = title;
     if (description) ticket.description = description;
     if (priority) ticket.priority = priority;
+    
+    // Allow status update for technician (limited to specific statuses)
+    if (status && ['in_progress', 'waiting_customer', 'on_site'].includes(status)) {
+      ticket.statusHistory.push({ from: ticket.status, to: status, by: req.user._id });
+      ticket.status = status;
+    }
 
     await ticket.save();
     res.json({ ticket });
@@ -212,16 +218,16 @@ exports.resolveTicket = async (req, res, next) => {
   }
 };
 
-// Close ticket (CSR only, and only if resolved)
+// Close ticket (CSR/Admin only, and only if resolved)
 exports.closeTicket = async (req, res, next) => {
   try {
     const { id } = req.params;
     const ticket = await Ticket.findById(id);
     if (!ticket) return res.status(404).json({ message: 'Ticket not found' });
 
-    // Only CSR can close, and only if ticket is resolved
-    if (req.user.role !== 'csr') {
-      return res.status(403).json({ message: 'Only CSR can close tickets' });
+    // Only CSR or Admin can close
+    if (!['csr', 'admin'].includes(req.user.role)) {
+      return res.status(403).json({ message: 'Only CSR or Admin can close tickets' });
     }
     if (ticket.status !== 'resolved') {
       return res.status(400).json({ message: 'Ticket must be resolved by technician before closing' });
