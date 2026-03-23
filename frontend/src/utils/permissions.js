@@ -52,7 +52,8 @@ export const MENU_CONFIG = [
       { name: 'Inventory', path: '/inventory', roles: [ROLES.SUPER_ADMIN, ROLES.ADMIN] },
       { name: 'Accessories', path: '/accessories', roles: [ROLES.SUPER_ADMIN, ROLES.ADMIN] },
       { name: 'Tools', path: '/tools', roles: [ROLES.SUPER_ADMIN, ROLES.ADMIN] },
-      { name: 'Bulk Upload', path: '/bulk-upload', roles: [ROLES.SUPER_ADMIN, ROLES.ADMIN] }
+      { name: 'Bulk Upload', path: '/bulk-upload', roles: [ROLES.SUPER_ADMIN, ROLES.ADMIN] },
+      { name: 'Procurement Review', path: '/procurement', roles: [ROLES.SUPER_ADMIN, ROLES.ADMIN] }
     ]
   },
   {

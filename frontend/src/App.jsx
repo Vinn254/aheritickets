@@ -22,6 +22,8 @@ const TicketDetails = lazy(() => import("./pages/ticketdetails"));
 const Analytics = lazy(() => import("./pages/analytics"));
 const NetworkManagement = lazy(() => import("./pages/networkmanagement"));
 const Inventory = lazy(() => import("./pages/inventory"));
+const Procurement = lazy(() => import("./pages/procurement"));
+const Finance = lazy(() => import("./pages/finance"));
 const Quotations = lazy(() => import("./pages/quotations"));
 const Invoices = lazy(() => import("./pages/invoices"));
 const RequestInstallation = lazy(() => import("./pages/requestinstallation"));

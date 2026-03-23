@@ -12,6 +12,53 @@ const getInstallationRequests = async (req, res) => {
       .populate('quotation', 'quotationNumber')
       .populate('invoice', 'invoiceNumber')
       .populate('approvedBy', 'name')
+      .populate('procurementReview.reviewedBy', 'name')
+      .populate('financeReview.financeApprovedBy', 'name')
+      .sort({ createdAt: -1 });
+    res.json(requests);
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+};
+
+// Get procurement requests (pending_procurement status)
+const getProcurementRequests = async (req, res) => {
+  try {
+    const requests = await InstallationRequest.find({ status: 'pending_procurement' })
+      .populate('customer', 'name email phone location')
+      .populate('technician', 'name email phone')
+      .populate('approvedBy', 'name')
+      .sort({ createdAt: -1 });
+    res.json(requests);
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+};
+
+// Get finance requests (pending_finance status)
+const getFinanceRequests = async (req, res) => {
+  try {
+    const requests = await InstallationRequest.find({ status: 'pending_finance' })
+      .populate('customer', 'name email phone location')
+      .populate('technician', 'name email phone')
+      .populate('approvedBy', 'name')
+      .populate('procurementReview.reviewedBy', 'name')
+      .sort({ createdAt: -1 });
+    res.json(requests);
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+};
+
+// Get admin's installation requests with all statuses for tracking
+const getAdminInstallationRequests = async (req, res) => {
+  try {
+    const requests = await InstallationRequest.find()
+      .populate('customer', 'name email phone location')
+      .populate('technician', 'name email phone')
+      .populate('approvedBy', 'name')
+      .populate('procurementReview.reviewedBy', 'name')
+      .populate('financeReview.financeApprovedBy', 'name')
       .sort({ createdAt: -1 });
     res.json(requests);
   } catch (err) {
@@ -93,7 +140,9 @@ const createInstallation = async (req, res) => {
       installationType, 
       package: packageName, 
       location, 
-      description, 
+      description,
+      requirements,
+      tools,
       technicianId,
       packagePrice,
       installationFee,
@@ -122,6 +171,149 @@ const createInstallation = async (req, res) => {
         return res.status(404).json({ error: 'Technician not found or invalid' });
       }
     }
+
+    const request = new InstallationRequest({
+      customer: customerId,
+      installationType,
+      package: packageString,
+      packagePrice: packagePrice || 0,
+      installationFee: installationFee || 0,
+      includeRouter: includeRouter || false,
+      routerPrice: routerPrice || 0,
+      totalUpfront: totalUpfront || 0,
+      location,
+      description,
+      requirements,
+      tools,
+      technician: technicianId || null,
+      status: technicianId ? 'pending_technician' : 'opened',
+      approvedBy: req.user.id
+    });
+
+    await request.save();
+    await request.populate('customer', 'name email phone location');
+    await request.populate('technician', 'name email phone');
+    res.status(201).json(request);
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+};
+
+// Admin sends to procurement (write requirements and tools first)
+const sendToProcurement = async (req, res) => {
+  try {
+    const { requirements, tools } = req.body;
+    const request = await InstallationRequest.findById(req.params.id);
+    
+    if (!request) return res.status(404).json({ error: 'Request not found' });
+
+    // Update requirements and tools
+    request.requirements = requirements || request.requirements;
+    request.tools = tools || request.tools;
+    request.status = 'pending_procurement';
+    
+    await request.save();
+    await request.populate('customer', 'name email phone location');
+    await request.populate('technician', 'name email phone');
+    res.json(request);
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+};
+
+// Procurement person reviews and writes required items
+const procurementReview = async (req, res) => {
+  try {
+    const { requiredItems, status, reviewNotes } = req.body;
+    const request = await InstallationRequest.findById(req.params.id);
+    
+    if (!request) return res.status(404).json({ error: 'Request not found' });
+
+    if (request.status !== 'pending_procurement') {
+      return res.status(400).json({ error: 'Request is not pending procurement review' });
+    }
+
+    request.procurementReview = {
+      requiredItems: requiredItems || '',
+      reviewedBy: req.user.id,
+      reviewedAt: new Date(),
+      reviewNotes: reviewNotes || '',
+      status: status || 'approved'
+    };
+
+    // Update status based on procurement decision
+    if (status === 'approved') {
+      request.status = 'procurement_approved';
+    } else if (status === 'rejected') {
+      request.status = 'rejected_procurement';
+    }
+    
+    await request.save();
+    await request.populate('customer', 'name email phone location');
+    await request.populate('procurementReview.reviewedBy', 'name');
+    res.json(request);
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+};
+
+// Admin sends to finance after procurement approval
+const sendToFinance = async (req, res) => {
+  try {
+    const request = await InstallationRequest.findById(req.params.id);
+    
+    if (!request) return res.status(404).json({ error: 'Request not found' });
+
+    if (request.status !== 'procurement_approved') {
+      return res.status(400).json({ error: 'Request must be approved by procurement first' });
+    }
+
+    request.status = 'pending_finance';
+    
+    await request.save();
+    await request.populate('customer', 'name email phone location');
+    res.json(request);
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+};
+
+// Finance person reviews and approves
+const financeReview = async (req, res) => {
+  try {
+    const { approvedAmount, budgetCode, status, financeNotes } = req.body;
+    const request = await InstallationRequest.findById(req.params.id);
+    
+    if (!request) return res.status(404).json({ error: 'Request not found' });
+
+    if (request.status !== 'pending_finance') {
+      return res.status(400).json({ error: 'Request is not pending finance review' });
+    }
+
+    request.financeReview = {
+      approvedAmount: approvedAmount || 0,
+      budgetCode: budgetCode || '',
+      financeApprovedBy: req.user.id,
+      financeApprovedAt: new Date(),
+      financeNotes: financeNotes || '',
+      status: status || 'approved'
+    };
+
+    // Update status based on finance decision
+    if (status === 'approved') {
+      request.status = 'finance_approved';
+    } else if (status === 'rejected') {
+      request.status = 'rejected_finance';
+    }
+    
+    await request.save();
+    await request.populate('customer', 'name email phone location');
+    await request.populate('financeReview.financeApprovedBy', 'name');
+    res.json(request);
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+};
 
     const request = new InstallationRequest({
       customer: customerId,
@@ -165,13 +357,18 @@ const getInstallationRequest = async (req, res) => {
   }
 };
 
-// Assign technician to installation (admin)
+// Assign technician to installation (admin) - now requires finance approval first
 const assignTechnician = async (req, res) => {
   try {
     const { technicianId } = req.body;
     const request = await InstallationRequest.findById(req.params.id);
     
     if (!request) return res.status(404).json({ error: 'Request not found' });
+
+    // Check if finance has approved (unless bypassing workflow)
+    if (request.status !== 'finance_approved' && request.status !== 'pending_technician') {
+      return res.status(400).json({ error: 'Request must be approved by finance first' });
+    }
 
     // Verify technician exists
     const technician = await User.findById(technicianId);
@@ -180,9 +377,9 @@ const assignTechnician = async (req, res) => {
     }
 
     request.technician = technicianId;
-    // If installation was opened, change to pending when technician is assigned
-    if (request.status === 'opened') {
-      request.status = 'pending';
+    // Change status to pending for technician to start
+    if (request.status === 'finance_approved') {
+      request.status = 'pending_technician';
     }
     await request.save();
     
@@ -383,11 +580,18 @@ const deleteRequest = async (req, res) => {
 
 module.exports = {
   getInstallationRequests,
+  getProcurementRequests,
+  getFinanceRequests,
+  getAdminInstallationRequests,
   getTechnicianInstallations,
   getTechnicians,
   getMyRequests,
   createInstallationRequest,
   createInstallation,
+  sendToProcurement,
+  procurementReview,
+  sendToFinance,
+  financeReview,
   getInstallationRequest,
   assignTechnician,
   startInstallation,

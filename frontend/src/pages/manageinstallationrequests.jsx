@@ -45,6 +45,8 @@ export default function ManageInstallationRequests() {
     package: '10Mbps',
     location: '',
     description: '',
+    requirements: '',
+    tools: '',
     technicianId: ''
   });
 
@@ -155,6 +157,8 @@ export default function ManageInstallationRequests() {
         totalUpfront: totalUpfront,
         location: createForm.location,
         description: createForm.description,
+        requirements: createForm.requirements,
+        tools: createForm.tools,
         technicianId: createForm.technicianId || null
       });
       alert('Installation created successfully!');
@@ -165,6 +169,8 @@ export default function ManageInstallationRequests() {
         package: '10Mbps',
         location: '',
         description: '',
+        requirements: '',
+        tools: '',
         technicianId: ''
       });
       setNewCustomer({ name: '', email: '', phone: '', location: '' });
@@ -210,6 +216,40 @@ export default function ManageInstallationRequests() {
     }
   };
 
+  // Send installation to procurement for review
+  const sendToProcurement = async (requestId) => {
+    if (!confirm('Send this installation to Procurement for review?')) return;
+    try {
+      await API.put(`/api/installation-requests/${requestId}/send-to-procurement`);
+      alert('Sent to Procurement successfully!');
+      fetchRequests();
+      if (viewing && viewing._id === requestId) {
+        const updated = requests.find(r => r._id === requestId);
+        setViewing(updated);
+      }
+    } catch (err) {
+      console.error(err);
+      alert('Failed to send to procurement: ' + (err.message || 'Unknown error'));
+    }
+  };
+
+  // Send installation to finance after procurement approval
+  const sendToFinance = async (requestId) => {
+    if (!confirm('Send this installation to Finance for budget approval?')) return;
+    try {
+      await API.put(`/api/installation-requests/${requestId}/send-to-finance`);
+      alert('Sent to Finance successfully!');
+      fetchRequests();
+      if (viewing && viewing._id === requestId) {
+        const updated = requests.find(r => r._id === requestId);
+        setViewing(updated);
+      }
+    } catch (err) {
+      console.error(err);
+      alert('Failed to send to finance: ' + (err.message || 'Unknown error'));
+    }
+  };
+
   const createQuotation = (requestId) => {
     const request = requests.find(r => r._id === requestId);
     if (!request) return;
@@ -229,6 +269,13 @@ export default function ManageInstallationRequests() {
     const colors = {
       'opened': '#2196f3',
       'pending': '#ffa500',
+      'pending_procurement': '#ff9800',
+      'procurement_approved': '#4caf50',
+      'procurement_rejected': '#f44336',
+      'pending_finance': '#9c27b0',
+      'finance_approved': '#00c853',
+      'finance_rejected': '#d32f2f',
+      'pending_technician': '#00bcd4',
       'completed': '#43a047',
       'closed': '#9e9e9e',
       'approved': '#43a047',
@@ -242,6 +289,13 @@ export default function ManageInstallationRequests() {
     const colors = {
       'opened': '#e3f2fd',
       'pending': '#fff3e0',
+      'pending_procurement': '#fff8e1',
+      'procurement_approved': '#e8f5e9',
+      'procurement_rejected': '#ffebee',
+      'pending_finance': '#f3e5f5',
+      'finance_approved': '#e8f5e9',
+      'finance_rejected': '#ffebee',
+      'pending_technician': '#e0f7fa',
       'completed': '#e8f5e9',
       'closed': '#f5f5f5',
       'approved': '#e8f5e9',
@@ -269,7 +323,11 @@ export default function ManageInstallationRequests() {
 
   const statusStats = [
     { status: 'opened', count: requests.filter(r => r.status === 'opened').length },
-    { status: 'pending', count: requests.filter(r => r.status === 'pending').length },
+    { status: 'pending_procurement', count: requests.filter(r => r.status === 'pending_procurement').length },
+    { status: 'procurement_approved', count: requests.filter(r => r.status === 'procurement_approved').length },
+    { status: 'pending_finance', count: requests.filter(r => r.status === 'pending_finance').length },
+    { status: 'finance_approved', count: requests.filter(r => r.status === 'finance_approved').length },
+    { status: 'pending_technician', count: requests.filter(r => r.status === 'pending_technician').length },
     { status: 'completed', count: requests.filter(r => r.status === 'completed').length },
     { status: 'closed', count: requests.filter(r => r.status === 'closed').length }
   ];
@@ -610,6 +668,52 @@ export default function ManageInstallationRequests() {
                   boxSizing: 'border-box',
                   resize: 'vertical'
                 }}
+              />
+            </div>
+
+            <div style={{ marginBottom: '16px' }}>
+              <label style={{ display: 'block', color: '#666', fontSize: '12px', fontWeight: '600', marginBottom: '8px' }}>
+                Requirements (What is needed) *
+              </label>
+              <textarea
+                value={createForm.requirements}
+                onChange={(e) => setCreateForm({ ...createForm, requirements: e.target.value })}
+                placeholder="List all required materials, equipment, and resources..."
+                style={{
+                  width: '100%',
+                  padding: '10px 12px',
+                  borderRadius: '8px',
+                  border: '2px solid #43e97b',
+                  fontSize: '14px',
+                  fontFamily: 'inherit',
+                  minHeight: '80px',
+                  boxSizing: 'border-box',
+                  resize: 'vertical'
+                }}
+                required
+              />
+            </div>
+
+            <div style={{ marginBottom: '16px' }}>
+              <label style={{ display: 'block', color: '#666', fontSize: '12px', fontWeight: '600', marginBottom: '8px' }}>
+                Tools Required *
+              </label>
+              <textarea
+                value={createForm.tools}
+                onChange={(e) => setCreateForm({ ...createForm, tools: e.target.value })}
+                placeholder="List all tools needed for the installation..."
+                style={{
+                  width: '100%',
+                  padding: '10px 12px',
+                  borderRadius: '8px',
+                  border: '2px solid #43e97b',
+                  fontSize: '14px',
+                  fontFamily: 'inherit',
+                  minHeight: '80px',
+                  boxSizing: 'border-box',
+                  resize: 'vertical'
+                }}
+                required
               />
             </div>
 
@@ -977,6 +1081,25 @@ export default function ManageInstallationRequests() {
                 </div>
               )}
 
+              {/* Requirements and Tools */}
+              {(viewing.requirements || viewing.tools) && (
+                <div style={{ marginBottom: '16px', padding: '12px', background: '#f5f5f5', borderRadius: '6px' }}>
+                  <p style={{ margin: '0 0 8px 0', color: '#333', fontSize: '12px', fontWeight: '600' }}>Requirements & Tools</p>
+                  {viewing.requirements && (
+                    <div style={{ marginBottom: '8px' }}>
+                      <p style={{ margin: '0 0 4px 0', color: '#666', fontSize: '11px', fontWeight: '600' }}>Requirements:</p>
+                      <p style={{ margin: 0, color: '#333', fontSize: '12px', lineHeight: '1.4' }}>{viewing.requirements}</p>
+                    </div>
+                  )}
+                  {viewing.tools && (
+                    <div>
+                      <p style={{ margin: '0 0 4px 0', color: '#666', fontSize: '11px', fontWeight: '600' }}>Tools Needed:</p>
+                      <p style={{ margin: 0, color: '#333', fontSize: '12px', lineHeight: '1.4' }}>{viewing.tools}</p>
+                    </div>
+                  )}
+                </div>
+              )}
+
               {viewing.technicianNotes && (
                 <div style={{ marginBottom: '16px', padding: '12px', background: '#fff3e0', borderRadius: '6px' }}>
                   <p style={{ margin: '0 0 4px 0', color: '#e65100', fontSize: '12px', fontWeight: '600' }}>Technician Completion Notes</p>
@@ -1047,7 +1170,58 @@ export default function ManageInstallationRequests() {
                 </div>
               )}
 
-              {/* Action Buttons */}
+              {/* Workflow Action Buttons */}
+              {isAdminOrCSR && viewing.status === 'opened' && (
+                <div style={{ marginTop: '20px' }}>
+                  <button
+                    onClick={() => sendToProcurement(viewing._id)}
+                    style={{
+                      width: '100%',
+                      padding: '12px',
+                      background: 'linear-gradient(135deg, #ff9800 0%, #ff5722 100%)',
+                      color: 'white',
+                      border: 'none',
+                      borderRadius: '6px',
+                      fontSize: '14px',
+                      fontWeight: '600',
+                      cursor: 'pointer',
+                      transition: 'all 0.3s ease'
+                    }}
+                  >
+                    📦 Send to Procurement
+                  </button>
+                  <p style={{ margin: '8px 0 0 0', color: '#666', fontSize: '11px', textAlign: 'center' }}>
+                    Send to procurement to check requirements and tools
+                  </p>
+                </div>
+              )}
+
+              {isAdminOrCSR && viewing.status === 'procurement_approved' && (
+                <div style={{ marginTop: '20px' }}>
+                  <button
+                    onClick={() => sendToFinance(viewing._id)}
+                    style={{
+                      width: '100%',
+                      padding: '12px',
+                      background: 'linear-gradient(135deg, #9c27b0 0%, #673ab7 100%)',
+                      color: 'white',
+                      border: 'none',
+                      borderRadius: '6px',
+                      fontSize: '14px',
+                      fontWeight: '600',
+                      cursor: 'pointer',
+                      transition: 'all 0.3s ease'
+                    }}
+                  >
+                    💰 Send to Finance
+                  </button>
+                  <p style={{ margin: '8px 0 0 0', color: '#666', fontSize: '11px', textAlign: 'center' }}>
+                    Send to finance for budget approval
+                  </p>
+                </div>
+              )}
+
+              {/* Assign Technician Button */}
               {isAdminOrCSR && viewing.status === 'opened' && !viewing.technician && (
                 <div style={{ marginTop: '20px' }}>
                   <button
