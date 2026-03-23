@@ -331,6 +331,26 @@ function App() {
              }
            />
            <Route
+             path="/procurement"
+             element={
+               <ProtectedRoute allowedRole={[ROLES.SUPER_ADMIN, ROLES.ADMIN, ROLES.PROCUREMENT]}>
+                 <ErrorBoundary>
+                   <Procurement />
+                 </ErrorBoundary>
+               </ProtectedRoute>
+             }
+           />
+           <Route
+             path="/finance"
+             element={
+               <ProtectedRoute allowedRole={[ROLES.SUPER_ADMIN, ROLES.ADMIN, ROLES.FINANCE]}>
+                 <ErrorBoundary>
+                   <Finance />
+                 </ErrorBoundary>
+               </ProtectedRoute>
+             }
+           />
+           <Route
              path="/reports"
              element={
                <ProtectedRoute allowedRole={[ROLES.SUPER_ADMIN, ROLES.ADMIN, ROLES.HR, ROLES.CSR]}>

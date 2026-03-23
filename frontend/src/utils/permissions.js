@@ -8,7 +8,9 @@ export const ROLES = {
   CRS: 'csr',
   TECHNICIAN: 'technician',
   CUSTOMER: 'customer',
-  CONTRACTOR: 'contractor'
+  CONTRACTOR: 'contractor',
+  PROCUREMENT: 'procurement',
+  FINANCE: 'finance'
 };
 
 // Menu categories with their items and permissions
@@ -37,23 +39,24 @@ export const MENU_CONFIG = [
   {
     category: 'Finance',
     icon: 'M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6',
-    roles: [ROLES.SUPER_ADMIN, ROLES.ADMIN, ROLES.HR, ROLES.CRS],
+    roles: [ROLES.SUPER_ADMIN, ROLES.ADMIN, ROLES.FINANCE],
     items: [
       { name: 'Quotations', path: '/quotations', roles: [ROLES.SUPER_ADMIN, ROLES.ADMIN, ROLES.CRS] },
       { name: 'Invoices', path: '/invoices', roles: [ROLES.SUPER_ADMIN, ROLES.ADMIN, ROLES.HR, ROLES.CRS] },
-      { name: 'Receipts', path: '/receipts', roles: [ROLES.SUPER_ADMIN, ROLES.ADMIN, ROLES.HR, ROLES.CRS] }
+      { name: 'Receipts', path: '/receipts', roles: [ROLES.SUPER_ADMIN, ROLES.ADMIN, ROLES.HR, ROLES.CRS] },
+      { name: 'Finance Review', path: '/finance', roles: [ROLES.SUPER_ADMIN, ROLES.ADMIN, ROLES.FINANCE] }
     ]
   },
   {
     category: 'Procurement',
     icon: 'M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4',
-    roles: [ROLES.SUPER_ADMIN, ROLES.ADMIN],
+    roles: [ROLES.SUPER_ADMIN, ROLES.ADMIN, ROLES.PROCUREMENT],
     items: [
       { name: 'Inventory', path: '/inventory', roles: [ROLES.SUPER_ADMIN, ROLES.ADMIN] },
       { name: 'Accessories', path: '/accessories', roles: [ROLES.SUPER_ADMIN, ROLES.ADMIN] },
       { name: 'Tools', path: '/tools', roles: [ROLES.SUPER_ADMIN, ROLES.ADMIN] },
       { name: 'Bulk Upload', path: '/bulk-upload', roles: [ROLES.SUPER_ADMIN, ROLES.ADMIN] },
-      { name: 'Procurement Review', path: '/procurement', roles: [ROLES.SUPER_ADMIN, ROLES.ADMIN] }
+      { name: 'Procurement Review', path: '/procurement', roles: [ROLES.SUPER_ADMIN, ROLES.ADMIN, ROLES.PROCUREMENT] }
     ]
   },
   {
@@ -127,6 +130,18 @@ export const ROLE_PERMISSIONS = {
     canEdit: ['installations'],
     canDelete: [],
     canCreate: ['installations']
+  },
+  [ROLES.PROCUREMENT]: {
+    canView: ['procurement', 'inventory', 'installations'],
+    canEdit: ['procurement', 'installations'],
+    canDelete: [],
+    canCreate: []
+  },
+  [ROLES.FINANCE]: {
+    canView: ['finance', 'invoices', 'quotations', 'installations'],
+    canEdit: ['finance', 'installations'],
+    canDelete: [],
+    canCreate: []
   }
 };
 
@@ -183,5 +198,7 @@ export const PATH_TO_RESOURCE = {
   '/dashboard/technician': 'dashboard',
   '/dashboard/contractor': 'dashboard',
   '/settings/roles': 'roles',
-  '/settings/permissions': 'permissions'
+  '/settings/permissions': 'permissions',
+  '/procurement': 'procurement',
+  '/finance': 'finance'
 };
