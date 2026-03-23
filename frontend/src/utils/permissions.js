@@ -33,7 +33,8 @@ export const MENU_CONFIG = [
       { name: 'Customers', path: '/customers', roles: [ROLES.SUPER_ADMIN, ROLES.ADMIN, ROLES.CRS, ROLES.TECHNICIAN] },
       { name: 'Installations', path: '/installations', roles: [ROLES.SUPER_ADMIN, ROLES.ADMIN, ROLES.CRS, ROLES.TECHNICIAN, ROLES.CONTRACTOR] },
       { name: 'Network Reports', path: '/reports', roles: [ROLES.SUPER_ADMIN, ROLES.ADMIN, ROLES.CRS] },
-      { name: 'Planning', path: '/planning', roles: [ROLES.SUPER_ADMIN, ROLES.ADMIN, ROLES.CRS, ROLES.TECHNICIAN] }
+      { name: 'Planning', path: '/planning', roles: [ROLES.SUPER_ADMIN, ROLES.ADMIN, ROLES.CRS, ROLES.TECHNICIAN] },
+      { name: 'Ticketing', path: '/ticketing', roles: [ROLES.SUPER_ADMIN, ROLES.ADMIN, ROLES.CRS, ROLES.TECHNICIAN, ROLES.CONTRACTOR] }
     ]
   },
   {

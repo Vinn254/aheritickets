@@ -877,7 +877,7 @@ export default function ManageInstallationRequests() {
         {/* Table Header */}
         <div style={{
           display: 'grid',
-          gridTemplateColumns: '100px 1fr 1fr 120px 100px 80px',
+          gridTemplateColumns: '100px 1fr 1fr 130px 140px 80px',
           gap: '12px',
           padding: '14px 16px',
           background: '#2d7a3e',
@@ -900,7 +900,7 @@ export default function ManageInstallationRequests() {
             variants={cardVariants}
             style={{
               display: 'grid',
-              gridTemplateColumns: '100px 1fr 1fr 120px 100px 80px',
+              gridTemplateColumns: '100px 1fr 1fr 130px 140px 80px',
               gap: '12px',
               padding: '14px 16px',
               borderBottom: '1px solid #e8e8e8',
@@ -933,18 +933,19 @@ export default function ManageInstallationRequests() {
             <div style={{ fontSize: '12px', color: req.technician ? '#333' : '#888' }}>
               {req.technician ? req.technician.name : 'Not assigned'}
             </div>
-            <div>
-              <span style={{
-                background: getStatusBgColor(req.status),
-                color: getStatusColor(req.status),
-                padding: '4px 10px',
-                borderRadius: '12px',
-                fontSize: '10px',
-                fontWeight: '600',
-                textTransform: 'capitalize'
-              }}>
-                {req.status}
-              </span>
+            <div style={{
+              fontSize: '11px',
+              fontWeight: '600',
+              color: getStatusColor(req.status),
+              padding: '4px 8px',
+              borderRadius: '8px',
+              background: getStatusBgColor(req.status),
+              wordBreak: 'break-word',
+              whiteSpace: 'normal',
+              lineHeight: '1.3',
+              textAlign: 'center'
+            }}>
+              {formatStatus(req.status)}
             </div>
             <div>
               <button

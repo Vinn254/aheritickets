@@ -34,6 +34,7 @@ const Planning = lazy(() => import("./pages/planning"));
 const Customers = lazy(() => import("./pages/customers"));
 const ForgotPassword = lazy(() => import("./pages/forgotpassword"));
 const ResetPassword = lazy(() => import("./pages/resetpassword"));
+const Ticketing = lazy(() => import("./pages/ticketing"));
 
 import './watermark.css';
 
@@ -376,7 +377,17 @@ function App() {
                </ProtectedRoute>
              }
            />
-           <Route path="/" element={<Landing />} />
+           <Route
+              path="/ticketing"
+              element={
+                <ProtectedRoute allowedRole={[ROLES.SUPER_ADMIN, ROLES.ADMIN, ROLES.CSR, ROLES.TECHNICIAN, ROLES.CONTRACTOR]}>
+                  <ErrorBoundary>
+                    <Ticketing />
+                  </ErrorBoundary>
+                </ProtectedRoute>
+              }
+            />
+            <Route path="/" element={<Landing />} />
            <Route path="/login" element={<Login />} />
            <Route path="/register" element={<Register />} />
            <Route path="/forgot-password" element={<ForgotPassword />} />
