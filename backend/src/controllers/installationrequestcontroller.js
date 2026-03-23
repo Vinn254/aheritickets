@@ -313,34 +313,7 @@ const financeReview = async (req, res) => {
   } catch (err) {
     res.status(500).json({ error: err.message });
   }
-};
 
-    const request = new InstallationRequest({
-      customer: customerId,
-      installationType,
-      package: packageString,
-      packagePrice: packagePrice || 0,
-      installationFee: installationFee || 0,
-      includeRouter: includeRouter || false,
-      routerPrice: routerPrice || 0,
-      totalUpfront: totalUpfront || 0,
-      location,
-      description,
-      technician: technicianId || null,
-      status: technicianId ? 'pending' : 'opened', // If assigned, start as pending
-      approvedBy: req.user.id
-    });
-
-    await request.save();
-    await request.populate('customer', 'name email phone location');
-    await request.populate('technician', 'name email phone');
-    res.status(201).json(request);
-  } catch (err) {
-    res.status(500).json({ error: err.message });
-  }
-};
-
-// Get single request
 const getInstallationRequest = async (req, res) => {
   try {
     const request = await InstallationRequest.findById(req.params.id)
