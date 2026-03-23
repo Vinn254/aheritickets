@@ -305,6 +305,27 @@ export default function ManageInstallationRequests() {
     return colors[status] || '#f5f5f5';
   };
 
+  // Format status for display
+  const formatStatus = (status) => {
+    const statusMap = {
+      'opened': 'Opened',
+      'pending': 'Pending',
+      'pending_procurement': 'Pending Procurement',
+      'procurement_approved': 'Procurement Approved',
+      'procurement_rejected': 'Procurement Rejected',
+      'pending_finance': 'Pending Finance',
+      'finance_approved': 'Finance Approved',
+      'finance_rejected': 'Finance Rejected',
+      'pending_technician': 'Pending Technician',
+      'completed': 'Completed',
+      'closed': 'Closed',
+      'approved': 'Approved',
+      'rejected': 'Rejected',
+      'quoted': 'Quoted'
+    };
+    return statusMap[status] || status;
+  };
+
   const filtered = requests.filter(req => 
     statusFilter === 'all' || req.status === statusFilter
   );
@@ -788,7 +809,7 @@ export default function ManageInstallationRequests() {
         variants={containerVariants}
         style={{
           display: 'grid',
-          gridTemplateColumns: 'repeat(auto-fit, minmax(100px, 1fr))',
+          gridTemplateColumns: 'repeat(auto-fit, minmax(130px, 1fr))',
           gap: '12px',
           marginBottom: '32px'
         }}
@@ -812,8 +833,8 @@ export default function ManageInstallationRequests() {
             <div style={{ fontSize: '24px', fontWeight: '800', color: getStatusColor(stat.status) }}>
               {stat.count}
             </div>
-            <div style={{ fontSize: '12px', color: '#666', textTransform: 'capitalize', marginTop: '4px', fontWeight: '500' }}>
-              {stat.status}
+            <div style={{ fontSize: '11px', color: '#666', marginTop: '4px', fontWeight: '500', lineHeight: '1.3' }}>
+              {formatStatus(stat.status)}
             </div>
           </motion.div>
         ))}
@@ -1027,10 +1048,9 @@ export default function ManageInstallationRequests() {
                   padding: '6px 12px',
                   borderRadius: '20px',
                   fontSize: '12px',
-                  fontWeight: '700',
-                  textTransform: 'capitalize'
+                  fontWeight: '700'
                 }}>
-                  {viewing.status}
+                  {formatStatus(viewing.status)}
                 </div>
                 <p style={{ margin: '8px 0 0 0', color: '#666', fontSize: '11px' }}>
                   Status flow: Opened → Pending (In Progress) → Completed → Closed
@@ -1043,7 +1063,7 @@ export default function ManageInstallationRequests() {
                   {viewing.customer?.name}
                 </p>
                 <p style={{ margin: '4px 0 0 0', color: '#666', fontSize: '12px' }}>
-                  📧 {viewing.customer?.email} | 📞 {viewing.customer?.phone}
+                  {viewing.customer?.email} | {viewing.customer?.phone}
                 </p>
                 <p style={{ margin: '2px 0 0 0', color: '#666', fontSize: '12px' }}>
                   {viewing.customer?.location}
@@ -1064,7 +1084,7 @@ export default function ManageInstallationRequests() {
                 <p style={{ margin: '0 0 4px 0', color: '#666', fontSize: '12px', fontWeight: '600' }}>Assigned Technician</p>
                 {viewing.technician ? (
                   <p style={{ margin: 0, color: '#2d7a3e', fontSize: '14px', fontWeight: '700' }}>
-                    👤 {viewing.technician.name}
+                    {viewing.technician.name}
                     <span style={{ color: '#666', fontWeight: '400' }}> ({viewing.technician.email})</span>
                   </p>
                 ) : (

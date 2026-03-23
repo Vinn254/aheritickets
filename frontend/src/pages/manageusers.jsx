@@ -176,6 +176,8 @@ ${user.billingPlan ? 'Billing Plan: ' + user.billingPlan : ''}
               <option value="superadmin">Super Admin</option>
               <option value="hr">HR</option>
               <option value="contractor">Contractor</option>
+              <option value="procurement">Procurement</option>
+              <option value="finance">Finance</option>
             </select>
             {(role === 'technician' || role === 'contractor') && <input value={specialization} onChange={e=>setSpecialization(e.target.value)} placeholder="Specialization" style={inputStyle} />}
             {role === 'customer' && <>
