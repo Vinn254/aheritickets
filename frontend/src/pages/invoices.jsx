@@ -4,6 +4,7 @@ import { AuthContext } from '../context/authcontext';
 import API, { API_BASE } from '../utils/api';
 import { motion } from 'framer-motion';
 import { useNavigate, useLocation } from 'react-router-dom';
+import { hasPermission } from '../utils/permissions';
 
 export default function Invoices() {
   const { user } = useContext(AuthContext);
@@ -16,6 +17,10 @@ export default function Invoices() {
   const [searchTerm, setSearchTerm] = useState('');
   const [paymentModal, setPaymentModal] = useState(null);
   const [paymentMethod, setPaymentMethod] = useState('mpesa');
+
+  const userRole = user?.role || '';
+  const canEditInvoices = hasPermission(userRole, 'canEdit', 'invoices');
+  const canDeleteInvoices = hasPermission(userRole, 'canDelete', 'invoices');
 
   // Check if need to view a specific invoice
   useEffect(() => {
@@ -651,27 +656,29 @@ export default function Invoices() {
                 </button>
               </div>
 
-              <button
-                onClick={() => {
-                  handleDelete(viewing._id);
-                  setViewing(null);
-                }}
-                style={{
-                  width: '100%',
-                  marginTop: '12px',
-                  padding: '12px',
-                  background: '#ffe8e8',
-                  color: '#d32f2f',
-                  border: 'none',
-                  borderRadius: '6px',
-                  fontSize: '14px',
-                  fontWeight: '600',
-                  cursor: 'pointer',
-                  transition: 'all 0.3s ease'
-                }}
-              >
-                Delete Invoice
-              </button>
+              {canDeleteInvoices && (
+                <button
+                  onClick={() => {
+                    handleDelete(viewing._id);
+                    setViewing(null);
+                  }}
+                  style={{
+                    width: '100%',
+                    marginTop: '12px',
+                    padding: '12px',
+                    background: '#ffe8e8',
+                    color: '#d32f2f',
+                    border: 'none',
+                    borderRadius: '6px',
+                    fontSize: '14px',
+                    fontWeight: '600',
+                    cursor: 'pointer',
+                    transition: 'all 0.3s ease'
+                  }}
+                >
+                  Delete Invoice
+                </button>
+              )}
 
               {viewing.status !== 'paid' && (
                 <button

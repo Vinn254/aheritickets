@@ -4,9 +4,14 @@ const Quotation = require('../models/quotation');
 const User = require('../models/user');
 const puppeteer = require('puppeteer');
 
-// Get all quotations (admin/csr only)
+// Get all quotations (Finance/Admin/CSR)
 const getQuotations = async (req, res) => {
   try {
+    // Allow finance, admin, and csr roles
+    if (!['finance', 'admin', 'csr'].includes(req.user.role)) {
+      return res.status(403).json({ error: 'Forbidden: Only finance, admin, or CSR can view quotations' });
+    }
+    
     const quotations = await Quotation.find()
       .populate('customer', 'name email phone location')
       .populate('createdBy', 'name')
@@ -17,9 +22,14 @@ const getQuotations = async (req, res) => {
   }
 };
 
-// Get quotation by ID
+// Get quotation by ID (Finance/Admin/CSR)
 const getQuotationById = async (req, res) => {
   try {
+    // Allow finance, admin, and csr roles
+    if (!['finance', 'admin', 'csr'].includes(req.user.role)) {
+      return res.status(403).json({ error: 'Forbidden: Only finance, admin, or CSR can view quotations' });
+    }
+    
     const quotation = await Quotation.findById(req.params.id)
       .populate('customer', 'name email phone location')
       .populate('createdBy', 'name');
@@ -30,9 +40,14 @@ const getQuotationById = async (req, res) => {
   }
 };
 
-// Create quotation
+// Create quotation (Finance/CSR only - admin cannot create)
 const createQuotation = async (req, res) => {
   try {
+    // Only finance and csr can create quotations
+    if (!['finance', 'csr'].includes(req.user.role)) {
+      return res.status(403).json({ error: 'Forbidden: Only finance or CSR can create quotations' });
+    }
+    
     console.log('Creating quotation with data:', req.body);
     console.log('User:', req.user.id);
     const { customer, installationType, package: pkg, otherServices, notes, startDate, endDate } = req.body;
@@ -90,9 +105,14 @@ const createQuotation = async (req, res) => {
   }
 };
 
-// Update quotation
+// Update quotation (Finance only)
 const updateQuotation = async (req, res) => {
   try {
+    // Only finance can update quotations
+    if (req.user.role !== 'finance') {
+      return res.status(403).json({ error: 'Forbidden: Only finance can update quotations' });
+    }
+    
     const quotation = await Quotation.findByIdAndUpdate(req.params.id, req.body, { new: true })
       .populate('customer', 'name email phone location');
     if (!quotation) return res.status(404).json({ error: 'Quotation not found' });
@@ -102,9 +122,14 @@ const updateQuotation = async (req, res) => {
   }
 };
 
-// Delete quotation
+// Delete quotation (Finance only)
 const deleteQuotation = async (req, res) => {
   try {
+    // Only finance can delete quotations
+    if (req.user.role !== 'finance') {
+      return res.status(403).json({ error: 'Forbidden: Only finance can delete quotations' });
+    }
+    
     const quotation = await Quotation.findByIdAndDelete(req.params.id);
     if (!quotation) return res.status(404).json({ error: 'Quotation not found' });
     res.json({ message: 'Quotation deleted' });

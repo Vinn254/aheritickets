@@ -4,6 +4,7 @@ import { AuthContext } from '../context/authcontext';
 import API, { API_BASE } from '../utils/api';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { motion } from 'framer-motion';
+import { hasPermission } from '../utils/permissions';
 
 export default function Quotations() {
   const { user } = useContext(AuthContext);
@@ -220,11 +221,15 @@ export default function Quotations() {
   if (loading) return <div style={{ padding: 20 }}>Loading...</div>;
 
   const isCustomer = user?.role === 'customer';
+  const userRole = user?.role || '';
+  const canEditQuotations = hasPermission(userRole, 'canEdit', 'quotations');
+  const canDeleteQuotations = hasPermission(userRole, 'canDelete', 'quotations');
+  const canCreateQuotations = hasPermission(userRole, 'canCreate', 'quotations');
   const isCsrOrAdmin = ['admin', 'csr'].includes(user?.role);
 
   return (
     <div style={{ padding: 32, background: 'linear-gradient(90deg, #e8f5e9 0%, #f7fff7 100%)', minHeight: '100vh', marginTop: '56px' }}>
-      {isCsrOrAdmin && (
+      {canCreateQuotations && (
         <button onClick={() => setShowForm(true)} style={{ padding: '10px 20px', background: '#2d7a3e', color: 'white', border: 'none', borderRadius: 6, cursor: 'pointer', fontWeight: 600 }}>
           Create Quotation
         </button>
@@ -268,7 +273,7 @@ export default function Quotations() {
                       >
                         👁️ View
                       </button>
-                      {isCsrOrAdmin && (
+                      {canEditQuotations && (
                         <>
                           <button
                             onClick={() => handleEdit(q)}
@@ -285,6 +290,7 @@ export default function Quotations() {
                           >
                             ✎ Edit
                           </button>
+                          {canDeleteQuotations && (
                           <button
                             onClick={() => handleDelete(q._id)}
                             style={{
@@ -412,7 +418,7 @@ export default function Quotations() {
               >
                 Download Quotation
               </motion.button>
-              {isCsrOrAdmin && (
+              {canEditQuotations && (
                 <motion.button
                   onClick={() => { convertToInvoice(viewing._id); setViewing(null); }}
                   whileHover={{ scale: 1.05 }}
@@ -451,7 +457,7 @@ export default function Quotations() {
         </motion.div>
       )}
 
-      {showForm && isCsrOrAdmin && (
+      {showForm && canCreateQuotations && (
         <motion.div
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}

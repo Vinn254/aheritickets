@@ -1,7 +1,7 @@
 // backend/src/controllers/inventorycontroller.js
 const Inventory = require('../models/inventory');
 
-// Create inventory item (Admin/Technician only)
+// Create inventory item (Procurement/Admin/Technician)
 exports.createInventory = async (req, res, next) => {
   try {
     const { deviceType, brand, model, serialNumber, category, location, notes } = req.body;
@@ -9,8 +9,9 @@ exports.createInventory = async (req, res, next) => {
       return res.status(400).json({ message: 'Missing required fields' });
     }
 
-    if (!['admin', 'technician'].includes(req.user.role)) {
-      return res.status(403).json({ message: 'Forbidden' });
+    // Only procurement can create inventory
+    if (!['procurement', 'admin', 'technician'].includes(req.user.role)) {
+      return res.status(403).json({ message: 'Forbidden: Only procurement can create inventory' });
     }
 
     const inventory = new Inventory({
@@ -30,11 +31,11 @@ exports.createInventory = async (req, res, next) => {
   }
 };
 
-// Get all inventory items with filters (Admin/Technician only)
+// Get all inventory items with filters (Procurement/Admin/Technician)
 exports.getInventory = async (req, res, next) => {
   try {
-    if (!['admin', 'technician'].includes(req.user.role)) {
-      return res.status(403).json({ message: 'Forbidden' });
+    if (!['procurement', 'admin', 'technician'].includes(req.user.role)) {
+      return res.status(403).json({ message: 'Forbidden: Access denied' });
     }
 
     const { deviceType, category, brand, page = 1, limit = 20 } = req.query;
@@ -58,11 +59,11 @@ exports.getInventory = async (req, res, next) => {
   }
 };
 
-// Get inventory counts by category and device type
+// Get inventory counts by category and device type (Procurement/Admin/Technician)
 exports.getInventoryCounts = async (req, res, next) => {
   try {
-    if (!['admin', 'technician'].includes(req.user.role)) {
-      return res.status(403).json({ message: 'Forbidden' });
+    if (!['procurement', 'admin', 'technician'].includes(req.user.role)) {
+      return res.status(403).json({ message: 'Forbidden: Access denied' });
     }
 
     const counts = await Inventory.aggregate([
@@ -92,11 +93,11 @@ exports.getInventoryCounts = async (req, res, next) => {
   }
 };
 
-// Get single inventory item by id
+// Get single inventory item by id (Procurement/Admin/Technician)
 exports.getInventoryById = async (req, res, next) => {
   try {
-    if (!['admin', 'technician'].includes(req.user.role)) {
-      return res.status(403).json({ message: 'Forbidden' });
+    if (!['procurement', 'admin', 'technician'].includes(req.user.role)) {
+      return res.status(403).json({ message: 'Forbidden: Access denied' });
     }
 
     const { id } = req.params;
@@ -109,11 +110,12 @@ exports.getInventoryById = async (req, res, next) => {
   }
 };
 
-// Update inventory item (Admin/Technician only)
+// Update inventory item (Procurement only)
 exports.updateInventory = async (req, res, next) => {
   try {
-    if (!['admin', 'technician'].includes(req.user.role)) {
-      return res.status(403).json({ message: 'Forbidden' });
+    // Only procurement can update inventory
+    if (req.user.role !== 'procurement') {
+      return res.status(403).json({ message: 'Forbidden: Only procurement can update inventory' });
     }
 
     const { id } = req.params;
@@ -139,11 +141,12 @@ exports.updateInventory = async (req, res, next) => {
   }
 };
 
-// Delete inventory item (Admin only)
+// Delete inventory item (Procurement only)
 exports.deleteInventory = async (req, res, next) => {
   try {
-    if (req.user.role !== 'admin') {
-      return res.status(403).json({ message: 'Only admin can delete inventory items' });
+    // Only procurement can delete inventory items
+    if (req.user.role !== 'procurement') {
+      return res.status(403).json({ message: 'Forbidden: Only procurement can delete inventory items' });
     }
 
     const { id } = req.params;

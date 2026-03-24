@@ -42,8 +42,8 @@ export const MENU_CONFIG = [
     icon: 'M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6',
     roles: [ROLES.SUPER_ADMIN, ROLES.ADMIN, ROLES.FINANCE],
     items: [
-      { name: 'Quotations', path: '/quotations', roles: [ROLES.SUPER_ADMIN, ROLES.ADMIN, ROLES.CRS] },
-      { name: 'Invoices', path: '/invoices', roles: [ROLES.SUPER_ADMIN, ROLES.ADMIN, ROLES.HR, ROLES.CRS] },
+      { name: 'Quotations', path: '/quotations', roles: [ROLES.SUPER_ADMIN, ROLES.ADMIN, ROLES.FINANCE, ROLES.CRS] },
+      { name: 'Invoices', path: '/invoices', roles: [ROLES.SUPER_ADMIN, ROLES.ADMIN, ROLES.FINANCE, ROLES.HR, ROLES.CRS] },
       { name: 'Receipts', path: '/receipts', roles: [ROLES.SUPER_ADMIN, ROLES.ADMIN, ROLES.HR, ROLES.CRS] },
       { name: 'Finance Review', path: '/finance', roles: [ROLES.SUPER_ADMIN, ROLES.ADMIN, ROLES.FINANCE] }
     ]
@@ -53,10 +53,10 @@ export const MENU_CONFIG = [
     icon: 'M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4',
     roles: [ROLES.SUPER_ADMIN, ROLES.ADMIN, ROLES.PROCUREMENT],
     items: [
-      { name: 'Inventory', path: '/inventory', roles: [ROLES.SUPER_ADMIN, ROLES.ADMIN] },
-      { name: 'Accessories', path: '/accessories', roles: [ROLES.SUPER_ADMIN, ROLES.ADMIN] },
-      { name: 'Tools', path: '/tools', roles: [ROLES.SUPER_ADMIN, ROLES.ADMIN] },
-      { name: 'Bulk Upload', path: '/bulk-upload', roles: [ROLES.SUPER_ADMIN, ROLES.ADMIN] },
+      { name: 'Inventory', path: '/inventory', roles: [ROLES.SUPER_ADMIN, ROLES.ADMIN, ROLES.PROCUREMENT] },
+      { name: 'Accessories', path: '/accessories', roles: [ROLES.SUPER_ADMIN, ROLES.ADMIN, ROLES.PROCUREMENT] },
+      { name: 'Tools', path: '/tools', roles: [ROLES.SUPER_ADMIN, ROLES.ADMIN, ROLES.PROCUREMENT] },
+      { name: 'Bulk Upload', path: '/bulk-upload', roles: [ROLES.SUPER_ADMIN, ROLES.ADMIN, ROLES.PROCUREMENT] },
       { name: 'Procurement Review', path: '/procurement', roles: [ROLES.SUPER_ADMIN, ROLES.ADMIN, ROLES.PROCUREMENT] }
     ]
   },
@@ -98,9 +98,9 @@ export const ROLE_PERMISSIONS = {
   },
   [ROLES.ADMIN]: {
     canView: ['*'], // Can view everything
-    canEdit: ['users', 'customers', 'network', 'inventory', 'installations', 'planning', 'quotations', 'invoices', 'reports', 'roles', 'permissions'], // Can edit everything except super admin settings
-    canDelete: ['customers', 'network', 'inventory', 'installations', 'planning', 'quotations', 'invoices', 'users'],
-    canCreate: ['users', 'customers', 'network', 'inventory', 'installations', 'planning', 'quotations', 'invoices']
+    canEdit: ['users', 'customers', 'network', 'installations', 'planning', 'reports', 'roles', 'permissions'], // Can edit most things but NOT inventory, quotations, invoices (view only for finance/procurement areas)
+    canDelete: ['customers', 'network', 'installations', 'planning', 'users'], // Cannot delete inventory, quotations, invoices
+    canCreate: ['users', 'customers', 'network', 'installations', 'planning', 'reports'] // Cannot create inventory, quotations, invoices
   },
   [ROLES.HR]: {
     canView: ['*'], // Can view everything
@@ -134,15 +134,15 @@ export const ROLE_PERMISSIONS = {
   },
   [ROLES.PROCUREMENT]: {
     canView: ['procurement', 'inventory', 'installations'],
-    canEdit: ['procurement', 'installations'],
-    canDelete: [],
-    canCreate: []
+    canEdit: ['procurement', 'inventory', 'installations'],
+    canDelete: ['inventory'],
+    canCreate: ['inventory']
   },
   [ROLES.FINANCE]: {
-    canView: ['finance', 'invoices', 'quotations', 'installations'],
-    canEdit: ['finance', 'installations'],
-    canDelete: [],
-    canCreate: []
+    canView: ['finance', 'quotations', 'invoices', 'installations'],
+    canEdit: ['finance', 'quotations', 'invoices', 'installations'],
+    canDelete: ['quotations', 'invoices'],
+    canCreate: ['quotations', 'invoices']
   }
 };
 

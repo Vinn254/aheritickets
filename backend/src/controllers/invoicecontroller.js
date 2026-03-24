@@ -3,9 +3,14 @@ const Invoice = require('../models/invoice');
 const Quotation = require('../models/quotation');
 const puppeteer = require('puppeteer');
 
-// Get all invoices
+// Get all invoices (Finance/Admin/CSR)
 const getInvoices = async (req, res) => {
   try {
+    // Allow finance, admin, and csr roles
+    if (!['finance', 'admin', 'csr'].includes(req.user.role)) {
+      return res.status(403).json({ error: 'Forbidden: Only finance, admin, or CSR can view invoices' });
+    }
+    
     const invoices = await Invoice.find()
       .populate('customer', 'name email phone location')
       .populate('createdBy', 'name')
@@ -17,9 +22,14 @@ const getInvoices = async (req, res) => {
   }
 };
 
-// Get invoice by ID
+// Get invoice by ID (Finance/Admin/CSR)
 const getInvoiceById = async (req, res) => {
   try {
+    // Allow finance, admin, and csr roles
+    if (!['finance', 'admin', 'csr'].includes(req.user.role)) {
+      return res.status(403).json({ error: 'Forbidden: Only finance, admin, or CSR can view invoices' });
+    }
+    
     const invoice = await Invoice.findById(req.params.id)
       .populate('customer', 'name email phone location')
       .populate('createdBy', 'name')
@@ -31,9 +41,14 @@ const getInvoiceById = async (req, res) => {
   }
 };
 
-// Create invoice from quotation
+// Create invoice from quotation (Finance/CSR only - admin cannot create)
 const createInvoiceFromQuotation = async (req, res) => {
   try {
+    // Only finance and csr can create invoices
+    if (!['finance', 'csr'].includes(req.user.role)) {
+      return res.status(403).json({ error: 'Forbidden: Only finance or CSR can create invoices' });
+    }
+    
     const { quotationId, dueDate, notes } = req.body;
 
     if (!dueDate || isNaN(new Date(dueDate).getTime())) return res.status(400).json({ error: 'Invalid due date' });
@@ -63,9 +78,14 @@ const createInvoiceFromQuotation = async (req, res) => {
   }
 };
 
-// Update invoice
+// Update invoice (Finance only)
 const updateInvoice = async (req, res) => {
   try {
+    // Only finance can update invoices
+    if (req.user.role !== 'finance') {
+      return res.status(403).json({ error: 'Forbidden: Only finance can update invoices' });
+    }
+    
     // If status is being updated to 'paid', automatically set paidAt date
     const updateData = { ...req.body };
     if (updateData.status === 'paid') {
@@ -86,9 +106,14 @@ const updateInvoice = async (req, res) => {
   }
 };
 
-// Delete invoice
+// Delete invoice (Finance only)
 const deleteInvoice = async (req, res) => {
   try {
+    // Only finance can delete invoices
+    if (req.user.role !== 'finance') {
+      return res.status(403).json({ error: 'Forbidden: Only finance can delete invoices' });
+    }
+    
     const invoice = await Invoice.findByIdAndDelete(req.params.id);
     if (!invoice) return res.status(404).json({ error: 'Invoice not found' });
     res.json({ message: 'Invoice deleted' });

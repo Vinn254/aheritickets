@@ -2,6 +2,7 @@
 import React, { useEffect, useState } from 'react';
 import API from '../utils/api';
 import ErrorBoundary from '../components/ErrorBoundary';
+import { hasPermission } from '../utils/permissions';
 
 // Style objects
 const inputStyle = { padding: 8, borderRadius: 6, border: '1px solid #ddd' };
@@ -10,6 +11,9 @@ const th = { padding: 10, border: '1px solid #eee' };
 const td = { padding: 10, border: '1px solid #eee' };
 
 export default function Inventory() {
+  const userRole = localStorage.getItem('role') || '';
+  const canEditInventory = hasPermission(userRole, 'canEdit', 'inventory');
+  const canDeleteInventory = hasPermission(userRole, 'canDelete', 'inventory');
   const [inventory, setInventory] = useState([]);
   const [counts, setCounts] = useState([]);
   const [deviceType, setDeviceType] = useState('AP');
@@ -362,8 +366,8 @@ TP-Link,Patch Panel,PP001"
                   <td style={td}>{item.location || '-'}</td>
                   <td style={td}>{item.notes || '-'}</td>
                   <td style={td}>
-                    <EditItem item={item} onUpdate={() => { fetchInventory(); fetchCounts(); }} />
-                    <button onClick={() => handleDelete(item._id)} style={{ ...primaryBtn, background: '#ff5252', padding: '4px 8px', fontSize: 13, marginLeft: 8 }}>Delete</button>
+                    {canEditInventory && <EditItem item={item} onUpdate={() => { fetchInventory(); fetchCounts(); }} />}
+                    {canDeleteInventory && <button onClick={() => handleDelete(item._id)} style={{ ...primaryBtn, background: '#ff5252', padding: '4px 8px', fontSize: 13, marginLeft: 8 }}>Delete</button>}
                   </td>
                 </tr>
               ))}
