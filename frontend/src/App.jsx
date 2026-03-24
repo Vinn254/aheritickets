@@ -26,6 +26,7 @@ const Procurement = lazy(() => import("./pages/procurement"));
 const Finance = lazy(() => import("./pages/finance"));
 const Quotations = lazy(() => import("./pages/quotations"));
 const Invoices = lazy(() => import("./pages/invoices"));
+const Receipts = lazy(() => import("./pages/receipts"));
 const RequestInstallation = lazy(() => import("./pages/requestinstallation"));
 const ManageInstallationRequests = lazy(() => import("./pages/manageinstallationrequests"));
 const TechnicianInstallations = lazy(() => import("./pages/technicianinstallations"));
@@ -254,7 +255,7 @@ function App() {
            <Route
              path="/analytics"
              element={
-               <ProtectedRoute allowedRole={[ROLES.SUPER_ADMIN, ROLES.ADMIN, ROLES.HR, ROLES.CSR]}>
+               <ProtectedRoute allowedRole={[ROLES.SUPER_ADMIN, ROLES.ADMIN, ROLES.HR, ROLES.CSR, ROLES.FINANCE]}>
                  <ErrorBoundary>
                    <Analytics />
                  </ErrorBoundary>
@@ -292,9 +293,9 @@ function App() {
              }
            />
            <Route
-             path="/invoices"
+             path=`/invoices`
              element={
-               <ProtectedRoute allowedRole={[ROLES.SUPER_ADMIN, ROLES.ADMIN, ROLES.HR, ROLES.CSR]}>
+               <ProtectedRoute allowedRole={[ROLES.SUPER_ADMIN, ROLES.ADMIN, ROLES.HR, ROLES.CSR, ROLES.FINANCE]}>
                  <ErrorBoundary>
                    <Invoices />
                  </ErrorBoundary>
@@ -354,7 +355,7 @@ function App() {
            <Route
              path="/reports"
              element={
-               <ProtectedRoute allowedRole={[ROLES.SUPER_ADMIN, ROLES.ADMIN, ROLES.HR, ROLES.CSR]}>
+               <ProtectedRoute allowedRole={[ROLES.SUPER_ADMIN, ROLES.ADMIN, ROLES.HR, ROLES.CSR, ROLES.FINANCE]}>
                  <ErrorBoundary>
                    <Reports />
                  </ErrorBoundary>
@@ -505,3 +506,5 @@ function App() {
 }
 
 export default App;
+
+

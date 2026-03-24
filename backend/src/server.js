@@ -22,6 +22,7 @@ const networkRoutes = require('./routes/networkroutes');
 const inventoryRoutes = require('./routes/inventoryroutes');
 const quotationRoutes = require('./routes/quotationroutes');
 const invoiceRoutes = require('./routes/invoiceroutes');
+const receiptRoutes = require('./routes/receiptroutes');
 const installationRequestRoutes = require('./routes/installationrequestroutes');
 const planRoutes = require('./routes/planroutes');
 
@@ -68,6 +69,7 @@ app.use('/api/network', networkRoutes);
 app.use('/api/inventory', inventoryRoutes);
 app.use('/api/quotations', quotationRoutes);
 app.use('/api/invoices', invoiceRoutes);
+app.use('/api/receipts', receiptRoutes);
 app.use('/api/installation-requests', installationRequestRoutes);
 app.use('/api/plans', planRoutes);
 

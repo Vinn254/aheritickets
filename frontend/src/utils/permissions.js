@@ -139,10 +139,10 @@ export const ROLE_PERMISSIONS = {
     canCreate: ['inventory']
   },
   [ROLES.FINANCE]: {
-    canView: ['finance', 'quotations', 'invoices', 'installations'],
-    canEdit: ['finance', 'quotations', 'invoices', 'installations'],
-    canDelete: ['quotations', 'invoices'],
-    canCreate: ['quotations', 'invoices']
+    canView: ['finance', 'quotations', 'invoices', 'receipts', 'installations'],
+    canEdit: ['finance', 'quotations', 'invoices', 'receipts', 'installations'],
+    canDelete: ['quotations', 'invoices', 'receipts'],
+    canCreate: ['quotations', 'invoices', 'receipts']
   }
 };
 
@@ -183,6 +183,7 @@ export const PATH_TO_RESOURCE = {
   '/planning': 'planning',
   '/quotations': 'quotations',
   '/invoices': 'invoices',
+  '/receipts': 'receipts',
   '/receipts': 'receipts',
   '/reports': 'reports',
   '/reports/operational': 'reports',
