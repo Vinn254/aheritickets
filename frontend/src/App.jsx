@@ -293,7 +293,7 @@ function App() {
              }
            />
            <Route
-             path=`/invoices`
+             path="/invoices"
              element={
                <ProtectedRoute allowedRole={[ROLES.SUPER_ADMIN, ROLES.ADMIN, ROLES.HR, ROLES.CSR, ROLES.FINANCE]}>
                  <ErrorBoundary>
@@ -303,7 +303,16 @@ function App() {
              }
            />
            <Route
-             path="/request-installation"
+            <Route
+              path="/receipts"
+              element={
+                <ProtectedRoute allowedRole={[ROLES.SUPER_ADMIN, ROLES.ADMIN, ROLES.HR, ROLES.CSR, ROLES.FINANCE]}>
+                  <ErrorBoundary>
+                    <Receipts />
+                  </ErrorBoundary>
+                </ProtectedRoute>
+              }
+            />
              element={
                <ProtectedRoute allowedRole={ROLES.CUSTOMER}>
                  <ErrorBoundary>
@@ -506,5 +515,6 @@ function App() {
 }
 
 export default App;
+
 
 
