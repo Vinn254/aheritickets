@@ -9,7 +9,9 @@ const {
 } = require('../controllers/receiptcontroller');
 const auth = require('../middleware/authmiddleware');
 
-router.use(auth);
+const { authMiddleware } = auth;
+
+router.use(authMiddleware);
 
 router.get('/', getReceipts);
 router.get('/:id', getReceiptById);
