@@ -11,8 +11,9 @@ const ServiceSchema = new Schema({
 const QuotationSchema = new Schema(
   {
     quotationNumber: { type: String, unique: true, sparse: true },
+    quotationType: { type: String, enum: ['installation', 'support', 'extension', 'transport', 'other'], default: 'installation' },
     customer: { type: Schema.Types.ObjectId, ref: 'User', required: true },
-    installationType: { type: String, enum: ['fiber', 'wireless'], required: true },
+    installationType: { type: String, enum: ['fiber', 'wireless'] },
     package: { type: String }, // e.g., '10Mbps'
     otherServices: [ServiceSchema],
     total: { type: Number, required: true },

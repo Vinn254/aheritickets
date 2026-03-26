@@ -22,6 +22,7 @@ export default function Quotations() {
 
   const [formData, setFormData] = useState({
     customer: '',
+    quotationType: 'installation',
     installationType: 'fiber',
     package: '',
     otherServices: [],
@@ -121,7 +122,7 @@ export default function Quotations() {
         fetchQuotations();
         setShowForm(false);
         setEditing(null);
-        setFormData({ customer: '', installationType: 'fiber', package: '', otherServices: [], startDate: today, endDate: nextMonth, notes: '' });
+        setFormData({ customer: '', quotationType: 'installation', installationType: 'fiber', package: '', otherServices: [], startDate: today, endDate: nextMonth, notes: '' });
       } else if (installationRequestId) {
         // Create quotation from installation request
         const total = calculateTotal();
@@ -134,14 +135,14 @@ export default function Quotations() {
         fetchQuotations();
         setShowForm(false);
         setInstallationRequestId(null);
-        setFormData({ customer: '', installationType: 'fiber', package: '', otherServices: [], startDate: today, endDate: nextMonth, notes: '' });
+        setFormData({ customer: '', quotationType: 'installation', installationType: 'fiber', package: '', otherServices: [], startDate: today, endDate: nextMonth, notes: '' });
       } else {
         // Create regular quotation
         const dataWithTotal = { ...formData, total: calculateTotal() };
         await API.post('/quotations', dataWithTotal);
         fetchQuotations();
         setShowForm(false);
-        setFormData({ customer: '', installationType: 'fiber', package: '', otherServices: [], startDate: today, endDate: nextMonth, notes: '' });
+        setFormData({ customer: '', quotationType: 'installation', installationType: 'fiber', package: '', otherServices: [], startDate: today, endDate: nextMonth, notes: '' });
       }
     } catch (err) {
       console.error(err);
@@ -153,6 +154,7 @@ export default function Quotations() {
     setEditing(quotation);
     setFormData({
       customer: quotation.customer?._id || '',
+      quotationType: quotation.quotationType || 'installation',
       installationType: quotation.installationType,
       package: quotation.package,
       otherServices: quotation.otherServices,
@@ -245,6 +247,7 @@ export default function Quotations() {
             <thead>
               <tr style={{ background: 'linear-gradient(90deg, #43e97b 0%, #38f9d7 100%)', color: 'white' }}>
                 <th style={{ padding: 15, textAlign: 'left', fontWeight: 700 }}>Number</th>
+                <th style={{ padding: 15, textAlign: 'left', fontWeight: 700 }}>Type</th>
                 {!isCustomer && <th style={{ padding: 15, textAlign: 'left', fontWeight: 700 }}>Customer</th>}
                 <th style={{ padding: 15, textAlign: 'left', fontWeight: 700 }}>Total</th>
                 <th style={{ padding: 15, textAlign: 'left', fontWeight: 700 }}>Actions</th>
@@ -254,6 +257,7 @@ export default function Quotations() {
               {quotations.map((q, index) => (
                 <tr key={q._id} style={{ borderBottom: index === quotations.length - 1 ? 'none' : '1px solid #d0e8d8', transition: 'background 0.2s', background: index % 2 === 0 ? '#eafff3' : '#f0fdf5' }} onMouseOver={(e) => e.target.closest('tr').style.background = '#d4edda'} onMouseOut={(e) => e.target.closest('tr').style.background = index % 2 === 0 ? '#eafff3' : '#f0fdf5'}>
                   <td style={{ padding: 15, fontWeight: 500, color: '#186a3b' }}>{q.quotationNumber}</td>
+                  <td style={{ padding: 15, color: '#2d7a3e', textTransform: 'capitalize' }}>{q.quotationType || 'installation'}</td>
                   {!isCustomer && <td style={{ padding: 15, color: '#2d7a3e' }}>{q.customer?.name || 'N/A'}</td>}
                   <td style={{ padding: 15, fontWeight: 700, color: '#2d7a3e' }}>KSh {q.total.toLocaleString()}</td>
                   <td style={{ padding: 15 }}>
@@ -370,6 +374,7 @@ export default function Quotations() {
               <table style={{ width: '100%', borderCollapse: 'collapse', border: '1px solid #d0e8d8', background: '#eafff3' }}>
                 <tbody>
                   <tr><td style={{ padding: 10, border: '1px solid #d0e8d8', fontWeight: 'bold', background: '#d4edda', color: '#186a3b' }}>Number:</td><td style={{ padding: 10, border: '1px solid #d0e8d8', color: '#2d7a3e' }}>{viewing.quotationNumber}</td></tr>
+                  <tr><td style={{ padding: 10, border: '1px solid #d0e8d8', fontWeight: 'bold', background: '#d4edda', color: '#186a3b' }}>Type:</td><td style={{ padding: 10, border: '1px solid #d0e8d8', color: '#2d7a3e', textTransform: 'capitalize' }}>{viewing.quotationType || 'installation'}</td></tr>
                   <tr><td style={{ padding: 10, border: '1px solid #d0e8d8', fontWeight: 'bold', background: '#d4edda', color: '#186a3b' }}>Customer:</td><td style={{ padding: 10, border: '1px solid #d0e8d8', color: '#2d7a3e' }}>{viewing.customer?.name || 'N/A'}</td></tr>
                   <tr><td style={{ padding: 10, border: '1px solid #d0e8d8', fontWeight: 'bold', background: '#d4edda', color: '#186a3b' }}>Installation Type:</td><td style={{ padding: 10, border: '1px solid #d0e8d8', color: '#2d7a3e' }}>{viewing.installationType}</td></tr>
                   <tr><td style={{ padding: 10, border: '1px solid #d0e8d8', fontWeight: 'bold', background: '#d4edda', color: '#186a3b' }}>Package:</td><td style={{ padding: 10, border: '1px solid #d0e8d8', color: '#2d7a3e' }}>{viewing.package || 'None'}</td></tr>
@@ -526,6 +531,29 @@ export default function Quotations() {
                 >
                   <option value="">Select Customer</option>
                   {customers.map(c => <option key={c._id} value={c._id}>{c?.name || 'Unnamed Customer'}</option>)}
+                </select>
+              </div>
+
+              <div>
+                <label style={{ display: 'block', marginBottom: 5, fontWeight: 600, color: '#2d7a3e' }}>Quotation Type</label>
+                <select
+                  value={formData.quotationType}
+                  onChange={(e) => setFormData({ ...formData, quotationType: e.target.value })}
+                  style={{
+                    width: '100%',
+                    padding: 12,
+                    borderRadius: 8,
+                    border: '2px solid #43e97b',
+                    fontSize: 14,
+                    background: '#f9fff9',
+                    boxSizing: 'border-box'
+                  }}
+                >
+                  <option value="installation">Installation</option>
+                  <option value="support">Support</option>
+                  <option value="extension">Extension</option>
+                  <option value="transport">Transport</option>
+                  <option value="other">Other</option>
                 </select>
               </div>
 

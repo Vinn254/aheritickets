@@ -50,7 +50,7 @@ const createQuotation = async (req, res) => {
     
     console.log('Creating quotation with data:', req.body);
     console.log('User:', req.user.id);
-    const { customer, installationType, package: pkg, otherServices, notes, startDate, endDate } = req.body;
+    const { customer, quotationType, installationType, package: pkg, otherServices, notes, startDate, endDate } = req.body;
 
     // Validate required fields
     if (!customer) {
@@ -86,6 +86,7 @@ const createQuotation = async (req, res) => {
 
     const quotation = new Quotation({
       customer,
+      quotationType,
       installationType,
       package: pkg,
       otherServices: otherServices || [],
