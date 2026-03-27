@@ -91,7 +91,7 @@ export default function Quotations() {
 
   const fetchQuotations = async () => {
     try {
-      const data = await API.get('/quotations');
+      const data = await API.get('/api/quotations');
       // Filter quotations based on user role
       let filtered = data;
       if (user?.role === 'customer') {
@@ -118,7 +118,7 @@ export default function Quotations() {
     e.preventDefault();
     try {
       if (editing) {
-        await API.put(`/quotations/${editing._id}`, formData);
+        await API.put(`/api/quotations/${editing._id}`, formData);
         fetchQuotations();
         setShowForm(false);
         setEditing(null);
@@ -139,7 +139,7 @@ export default function Quotations() {
       } else {
         // Create regular quotation
         const dataWithTotal = { ...formData, total: calculateTotal() };
-        await API.post('/quotations', dataWithTotal);
+        await API.post('/api/quotations', dataWithTotal);
         fetchQuotations();
         setShowForm(false);
         setFormData({ customer: '', quotationType: 'installation', installationType: 'fiber', package: '', otherServices: [], startDate: today, endDate: nextMonth, notes: '' });
@@ -168,7 +168,7 @@ export default function Quotations() {
   const handleDelete = async (id) => {
     if (!confirm('Are you sure?')) return;
     try {
-      await API.delete(`/quotations/${id}`);
+      await API.delete(`/api/quotations/${id}`);
       fetchQuotations();
     } catch (err) {
       console.error(err);
@@ -177,7 +177,7 @@ export default function Quotations() {
 
   const downloadQuotation = async (id, number) => {
     try {
-      const response = await fetch(`${API_BASE}/quotations/${id}/pdf?download=true`, {
+      const response = await fetch(`${API_BASE}/api/quotations/${id}/pdf?download=true`, {
         headers: {
           'Authorization': `Bearer ${localStorage.getItem('token')}`
         }

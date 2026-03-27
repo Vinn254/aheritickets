@@ -31,7 +31,7 @@ export default function Invoices() {
         setViewing(invoice);
       } else {
         // Fetch the invoice if not in list
-        API.get(`/invoices/${viewInvoiceId}`).then(data => {
+        API.get(`/api/invoices/${viewInvoiceId}`).then(data => {
           setViewing(data);
         }).catch(err => console.error('Error fetching invoice:', err));
       }
@@ -47,7 +47,7 @@ export default function Invoices() {
   const fetchInvoices = async () => {
     try {
       setLoading(true);
-      const data = await API.get('/invoices');
+      const data = await API.get('/api/invoices');
       setInvoices(data);
     } catch (err) {
       console.error('Error fetching invoices:', err);
@@ -60,7 +60,7 @@ export default function Invoices() {
   const handleDelete = async (id) => {
     if (!confirm('Are you sure you want to delete this invoice?')) return;
     try {
-      await API.delete(`/invoices/${id}`);
+      await API.delete(`/api/invoices/${id}`);
       fetchInvoices();
       alert('Invoice deleted successfully');
     } catch (err) {
@@ -71,7 +71,7 @@ export default function Invoices() {
 
   const downloadInvoice = async (id, invoiceNumber) => {
     try {
-      const response = await fetch(`${API_BASE}/invoices/${id}/pdf?download=true`, {
+      const response = await fetch(`${API_BASE}/api/invoices/${id}/pdf?download=true`, {
         headers: {
           'Authorization': `Bearer ${localStorage.getItem('token')}`
         }
@@ -94,7 +94,7 @@ export default function Invoices() {
 
   const viewInvoice = async (id) => {
     try {
-      const response = await fetch(`${API_BASE}/invoices/${id}/pdf`, {
+      const response = await fetch(`${API_BASE}/api/invoices/${id}/pdf`, {
         headers: {
           'Authorization': `Bearer ${localStorage.getItem('token')}`
         }
@@ -111,7 +111,7 @@ export default function Invoices() {
 
   const updateStatus = async (id, newStatus) => {
     try {
-      await API.put(`/invoices/${id}`, { status: newStatus });
+      await API.put(`/api/invoices/${id}`, { status: newStatus });
       fetchInvoices();
       // If viewed modal is open, update it
       if (viewing && viewing._id === id) {

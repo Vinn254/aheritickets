@@ -42,10 +42,10 @@ export const MENU_CONFIG = [
     icon: 'M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6',
     roles: [ROLES.SUPER_ADMIN, ROLES.ADMIN, ROLES.FINANCE],
     items: [
-      { name: 'Quotations', path: '/quotations', roles: [ROLES.SUPER_ADMIN, ROLES.ADMIN, ROLES.FINANCE, ROLES.CRS] },
-      { name: 'Invoices', path: '/invoices', roles: [ROLES.SUPER_ADMIN, ROLES.ADMIN, ROLES.FINANCE, ROLES.HR, ROLES.CRS] },
-      { name: 'Receipts', path: '/receipts', roles: [ROLES.SUPER_ADMIN, ROLES.ADMIN, ROLES.HR, ROLES.CRS] },
-      { name: 'Finance Review', path: '/finance', roles: [ROLES.SUPER_ADMIN, ROLES.ADMIN, ROLES.FINANCE] }
+      { name: 'Quotations', path: '/quotations', roles: [ROLES.SUPER_ADMIN, ROLES.ADMIN, ROLES.FINANCE, ROLES.CSR] },
+      { name: 'Invoices', path: '/invoices', roles: [ROLES.SUPER_ADMIN, ROLES.ADMIN, ROLES.FINANCE, ROLES.HR, ROLES.CSR] },
+      { name: 'Receipts', path: '/receipts', roles: [ROLES.SUPER_ADMIN, ROLES.ADMIN, ROLES.FINANCE, ROLES.HR, ROLES.CSR] },
+      { name: 'Finance Dashboard', path: '/finance', roles: [ROLES.SUPER_ADMIN, ROLES.ADMIN, ROLES.FINANCE] }
     ]
   },
   {
@@ -98,9 +98,9 @@ export const ROLE_PERMISSIONS = {
   },
   [ROLES.ADMIN]: {
     canView: ['*'], // Can view everything
-    canEdit: ['users', 'customers', 'network', 'installations', 'planning', 'reports', 'roles', 'permissions'], // Can edit most things but NOT inventory, quotations, invoices (view only for finance/procurement areas)
-    canDelete: ['customers', 'network', 'installations', 'planning', 'users'], // Cannot delete inventory, quotations, invoices
-    canCreate: ['users', 'customers', 'network', 'installations', 'planning', 'reports'] // Cannot create inventory, quotations, invoices
+    canEdit: ['users', 'customers', 'network', 'installations', 'planning', 'reports', 'roles', 'permissions', 'invoices', 'quotations'], // Can view invoices and quotations but NOT edit finance items
+    canDelete: ['customers', 'network', 'installations', 'planning', 'users'], // Cannot delete finance items
+    canCreate: ['users', 'customers', 'network', 'installations', 'planning', 'reports'] // Cannot create finance items
   },
   [ROLES.HR]: {
     canView: ['*'], // Can view everything
@@ -183,7 +183,6 @@ export const PATH_TO_RESOURCE = {
   '/planning': 'planning',
   '/quotations': 'quotations',
   '/invoices': 'invoices',
-  '/receipts': 'receipts',
   '/receipts': 'receipts',
   '/reports': 'reports',
   '/reports/operational': 'reports',

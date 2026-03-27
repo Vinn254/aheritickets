@@ -7,22 +7,25 @@ const { authMiddleware, requireRole } = require('../middleware/authmiddleware');
 // All quotation routes require authentication
 router.use(authMiddleware);
 
-// Get all quotations - Admin/CSR/Technician/Customer
+// View routes - Admin/CSR/Technician/Finance/HR/Customer can view
+router.use(requireRole(['admin', 'csr', 'technician', 'finance', 'hr', 'customer']));
+
+// Get all quotations - all allowed roles can view
 router.get('/', quotationController.getQuotations);
 
-// Get quotation by ID - Admin/CSR/Technician/Customer
+// Get quotation by ID - all allowed roles can view
 router.get('/:id', quotationController.getQuotationById);
 
-// Create quotation - Admin/CSR/Technician only
-router.post('/', requireRole(['admin', 'csr', 'technician']), quotationController.createQuotation);
+// Create quotation - finance role only
+router.post('/', requireRole(['finance']), quotationController.createQuotation);
 
-// Update quotation - Admin/CSR/Technician only
-router.put('/:id', requireRole(['admin', 'csr', 'technician']), quotationController.updateQuotation);
+// Update quotation - finance role only
+router.put('/:id', requireRole(['finance']), quotationController.updateQuotation);
 
-// Delete quotation - Admin/CSR/Technician only
-router.delete('/:id', requireRole(['admin', 'csr', 'technician']), quotationController.deleteQuotation);
+// Delete quotation - finance role only
+router.delete('/:id', requireRole(['finance']), quotationController.deleteQuotation);
 
-// Generate PDF - Admin/CSR/Technician/Customer
+// Generate PDF - all allowed roles can view
 router.get('/:id/pdf', quotationController.generateQuotationPDF);
 
 module.exports = router;
