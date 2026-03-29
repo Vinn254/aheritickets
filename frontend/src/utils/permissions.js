@@ -10,8 +10,12 @@ export const ROLES = {
   CUSTOMER: 'customer',
   CONTRACTOR: 'contractor',
   PROCUREMENT: 'procurement',
-  FINANCE: 'finance'
+  FINANCE: 'finance',
+  MARKETING: 'marketing'
 };
+
+// Add marketing role
+const ROLES_EXTENDED = { ...ROLES, MARKETING: 'marketing' };
 
 // Menu categories with their items and permissions
 // Admin, CRS, HR dashboards will show this structure
@@ -22,6 +26,15 @@ export const MENU_CONFIG = [
     roles: [ROLES.SUPER_ADMIN, ROLES.ADMIN, ROLES.HR],
     items: [
       { name: 'Users', path: '/manage-users', roles: [ROLES.SUPER_ADMIN, ROLES.ADMIN, ROLES.HR] }
+    ]
+  },
+  {
+    category: 'Marketing',
+    icon: 'M3 3h18v18H3zM9 3v18M3 9h18',
+    roles: [ROLES.SUPER_ADMIN, ROLES.ADMIN, ROLES.HR, ROLES.CRS],
+    items: [
+      { name: 'Marketing Leads', path: '/marketing-leads', roles: [ROLES.SUPER_ADMIN, ROLES.ADMIN, ROLES.HR, ROLES.CRS] },
+      { name: 'Marketing Planning', path: '/marketing-planning', roles: [ROLES.SUPER_ADMIN, ROLES.ADMIN, ROLES.HR, ROLES.CRS] }
     ]
   },
   {
@@ -98,21 +111,21 @@ export const ROLE_PERMISSIONS = {
   },
   [ROLES.ADMIN]: {
     canView: ['*'], // Can view everything
-    canEdit: ['users', 'customers', 'network', 'installations', 'planning', 'reports', 'roles', 'permissions', 'invoices', 'quotations'], // Can view invoices and quotations but NOT edit finance items
+    canEdit: ['users', 'customers', 'network', 'installations', 'planning', 'reports', 'roles', 'permissions', 'invoices', 'quotations', 'marketing'], // Can view invoices and quotations but NOT edit finance items
     canDelete: ['customers', 'network', 'installations', 'planning', 'users'], // Cannot delete finance items
     canCreate: ['users', 'customers', 'network', 'installations', 'planning', 'reports'] // Cannot create finance items
   },
   [ROLES.HR]: {
     canView: ['*'], // Can view everything
-    canEdit: ['users'], // Can only edit users (HR pages)
+    canEdit: ['users', 'marketing'], // Can only edit users (HR pages)
     canDelete: ['users'], // Can only delete users
-    canCreate: ['users'] // Can only create users
+    canCreate: ['users', 'marketing'] // Can only create users
   },
   [ROLES.CRS]: {
-    canView: ['customers', 'installations', 'quotations', 'invoices', 'reports', 'planning'],
-    canEdit: ['customers', 'installations', 'quotations'], // Can edit their assigned areas
+    canView: ['customers', 'installations', 'quotations', 'invoices', 'reports', 'planning', 'marketing'],
+    canEdit: ['customers', 'installations', 'quotations', 'marketing'], // Can edit their assigned areas
     canDelete: ['quotations'],
-    canCreate: ['customers', 'installations', 'quotations']
+    canCreate: ['customers', 'installations', 'quotations', 'marketing']
   },
   [ROLES.TECHNICIAN]: {
     canView: ['network', 'customers', 'installations', 'inventory', 'planning'], // Only technical/installation pages
@@ -201,5 +214,7 @@ export const PATH_TO_RESOURCE = {
   '/settings/roles': 'roles',
   '/settings/permissions': 'permissions',
   '/procurement': 'procurement',
-  '/finance': 'finance'
+  '/finance': 'finance',
+  '/marketing-leads': 'marketing',
+  '/marketing-planning': 'marketing'
 };

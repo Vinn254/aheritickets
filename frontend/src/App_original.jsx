@@ -36,8 +36,6 @@ const Customers = lazy(() => import("./pages/customers"));
 const ForgotPassword = lazy(() => import("./pages/forgotpassword"));
 const ResetPassword = lazy(() => import("./pages/resetpassword"));
 const Ticketing = lazy(() => import("./pages/ticketing"));
-const MarketingLeads = lazy(() => import("./pages/marketingleads"));
-const MarketingPlanning = lazy(() => import("./pages/marketingplanning"));
 
 import './watermark.css';
 
@@ -181,10 +179,6 @@ function App() {
         return '/dashboard/customer';
       case ROLES.CONTRACTOR:
         return '/dashboard/contractor';
-      case ROLES.FINANCE:
-        return '/finance';
-      case ROLES.MARKETING:
-        return '/marketing-leads';
       default:
         return '/dashboard';
     }
@@ -261,7 +255,7 @@ function App() {
            <Route
              path="/analytics"
              element={
-               <ProtectedRoute allowedRole={[ROLES.SUPER_ADMIN, ROLES.ADMIN, ROLES.HR, ROLES.CSR]}>
+               <ProtectedRoute allowedRole={[ROLES.SUPER_ADMIN, ROLES.ADMIN, ROLES.HR, ROLES.CSR, ROLES.FINANCE]}>
                  <ErrorBoundary>
                    <Analytics />
                  </ErrorBoundary>
@@ -309,17 +303,16 @@ function App() {
              }
            />
            <Route
-             path="/receipts"
-             element={
-               <ProtectedRoute allowedRole={[ROLES.SUPER_ADMIN, ROLES.ADMIN, ROLES.HR, ROLES.CSR, ROLES.FINANCE]}>
-                 <ErrorBoundary>
-                   <Receipts />
-                 </ErrorBoundary>
-               </ProtectedRoute>
-             }
-           />
-           <Route
-             path="/request-installation"
+            <Route
+              path="/receipts"
+              element={
+                <ProtectedRoute allowedRole={[ROLES.SUPER_ADMIN, ROLES.ADMIN, ROLES.HR, ROLES.CSR, ROLES.FINANCE]}>
+                  <ErrorBoundary>
+                    <Receipts />
+                  </ErrorBoundary>
+                </ProtectedRoute>
+              }
+            />
              element={
                <ProtectedRoute allowedRole={ROLES.CUSTOMER}>
                  <ErrorBoundary>
@@ -371,7 +364,7 @@ function App() {
            <Route
              path="/reports"
              element={
-               <ProtectedRoute allowedRole={[ROLES.SUPER_ADMIN, ROLES.ADMIN, ROLES.HR, ROLES.CSR]}>
+               <ProtectedRoute allowedRole={[ROLES.SUPER_ADMIN, ROLES.ADMIN, ROLES.HR, ROLES.CSR, ROLES.FINANCE]}>
                  <ErrorBoundary>
                    <Reports />
                  </ErrorBoundary>
@@ -400,27 +393,6 @@ function App() {
                 <ProtectedRoute allowedRole={[ROLES.SUPER_ADMIN, ROLES.ADMIN, ROLES.CSR, ROLES.TECHNICIAN, ROLES.CONTRACTOR]}>
                   <ErrorBoundary>
                     <Ticketing />
-                  </ErrorBoundary>
-                </ProtectedRoute>
-              }
-            />
-            {/* Marketing Routes */}
-            <Route
-              path="/marketing-leads"
-              element={
-                <ProtectedRoute allowedRole={[ROLES.SUPER_ADMIN, ROLES.ADMIN, ROLES.MARKETING]}>
-                  <ErrorBoundary>
-                    <MarketingLeads />
-                  </ErrorBoundary>
-                </ProtectedRoute>
-              }
-            />
-            <Route
-              path="/marketing-planning"
-              element={
-                <ProtectedRoute allowedRole={[ROLES.SUPER_ADMIN, ROLES.ADMIN, ROLES.MARKETING]}>
-                  <ErrorBoundary>
-                    <MarketingPlanning />
                   </ErrorBoundary>
                 </ProtectedRoute>
               }
@@ -543,3 +515,6 @@ function App() {
 }
 
 export default App;
+
+
+

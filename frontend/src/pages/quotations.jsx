@@ -6,6 +6,80 @@ import { useNavigate, useLocation } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { hasPermission } from '../utils/permissions';
 
+// Service options based on quotation type
+const getServiceOptions = (quotationType) => {
+  switch (quotationType) {
+    case 'installation':
+      return [
+        { name: 'Fiber Installation', price: 2000 },
+        { name: 'Wireless Installation', price: 4800 },
+        { name: 'Router/ONT Device', price: 3500 },
+        { name: 'Cabling (per meter)', price: 150 },
+        { name: 'Network Switch', price: 4500 },
+        { name: 'Patch Panel', price: 2500 },
+        { name: 'Cable Management', price: 1200 },
+        { name: 'Splicing (per joint)', price: 200 },
+        { name: 'Testing & Commissioning', price: 1500 }
+      ];
+    case 'support':
+      return [
+        { name: 'Monthly Support - Basic', price: 2500 },
+        { name: 'Monthly Support - Standard', price: 5000 },
+        { name: 'Monthly Support - Premium', price: 10000 },
+        { name: 'On-site Visit', price: 1500 },
+        { name: 'Remote Support (per hour)', price: 1000 },
+        { name: 'Network Monitoring (monthly)', price: 3000 },
+        { name: 'Server Maintenance (monthly)', price: 8000 },
+        { name: 'Security Update (per incident)', price: 2000 }
+      ];
+    case 'transport':
+      return [
+        { name: 'Local Transport (per trip)', price: 1500 },
+        { name: 'Outstation Transport (per km)', price: 100 },
+        { name: 'Vehicle Rental (per day)', price: 8000 },
+        { name: 'Fuel Charges', price: 0 },
+        { name: 'Driver Allowance (per day)', price: 2000 },
+        { name: 'Accommodation (per night)', price: 3500 },
+        { name: 'Logistics Coordination', price: 2500 }
+      ];
+    case 'accessories':
+      return [
+        { name: 'CAT6 Cable (per meter)', price: 80 },
+        { name: 'Fiber Patch Cord', price: 350 },
+        { name: 'RJ45 Connector (pack of 100)', price: 800 },
+        { name: 'Network Rack', price: 15000 },
+        { name: 'Wall Mount Bracket', price: 450 },
+        { name: 'Cable Tray (per meter)', price: 600 },
+        { name: 'Power Strip', price: 450 },
+        { name: 'UPS Battery', price: 4500 },
+        { name: 'POE Injector', price: 1800 },
+        { name: 'Media Converter', price: 2200 }
+      ];
+    case 'tools':
+      return [
+        { name: 'Fiber Splicing Tool', price: 15000 },
+        { name: 'OTDR Tester', price: 45000 },
+        { name: 'Cable Tester', price: 3500 },
+        { name: 'Crimping Tool', price: 1500 },
+        { name: 'Drill Machine', price: 4500 },
+        { name: 'Ladder (aluminum)', price: 6000 },
+        { name: 'Safety Gear Kit', price: 2500 },
+        { name: 'Tool Box Set', price: 5500 }
+      ];
+    case 'extension':
+    case 'other':
+    default:
+      return [
+        { name: 'Custom Service', price: 0 },
+        { name: 'Consultation (per hour)', price: 2000 },
+        { name: 'Project Management', price: 15000 },
+        { name: 'Training (per session)', price: 8000 },
+        { name: 'Documentation', price: 5000 },
+        { name: 'Survey & Assessment', price: 3500 }
+      ];
+  }
+};
+
 export default function Quotations() {
   const { user } = useContext(AuthContext);
   const navigate = useNavigate();
@@ -17,6 +91,8 @@ export default function Quotations() {
   const [editing, setEditing] = useState(null);
   const [viewing, setViewing] = useState(null);
   const [installationRequestId, setInstallationRequestId] = useState(null);
+  const [filterType, setFilterType] = useState('all');
+  const [searchTerm, setSearchTerm] = useState('');
   const today = new Date().toISOString().split('T')[0];
   const nextMonth = new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString().split('T')[0];
 
@@ -28,22 +104,43 @@ export default function Quotations() {
     otherServices: [],
     startDate: today,
     endDate: nextMonth,
-    notes: ''
+    notes: '',
+    transportDistance: '',
+    transportRate: 0,
+    supportDuration: '',
+    supportRate: 0
   });
 
-  // Calculate total automatically
+  // Calculate total automatically based on quotation type
   const calculateTotal = () => {
     let total = 0;
-    // Installation fee - fiber is free, wireless is 4800
-    if (formData.installationType === 'fiber') total += 0;
-    else if (formData.installationType === 'wireless') total += 4800;
     
-    // Package prices
-    if (formData.package === '10Mbps') total += 2000;
-    else if (formData.package === '15Mbps') total += 2600;
-    else if (formData.package === '20Mbps') total += 3900;
-    else if (formData.package === '30Mbps') total += 5400;
+    // For installation type
+    if (formData.quotationType === 'installation') {
+      if (formData.installationType === 'fiber') total += 0;
+      else if (formData.installationType === 'wireless') total += 4800;
+      
+      if (formData.package === '10Mbps') total += 2000;
+      else if (formData.package === '15Mbps') total += 2600;
+      else if (formData.package === '20Mbps') total += 3900;
+      else if (formData.package === '30Mbps') total += 5400;
+    }
     
+    // For transport type
+    if (formData.quotationType === 'transport') {
+      if (formData.transportDistance && formData.transportRate) {
+        total += parseFloat(formData.transportDistance) * parseFloat(formData.transportRate);
+      }
+    }
+    
+    // For support type
+    if (formData.quotationType === 'support') {
+      if (formData.supportDuration && formData.supportRate) {
+        total += parseFloat(formData.supportDuration) * parseFloat(formData.supportRate);
+      }
+    }
+    
+    // Add other services
     formData.otherServices.forEach(s => {
       total += (s.price || 0) * (s.quantity || 1);
     });
@@ -56,18 +153,15 @@ export default function Quotations() {
     if (location.state) {
       const { installationRequestId, customer, installationType, package: pkg, notes, viewQuotation } = location.state;
       
-      // If viewing a specific quotation
       if (viewQuotation) {
         const quote = quotations.find(q => q._id === viewQuotation);
         if (quote) {
           setViewing(quote);
         } else {
-          // Fetch the quotation if not in list
           API.get(`/api/quotations/${viewQuotation}`).then(data => {
             setViewing(data);
           }).catch(err => console.error('Error fetching quotation:', err));
         }
-        // Clear the state
         navigate(location.pathname, { replace: true });
         return;
       }
@@ -92,7 +186,6 @@ export default function Quotations() {
   const fetchQuotations = async () => {
     try {
       const data = await API.get('/api/quotations');
-      // Filter quotations based on user role
       let filtered = data;
       if (user?.role === 'customer') {
         filtered = data.filter(q => q.customer?._id === user._id);
@@ -117,15 +210,16 @@ export default function Quotations() {
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
+      const total = calculateTotal();
+      
       if (editing) {
-        await API.put(`/api/quotations/${editing._id}`, formData);
+        await API.put(`/api/quotations/${editing._id}`, { ...formData, total });
+        alert('Quotation updated successfully!');
         fetchQuotations();
         setShowForm(false);
         setEditing(null);
-        setFormData({ customer: '', quotationType: 'installation', installationType: 'fiber', package: '', otherServices: [], startDate: today, endDate: nextMonth, notes: '' });
+        setFormData({ customer: '', quotationType: 'installation', installationType: 'fiber', package: '', otherServices: [], startDate: today, endDate: nextMonth, notes: '', transportDistance: '', transportRate: 0, supportDuration: '', supportRate: 0 });
       } else if (installationRequestId) {
-        // Create quotation from installation request
-        const total = calculateTotal();
         const response = await API.post(`/api/installation-requests/${installationRequestId}/quotation`, {
           total,
           otherServices: formData.otherServices,
@@ -135,18 +229,18 @@ export default function Quotations() {
         fetchQuotations();
         setShowForm(false);
         setInstallationRequestId(null);
-        setFormData({ customer: '', quotationType: 'installation', installationType: 'fiber', package: '', otherServices: [], startDate: today, endDate: nextMonth, notes: '' });
+        setFormData({ customer: '', quotationType: 'installation', installationType: 'fiber', package: '', otherServices: [], startDate: today, endDate: nextMonth, notes: '', transportDistance: '', transportRate: 0, supportDuration: '', supportRate: 0 });
       } else {
-        // Create regular quotation
-        const dataWithTotal = { ...formData, total: calculateTotal() };
+        const dataWithTotal = { ...formData, total };
         await API.post('/api/quotations', dataWithTotal);
+        alert('Quotation created successfully!');
         fetchQuotations();
         setShowForm(false);
-        setFormData({ customer: '', quotationType: 'installation', installationType: 'fiber', package: '', otherServices: [], startDate: today, endDate: nextMonth, notes: '' });
+        setFormData({ customer: '', quotationType: 'installation', installationType: 'fiber', package: '', otherServices: [], startDate: today, endDate: nextMonth, notes: '', transportDistance: '', transportRate: 0, supportDuration: '', supportRate: 0 });
       }
     } catch (err) {
       console.error(err);
-      alert('Failed to save quotation: ' + err.message);
+      alert('Failed to save quotation: ' + (err.message || 'Unknown error'));
     }
   };
 
@@ -155,23 +249,29 @@ export default function Quotations() {
     setFormData({
       customer: quotation.customer?._id || '',
       quotationType: quotation.quotationType || 'installation',
-      installationType: quotation.installationType,
-      package: quotation.package,
-      otherServices: quotation.otherServices,
+      installationType: quotation.installationType || 'fiber',
+      package: quotation.package || '',
+      otherServices: quotation.otherServices || [],
       startDate: quotation.startDate ? new Date(quotation.startDate).toISOString().split('T')[0] : today,
       endDate: quotation.endDate ? new Date(quotation.endDate).toISOString().split('T')[0] : nextMonth,
-      notes: quotation.notes
+      notes: quotation.notes || '',
+      transportDistance: quotation.transportDistance || '',
+      transportRate: quotation.transportRate || 0,
+      supportDuration: quotation.supportDuration || '',
+      supportRate: quotation.supportRate || 0
     });
     setShowForm(true);
   };
 
   const handleDelete = async (id) => {
-    if (!confirm('Are you sure?')) return;
+    if (!confirm('Are you sure you want to delete this quotation? This action cannot be undone.')) return;
     try {
       await API.delete(`/api/quotations/${id}`);
+      alert('Quotation deleted successfully');
       fetchQuotations();
     } catch (err) {
       console.error(err);
+      alert('Failed to delete quotation');
     }
   };
 
@@ -198,21 +298,24 @@ export default function Quotations() {
     }
   };
 
-  const convertToInvoice = async (quotationId) => {
-    const dueDate = prompt('Enter due date (YYYY-MM-DD):', new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString().split('T')[0]);
+  const convertToInvoice = async (quotationId, quotation) => {
+    const dueDate = prompt('Enter invoice due date (YYYY-MM-DD):', new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString().split('T')[0]);
     if (!dueDate) return;
     
-    // Validate date format
     if (!/^\d{4}-\d{2}-\d{2}$/.test(dueDate)) {
       alert('Invalid date format. Please use YYYY-MM-DD');
       return;
     }
     
     try {
-      const response = await API.post('/invoices', { quotationId, dueDate });
+      const response = await API.post('/api/invoices', { 
+        quotationId, 
+        customer: quotation.customer?._id,
+        dueDate 
+      });
       alert(`Invoice created successfully! Invoice Number: ${response.invoiceNumber}`);
+      fetchQuotations();
       setViewing(null);
-      // Navigate to invoices page
       setTimeout(() => navigate('/invoices'), 500);
     } catch (err) {
       console.error('Error creating invoice:', err);
@@ -220,7 +323,30 @@ export default function Quotations() {
     }
   };
 
-  if (loading) return <div style={{ padding: 20 }}>Loading...</div>;
+  const addService = (service) => {
+    const exists = formData.otherServices.find(s => s.name === service.name);
+    if (!exists) {
+      setFormData({
+        ...formData,
+        otherServices: [...formData.otherServices, { ...service, quantity: 1 }]
+      });
+    }
+  };
+
+  const removeService = (index) => {
+    setFormData({
+      ...formData,
+      otherServices: formData.otherServices.filter((_, i) => i !== index)
+    });
+  };
+
+  const updateServiceQuantity = (index, quantity) => {
+    const updated = [...formData.otherServices];
+    updated[index].quantity = parseInt(quantity) || 1;
+    setFormData({ ...formData, otherServices: updated });
+  };
+
+  if (loading) return <div style={{ padding: 20, textAlign: 'center' }}>Loading quotations...</div>;
 
   const isCustomer = user?.role === 'customer';
   const userRole = user?.role || '';
@@ -229,49 +355,243 @@ export default function Quotations() {
   const canCreateQuotations = hasPermission(userRole, 'canCreate', 'quotations');
   const isCsrOrAdmin = ['admin', 'csr'].includes(user?.role);
 
-  return (
-    <div style={{ padding: 32, background: 'linear-gradient(90deg, #e8f5e9 0%, #f7fff7 100%)', minHeight: '100vh', marginTop: '56px' }}>
-      {canCreateQuotations && (
-        <button onClick={() => setShowForm(true)} style={{ padding: '10px 20px', background: '#2d7a3e', color: 'white', border: 'none', borderRadius: 6, cursor: 'pointer', fontWeight: 600 }}>
-          Create Quotation
-        </button>
-      )}
+  const getQuotationTypeLabel = (type) => {
+    const labels = {
+      installation: 'Installation',
+      support: 'Support',
+      extension: 'Extension',
+      transport: 'Transport',
+      accessories: 'Accessories',
+      tools: 'Tools',
+      other: 'Other'
+    };
+    return labels[type] || type;
+  };
 
-      <div style={{ marginTop: isCustomer ? 0 : 20, overflowX: 'auto' }}>
-        {quotations.length === 0 ? (
-          <div style={{ textAlign: 'center', padding: '40px 20px', fontSize: 16, color: '#666' }}>
-            {isCustomer ? 'No quotations received yet.' : 'No quotations created yet.'}
+  // Filter quotations
+  const filteredQuotations = quotations.filter(q => {
+    const matchesType = filterType === 'all' || q.quotationType === filterType;
+    const matchesSearch = !searchTerm || 
+      q.quotationNumber?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      q.customer?.name?.toLowerCase().includes(searchTerm.toLowerCase());
+    return matchesType && matchesSearch;
+  });
+
+  const serviceOptions = getServiceOptions(formData.quotationType);
+
+  return (
+    <div style={{ 
+      padding: 32, 
+      background: 'linear-gradient(135deg, #e8f5e9 0%, #f7fff7 100%)', 
+      minHeight: '100vh', 
+      marginTop: '56px',
+      boxSizing: 'border-box'
+    }}>
+      {/* Header */}
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 24, flexWrap: 'wrap', gap: 16 }}>
+        <div>
+          <h1 style={{ color: '#1b5e20', margin: 0, fontSize: 28, fontWeight: 800 }}>📄 Quotations Management</h1>
+          <p style={{ color: '#666', marginTop: 8 }}>Create and manage all quotations for your company operations</p>
+        </div>
+        {canCreateQuotations && (
+          <button 
+            onClick={() => { setEditing(null); setFormData({ customer: '', quotationType: 'installation', installationType: 'fiber', package: '', otherServices: [], startDate: today, endDate: nextMonth, notes: '', transportDistance: '', transportRate: 0, supportDuration: '', supportRate: 0 }); setShowForm(true); }}
+            style={{ 
+              padding: '12px 24px', 
+              background: 'linear-gradient(135deg, #2d7a3e 0%, #43a047 100%)', 
+              color: 'white', 
+              border: 'none', 
+              borderRadius: 8, 
+              cursor: 'pointer', 
+              fontWeight: 600,
+              fontSize: 14
+            }}
+          >
+            ➕ Create Quotation
+          </button>
+        )}
+      </div>
+
+      {/* Filters */}
+      <div style={{ 
+        display: 'flex', 
+        gap: 16, 
+        marginBottom: 24,
+        flexWrap: 'wrap',
+        alignItems: 'center'
+      }}>
+        <input
+          type="text"
+          value={searchTerm}
+          onChange={e => setSearchTerm(e.target.value)}
+          placeholder="Search quotations..."
+          style={{ 
+            padding: '10px 16px', 
+            borderRadius: 8, 
+            border: '2px solid #e0e0e0', 
+            fontSize: 14,
+            minWidth: 250,
+            flex: 1
+          }}
+        />
+        <select
+          value={filterType}
+          onChange={e => setFilterType(e.target.value)}
+          style={{ 
+            padding: '10px 16px', 
+            borderRadius: 8, 
+            border: '2px solid #e0e0e0', 
+            fontSize: 14,
+            minWidth: 180
+          }}
+        >
+          <option value="all">All Types</option>
+          <option value="installation">Installation</option>
+          <option value="support">Support</option>
+          <option value="transport">Transport</option>
+          <option value="accessories">Accessories</option>
+          <option value="tools">Tools</option>
+          <option value="extension">Extension</option>
+          <option value="other">Other</option>
+        </select>
+      </div>
+
+      {/* Statistics */}
+      <div style={{ 
+        display: 'grid', 
+        gridTemplateColumns: 'repeat(auto-fit, minmax(150px, 1fr))',
+        gap: 16,
+        marginBottom: 24
+      }}>
+        <div style={{ 
+          background: '#fff', 
+          padding: 16, 
+          borderRadius: 12, 
+          textAlign: 'center',
+          boxShadow: '0 2px 8px rgba(0,0,0,0.08)'
+        }}>
+          <div style={{ fontSize: 24, fontWeight: 800, color: '#2d7a3e' }}>{quotations.length}</div>
+          <div style={{ fontSize: 12, color: '#666' }}>Total Quotations</div>
+        </div>
+        <div style={{ 
+          background: '#fff', 
+          padding: 16, 
+          borderRadius: 12, 
+          textAlign: 'center',
+          boxShadow: '0 2px 8px rgba(0,0,0,0.08)'
+        }}>
+          <div style={{ fontSize: 24, fontWeight: 800, color: '#ff9800' }}>{quotations.filter(q => q.quotationType === 'installation').length}</div>
+          <div style={{ fontSize: 12, color: '#666' }}>Installation</div>
+        </div>
+        <div style={{ 
+          background: '#fff', 
+          padding: 16, 
+          borderRadius: 12, 
+          textAlign: 'center',
+          boxShadow: '0 2px 8px rgba(0,0,0,0.08)'
+        }}>
+          <div style={{ fontSize: 24, fontWeight: 800, color: '#2196f3' }}>{quotations.filter(q => q.quotationType === 'support').length}</div>
+          <div style={{ fontSize: 12, color: '#666' }}>Support</div>
+        </div>
+        <div style={{ 
+          background: '#fff', 
+          padding: 16, 
+          borderRadius: 12, 
+          textAlign: 'center',
+          boxShadow: '0 2px 8px rgba(0,0,0,0.08)'
+        }}>
+          <div style={{ fontSize: 24, fontWeight: 800, color: '#9c27b0' }}>{quotations.filter(q => q.quotationType === 'transport').length}</div>
+          <div style={{ fontSize: 12, color: '#666' }}>Transport</div>
+        </div>
+      </div>
+
+      {/* Quotations Table */}
+      <div style={{ overflowX: 'auto' }}>
+        {filteredQuotations.length === 0 ? (
+          <div style={{ 
+            textAlign: 'center', 
+            padding: '60px 20px', 
+            background: '#fff',
+            borderRadius: 12,
+            boxShadow: '0 4px 12px rgba(0,0,0,0.05)'
+          }}>
+            <div style={{ fontSize: 48, marginBottom: 16 }}>📄</div>
+            <p style={{ fontSize: 18, color: '#666', fontWeight: 600 }}>
+              {isCustomer ? 'No quotations received yet.' : 'No quotations created yet.'}
+            </p>
+            {canCreateQuotations && (
+              <button 
+                onClick={() => setShowForm(true)}
+                style={{
+                  marginTop: 16,
+                  padding: '12px 24px',
+                  background: '#2d7a3e',
+                  color: 'white',
+                  border: 'none',
+                  borderRadius: 8,
+                  cursor: 'pointer',
+                  fontWeight: 600
+                }}
+              >
+                Create Your First Quotation
+              </button>
+            )}
           </div>
         ) : (
-          <table style={{ width: '100%', borderCollapse: 'collapse', background: '#eafff3', borderRadius: 10, overflow: 'hidden', boxShadow: '0 4px 12px rgba(0,0,0,0.05)', border: '1.5px solid #43e97b' }}>
+          <table style={{ 
+            width: '100%', 
+            borderCollapse: 'collapse', 
+            background: '#fff',
+            borderRadius: 12, 
+            overflow: 'hidden', 
+            boxShadow: '0 4px 12px rgba(0,0,0,0.05)',
+            minWidth: 700
+          }}>
             <thead>
-              <tr style={{ background: 'linear-gradient(90deg, #43e97b 0%, #38f9d7 100%)', color: 'white' }}>
+              <tr style={{ background: 'linear-gradient(135deg, #43e97b 0%, #38f9d7 100%)', color: 'white' }}>
                 <th style={{ padding: 15, textAlign: 'left', fontWeight: 700 }}>Number</th>
                 <th style={{ padding: 15, textAlign: 'left', fontWeight: 700 }}>Type</th>
                 {!isCustomer && <th style={{ padding: 15, textAlign: 'left', fontWeight: 700 }}>Customer</th>}
                 <th style={{ padding: 15, textAlign: 'left', fontWeight: 700 }}>Total</th>
+                <th style={{ padding: 15, textAlign: 'left', fontWeight: 700 }}>Valid Until</th>
                 <th style={{ padding: 15, textAlign: 'left', fontWeight: 700 }}>Actions</th>
               </tr>
             </thead>
             <tbody>
-              {quotations.map((q, index) => (
-                <tr key={q._id} style={{ borderBottom: index === quotations.length - 1 ? 'none' : '1px solid #d0e8d8', transition: 'background 0.2s', background: index % 2 === 0 ? '#eafff3' : '#f0fdf5' }} onMouseOver={(e) => e.target.closest('tr').style.background = '#d4edda'} onMouseOut={(e) => e.target.closest('tr').style.background = index % 2 === 0 ? '#eafff3' : '#f0fdf5'}>
-                  <td style={{ padding: 15, fontWeight: 500, color: '#186a3b' }}>{q.quotationNumber}</td>
-                  <td style={{ padding: 15, color: '#2d7a3e', textTransform: 'capitalize' }}>{q.quotationType || 'installation'}</td>
-                  {!isCustomer && <td style={{ padding: 15, color: '#2d7a3e' }}>{q.customer?.name || 'N/A'}</td>}
-                  <td style={{ padding: 15, fontWeight: 700, color: '#2d7a3e' }}>KSh {q.total.toLocaleString()}</td>
+              {filteredQuotations.map((q, index) => (
+                <tr key={q._id} style={{ 
+                  borderBottom: '1px solid #e0e0e0', 
+                  transition: 'background 0.2s',
+                  background: index % 2 === 0 ? '#f8fff8' : '#fff'
+                }} onMouseOver={(e) => e.target.closest('tr').style.background = '#e8f5e9'} onMouseOut={(e) => e.target.closest('tr').style.background = index % 2 === 0 ? '#f8fff8' : '#fff'}>
+                  <td style={{ padding: 15, fontWeight: 600, color: '#186a3b' }}>{q.quotationNumber}</td>
+                  <td style={{ padding: 15 }}>
+                    <span style={{
+                      padding: '4px 12px',
+                      borderRadius: 20,
+                      fontSize: 12,
+                      fontWeight: 600,
+                      background: '#e8f5e9',
+                      color: '#2d7a3e'
+                    }}>
+                      {getQuotationTypeLabel(q.quotationType)}
+                    </span>
+                  </td>
+                  {!isCustomer && <td style={{ padding: 15, color: '#2d7a3e', fontWeight: 500 }}>{q.customer?.name || 'N/A'}</td>}
+                  <td style={{ padding: 15, fontWeight: 700, color: '#2d7a3e', fontSize: 16 }}>KSh {(q.total || 0).toLocaleString()}</td>
+                  <td style={{ padding: 15, color: '#666' }}>{q.endDate ? new Date(q.endDate).toLocaleDateString() : 'N/A'}</td>
                   <td style={{ padding: 15 }}>
                     <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
                       <button
                         onClick={() => setViewing(q)}
                         style={{
                           padding: '6px 12px',
-                          background: '#2d7a3e',
+                          background: '#1565c0',
                           color: 'white',
                           border: 'none',
                           borderRadius: 6,
                           cursor: 'pointer',
-                          fontSize: 14,
+                          fontSize: 12,
                           fontWeight: 600
                         }}
                       >
@@ -283,33 +603,49 @@ export default function Quotations() {
                             onClick={() => handleEdit(q)}
                             style={{
                               padding: '6px 12px',
-                              background: '#2d7a3e',
+                              background: '#ff9800',
                               color: 'white',
                               border: 'none',
                               borderRadius: 6,
                               cursor: 'pointer',
-                              fontSize: 14,
+                              fontSize: 12,
                               fontWeight: 600
                             }}
                           >
                             ✎ Edit
                           </button>
-                          {canDeleteQuotations && (
                           <button
-                            onClick={() => handleDelete(q._id)}
+                            onClick={() => convertToInvoice(q._id, q)}
                             style={{
                               padding: '6px 12px',
-                              background: '#dc3545',
+                              background: '#4caf50',
                               color: 'white',
                               border: 'none',
                               borderRadius: 6,
                               cursor: 'pointer',
-                              fontSize: 14,
+                              fontSize: 12,
                               fontWeight: 600
                             }}
                           >
-                            🗑️ Delete
+                            📋 Invoice
                           </button>
+                          {canDeleteQuotations && (
+                            <button
+                              onClick={() => handleDelete(q._id)}
+                              style={{
+                                padding: '6px 12px',
+                                background: '#d32f2f',
+                                color: 'white',
+                                border: 'none',
+                                borderRadius: 6,
+                                cursor: 'pointer',
+                                fontSize: 12,
+                                fontWeight: 600
+                              }}
+                            >
+                              🗑️ Delete
+                            </button>
+                          )}
                         </>
                       )}
                     </div>
@@ -321,11 +657,13 @@ export default function Quotations() {
         )}
       </div>
 
-      {viewing && (
+      {/* Create/Edit Quotation Modal */}
+      {showForm && (
         <motion.div
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           exit={{ opacity: 0 }}
+          onClick={() => setShowForm(false)}
           style={{
             position: 'fixed',
             top: 0,
@@ -344,129 +682,331 @@ export default function Quotations() {
             initial={{ scale: 0.9, opacity: 0 }}
             animate={{ scale: 1, opacity: 1 }}
             transition={{ duration: 0.2 }}
+            onClick={(e) => e.stopPropagation()}
             style={{
-              background: '#eafff3',
-              padding: 20,
-              borderRadius: 20,
-              width: '90%',
-              maxWidth: 600,
-              maxHeight: '80vh',
+              background: '#fff',
+              padding: 24,
+              borderRadius: 16,
+              width: '95%',
+              maxWidth: 700,
+              maxHeight: '90vh',
               overflowY: 'auto',
               boxShadow: '0 20px 40px rgba(0,0,0,0.15)',
-              border: '1.5px solid #43e97b',
-              display: 'flex',
-              flexDirection: 'column',
-              gap: 12
+              border: '2px solid #43e97b'
             }}
           >
             <h2 style={{
               color: '#186a3b',
               textAlign: 'center',
-              margin: 0,
-              fontSize: 24,
-              fontWeight: 700,
-              textShadow: '0 1px 2px rgba(0,0,0,0.1)'
+              margin: '0 0 20px 0',
+              fontSize: 22,
+              fontWeight: 700
             }}>
-              Quotation Details
+              {editing ? '✏️ Edit Quotation' : '📄 Create New Quotation'}
             </h2>
 
-            <div style={{ display: 'flex', flexDirection: 'column', gap: 15 }}>
-              <table style={{ width: '100%', borderCollapse: 'collapse', border: '1px solid #d0e8d8', background: '#eafff3' }}>
-                <tbody>
-                  <tr><td style={{ padding: 10, border: '1px solid #d0e8d8', fontWeight: 'bold', background: '#d4edda', color: '#186a3b' }}>Number:</td><td style={{ padding: 10, border: '1px solid #d0e8d8', color: '#2d7a3e' }}>{viewing.quotationNumber}</td></tr>
-                  <tr><td style={{ padding: 10, border: '1px solid #d0e8d8', fontWeight: 'bold', background: '#d4edda', color: '#186a3b' }}>Type:</td><td style={{ padding: 10, border: '1px solid #d0e8d8', color: '#2d7a3e', textTransform: 'capitalize' }}>{viewing.quotationType || 'installation'}</td></tr>
-                  <tr><td style={{ padding: 10, border: '1px solid #d0e8d8', fontWeight: 'bold', background: '#d4edda', color: '#186a3b' }}>Customer:</td><td style={{ padding: 10, border: '1px solid #d0e8d8', color: '#2d7a3e' }}>{viewing.customer?.name || 'N/A'}</td></tr>
-                  <tr><td style={{ padding: 10, border: '1px solid #d0e8d8', fontWeight: 'bold', background: '#d4edda', color: '#186a3b' }}>Installation Type:</td><td style={{ padding: 10, border: '1px solid #d0e8d8', color: '#2d7a3e' }}>{viewing.installationType}</td></tr>
-                  <tr><td style={{ padding: 10, border: '1px solid #d0e8d8', fontWeight: 'bold', background: '#d4edda', color: '#186a3b' }}>Package:</td><td style={{ padding: 10, border: '1px solid #d0e8d8', color: '#2d7a3e' }}>{viewing.package || 'None'}</td></tr>
-                  <tr><td style={{ padding: 10, border: '1px solid #d0e8d8', fontWeight: 'bold', background: '#d4edda', color: '#186a3b' }}>Start Date:</td><td style={{ padding: 10, border: '1px solid #d0e8d8', color: '#2d7a3e' }}>{new Date(viewing.startDate).toLocaleDateString()}</td></tr>
-                  <tr><td style={{ padding: 10, border: '1px solid #d0e8d8', fontWeight: 'bold', background: '#d4edda', color: '#186a3b' }}>End Date:</td><td style={{ padding: 10, border: '1px solid #d0e8d8', color: '#2d7a3e' }}>{new Date(viewing.endDate).toLocaleDateString()}</td></tr>
-                  <tr><td style={{ padding: 10, border: '1px solid #d0e8d8', fontWeight: 'bold', background: '#d4edda', color: '#186a3b' }}>Total:</td><td style={{ padding: 10, border: '1px solid #d0e8d8', color: '#2d7a3e', fontWeight: 700 }}>KSh {viewing.total.toLocaleString()}</td></tr>
-                  <tr><td style={{ padding: 10, border: '1px solid #d0e8d8', fontWeight: 'bold', background: '#d4edda', color: '#186a3b' }}>Notes:</td><td style={{ padding: 10, border: '1px solid #d0e8d8', color: '#2d7a3e' }}>{viewing.notes || 'None'}</td></tr>
-                </tbody>
-              </table>
+            <form onSubmit={handleSubmit}>
+              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16, marginBottom: 16 }}>
+                <div>
+                  <label style={{ display: 'block', marginBottom: 6, fontWeight: 600, color: '#333' }}>Customer *</label>
+                  <select
+                    value={formData.customer}
+                    onChange={(e) => setFormData({ ...formData, customer: e.target.value })}
+                    required
+                    disabled={!!installationRequestId}
+                    style={{ width: '100%', padding: 10, borderRadius: 8, border: '2px solid #e0e0e0', fontSize: 14 }}
+                  >
+                    <option value="">Select Customer</option>
+                    {customers.map(c => (
+                      <option key={c._id} value={c._id}>{c.name}</option>
+                    ))}
+                  </select>
+                </div>
+                <div>
+                  <label style={{ display: 'block', marginBottom: 6, fontWeight: 600, color: '#333' }}>Quotation Type *</label>
+                  <select
+                    value={formData.quotationType}
+                    onChange={(e) => setFormData({ ...formData, quotationType: e.target.value, otherServices: [] })}
+                    required
+                    style={{ width: '100%', padding: 10, borderRadius: 8, border: '2px solid #e0e0e0', fontSize: 14 }}
+                  >
+                    <option value="installation">Installation</option>
+                    <option value="support">Support</option>
+                    <option value="transport">Transport</option>
+                    <option value="accessories">Accessories</option>
+                    <option value="tools">Tools</option>
+                    <option value="extension">Extension</option>
+                    <option value="other">Other</option>
+                  </select>
+                </div>
+              </div>
 
-              <h3 style={{ color: '#186a3b', marginBottom: 10, fontWeight: 700 }}>Services</h3>
-              <table style={{ width: '100%', borderCollapse: 'collapse', border: '1px solid #d0e8d8', background: '#eafff3' }}>
-                <thead>
-                  <tr style={{ background: 'linear-gradient(90deg, #43e97b 0%, #38f9d7 100%)', color: 'white' }}>
-                    <th style={{ padding: 10, border: '1px solid #d0e8d8', textAlign: 'left', fontWeight: 700 }}>Service</th>
-                    <th style={{ padding: 10, border: '1px solid #d0e8d8', textAlign: 'center', fontWeight: 700 }}>Qty</th>
-                    <th style={{ padding: 10, border: '1px solid #d0e8d8', textAlign: 'right', fontWeight: 700 }}>Unit Price</th>
-                    <th style={{ padding: 10, border: '1px solid #d0e8d8', textAlign: 'right', fontWeight: 700 }}>Total</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {viewing.installationType === 'fiber' && <tr><td style={{ padding: 10, border: '1px solid #d0e8d8', color: '#2d7a3e' }}>Fiber Installation</td><td style={{ padding: 10, border: '1px solid #d0e8d8', textAlign: 'center', color: '#2d7a3e' }}>1</td><td style={{ padding: 10, border: '1px solid #d0e8d8', textAlign: 'right', color: '#2d7a3e' }}>KSh 2,000</td><td style={{ padding: 10, border: '1px solid #d0e8d8', textAlign: 'right', color: '#2d7a3e', fontWeight: 700 }}>KSh 2,000</td></tr>}
-                  {viewing.installationType === 'wireless' && <tr><td style={{ padding: 10, border: '1px solid #d0e8d8', color: '#2d7a3e' }}>Wireless Installation</td><td style={{ padding: 10, border: '1px solid #d0e8d8', textAlign: 'center', color: '#2d7a3e' }}>1</td><td style={{ padding: 10, border: '1px solid #d0e8d8', textAlign: 'right', color: '#2d7a3e' }}>KSh 4,800</td><td style={{ padding: 10, border: '1px solid #d0e8d8', textAlign: 'right', color: '#2d7a3e', fontWeight: 700 }}>KSh 4,800</td></tr>}
-                  {viewing.package && <tr><td style={{ padding: 10, border: '1px solid #d0e8d8', color: '#2d7a3e' }}>{viewing.package} Package</td><td style={{ padding: 10, border: '1px solid #d0e8d8', textAlign: 'center', color: '#2d7a3e' }}>1</td><td style={{ padding: 10, border: '1px solid #d0e8d8', textAlign: 'right', color: '#2d7a3e' }}>KSh {viewing.package === '10Mbps' ? '2,000' : viewing.package === '15Mbps' ? '2,600' : '3,000'}</td><td style={{ padding: 10, border: '1px solid #d0e8d8', textAlign: 'right', color: '#2d7a3e', fontWeight: 700 }}>KSh {viewing.package === '10Mbps' ? '2,000' : viewing.package === '15Mbps' ? '2,600' : '3,000'}</td></tr>}
-                  {viewing.otherServices.map((s, i) => (
-                    <tr key={i}><td style={{ padding: 10, border: '1px solid #d0e8d8', color: '#2d7a3e' }}>{s.name}</td><td style={{ padding: 10, border: '1px solid #d0e8d8', textAlign: 'center', color: '#2d7a3e' }}>{s.quantity || 1}</td><td style={{ padding: 10, border: '1px solid #d0e8d8', textAlign: 'right', color: '#2d7a3e' }}>KSh {s.price.toLocaleString()}</td><td style={{ padding: 10, border: '1px solid #d0e8d8', textAlign: 'right', color: '#2d7a3e', fontWeight: 700 }}>KSh {(s.price * (s.quantity || 1)).toLocaleString()}</td></tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
+              {formData.quotationType === 'installation' && (
+                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16, marginBottom: 16 }}>
+                  <div>
+                    <label style={{ display: 'block', marginBottom: 6, fontWeight: 600, color: '#333' }}>Installation Type</label>
+                    <select
+                      value={formData.installationType}
+                      onChange={(e) => setFormData({ ...formData, installationType: e.target.value })}
+                      style={{ width: '100%', padding: 10, borderRadius: 8, border: '2px solid #e0e0e0', fontSize: 14 }}
+                    >
+                      <option value="fiber">Fiber</option>
+                      <option value="wireless">Wireless (+KSh 4800)</option>
+                    </select>
+                  </div>
+                  <div>
+                    <label style={{ display: 'block', marginBottom: 6, fontWeight: 600, color: '#333' }}>Package</label>
+                    <select
+                      value={formData.package}
+                      onChange={(e) => setFormData({ ...formData, package: e.target.value })}
+                      style={{ width: '100%', padding: 10, borderRadius: 8, border: '2px solid #e0e0e0', fontSize: 14 }}
+                    >
+                      <option value="">Select Package</option>
+                      <option value="10Mbps">10 Mbps (+KSh 2000)</option>
+                      <option value="15Mbps">15 Mbps (+KSh 2600)</option>
+                      <option value="20Mbps">20 Mbps (+KSh 3900)</option>
+                      <option value="30Mbps">30 Mbps (+KSh 5400)</option>
+                    </select>
+                  </div>
+                </div>
+              )}
 
-            <div style={{ display: 'flex', gap: 10, justifyContent: 'flex-end', flexWrap: 'wrap' }}>
-              <motion.button
-                onClick={() => downloadQuotation(viewing._id, viewing.quotationNumber)}
-                whileHover={{ scale: 1.05 }}
-                whileTap={{ scale: 0.95 }}
-                style={{
-                  padding: '12px 24px',
-                  background: '#28a745',
-                  color: '#fff',
-                  border: 'none',
-                  borderRadius: 8,
-                  fontWeight: 600,
-                  cursor: 'pointer'
-                }}
-              >
-                Download Quotation
-              </motion.button>
-              {canEditQuotations && (
-                <motion.button
-                  onClick={() => { convertToInvoice(viewing._id); setViewing(null); }}
-                  whileHover={{ scale: 1.05 }}
-                  whileTap={{ scale: 0.95 }}
-                  style={{
-                    padding: '12px 24px',
-                    background: '#ffc107',
-                    color: '#000',
-                    border: 'none',
+              {formData.quotationType === 'transport' && (
+                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16, marginBottom: 16 }}>
+                  <div>
+                    <label style={{ display: 'block', marginBottom: 6, fontWeight: 600, color: '#333' }}>Distance (km)</label>
+                    <input
+                      type="number"
+                      value={formData.transportDistance}
+                      onChange={(e) => setFormData({ ...formData, transportDistance: e.target.value })}
+                      placeholder="Enter distance"
+                      style={{ width: '100%', padding: 10, borderRadius: 8, border: '2px solid #e0e0e0', fontSize: 14 }}
+                    />
+                  </div>
+                  <div>
+                    <label style={{ display: 'block', marginBottom: 6, fontWeight: 600, color: '#333' }}>Rate (per km)</label>
+                    <input
+                      type="number"
+                      value={formData.transportRate}
+                      onChange={(e) => setFormData({ ...formData, transportRate: e.target.value })}
+                      placeholder="Enter rate"
+                      style={{ width: '100%', padding: 10, borderRadius: 8, border: '2px solid #e0e0e0', fontSize: 14 }}
+                    />
+                  </div>
+                </div>
+              )}
+
+              {formData.quotationType === 'support' && (
+                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16, marginBottom: 16 }}>
+                  <div>
+                    <label style={{ display: 'block', marginBottom: 6, fontWeight: 600, color: '#333' }}>Duration (months)</label>
+                    <input
+                      type="number"
+                      value={formData.supportDuration}
+                      onChange={(e) => setFormData({ ...formData, supportDuration: e.target.value })}
+                      placeholder="Enter duration"
+                      style={{ width: '100%', padding: 10, borderRadius: 8, border: '2px solid #e0e0e0', fontSize: 14 }}
+                    />
+                  </div>
+                  <div>
+                    <label style={{ display: 'block', marginBottom: 6, fontWeight: 600, color: '#333' }}>Monthly Rate</label>
+                    <input
+                      type="number"
+                      value={formData.supportRate}
+                      onChange={(e) => setFormData({ ...formData, supportRate: e.target.value })}
+                      placeholder="Enter rate"
+                      style={{ width: '100%', padding: 10, borderRadius: 8, border: '2px solid #e0e0e0', fontSize: 14 }}
+                    />
+                  </div>
+                </div>
+              )}
+
+              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16, marginBottom: 16 }}>
+                <div>
+                  <label style={{ display: 'block', marginBottom: 6, fontWeight: 600, color: '#333' }}>Start Date</label>
+                  <input
+                    type="date"
+                    value={formData.startDate}
+                    onChange={(e) => setFormData({ ...formData, startDate: e.target.value })}
+                    style={{ width: '100%', padding: 10, borderRadius: 8, border: '2px solid #e0e0e0', fontSize: 14 }}
+                  />
+                </div>
+                <div>
+                  <label style={{ display: 'block', marginBottom: 6, fontWeight: 600, color: '#333' }}>End Date</label>
+                  <input
+                    type="date"
+                    value={formData.endDate}
+                    onChange={(e) => setFormData({ ...formData, endDate: e.target.value })}
+                    style={{ width: '100%', padding: 10, borderRadius: 8, border: '2px solid #e0e0e0', fontSize: 14 }}
+                  />
+                </div>
+              </div>
+
+              {/* Additional Services */}
+              <div style={{ marginBottom: 16 }}>
+                <label style={{ display: 'block', marginBottom: 8, fontWeight: 600, color: '#333' }}>Additional Services</label>
+                <div style={{ 
+                  display: 'flex', 
+                  flexWrap: 'wrap', 
+                  gap: 8,
+                  marginBottom: 12,
+                  padding: 12,
+                  background: '#f5f5f5',
+                  borderRadius: 8
+                }}>
+                  {serviceOptions.map((service, idx) => {
+                    const isAdded = formData.otherServices.some(s => s.name === service.name);
+                    return (
+                      <button
+                        key={idx}
+                        type="button"
+                        onClick={() => !isAdded && addService(service)}
+                        disabled={isAdded}
+                        style={{
+                          padding: '6px 12px',
+                          background: isAdded ? '#c8e6c9' : '#fff',
+                          color: isAdded ? '#2e7d32' : '#333',
+                          border: `1px solid ${isAdded ? '#2e7d32' : '#ddd'}`,
+                          borderRadius: 20,
+                          cursor: isAdded ? 'default' : 'pointer',
+                          fontSize: 12,
+                          fontWeight: 500
+                        }}
+                      >
+                        {isAdded && '✓ '}{service.name} - KSh {service.price.toLocaleString()}
+                      </button>
+                    );
+                  })}
+                </div>
+                
+                {formData.otherServices.length > 0 && (
+                  <div style={{ 
+                    padding: 12, 
+                    background: '#e8f5e9', 
                     borderRadius: 8,
-                    fontWeight: 600,
-                    cursor: 'pointer'
+                    border: '1px solid #a5d6a7'
+                  }}>
+                    <h4 style={{ margin: '0 0 8px 0', color: '#2e7d32' }}>Selected Services:</h4>
+                    {formData.otherServices.map((service, idx) => (
+                      <div key={idx} style={{ 
+                        display: 'flex', 
+                        justifyContent: 'space-between', 
+                        alignItems: 'center',
+                        padding: '8px 0',
+                        borderBottom: idx < formData.otherServices.length - 1 ? '1px solid #c8e6c9' : 'none'
+                      }}>
+                        <span style={{ flex: 1 }}>{service.name}</span>
+                        <input
+                          type="number"
+                          value={service.quantity}
+                          onChange={(e) => updateServiceQuantity(idx, e.target.value)}
+                          min="1"
+                          style={{ 
+                            width: 60, 
+                            padding: 4, 
+                            borderRadius: 4, 
+                            border: '1px solid #ddd',
+                            textAlign: 'center'
+                          }}
+                        />
+                        <span style={{ minWidth: 100, textAlign: 'right', fontWeight: 600 }}>
+                          KSh {(service.price * service.quantity).toLocaleString()}
+                        </span>
+                        <button
+                          type="button"
+                          onClick={() => removeService(idx)}
+                          style={{
+                            padding: '4px 8px',
+                            background: '#ffcdd2',
+                            color: '#c62828',
+                            border: 'none',
+                            borderRadius: 4,
+                            cursor: 'pointer',
+                            marginLeft: 8
+                          }}
+                        >
+                          ✕
+                        </button>
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </div>
+
+              <div style={{ marginBottom: 16 }}>
+                <label style={{ display: 'block', marginBottom: 6, fontWeight: 600, color: '#333' }}>Notes</label>
+                <textarea
+                  value={formData.notes}
+                  onChange={(e) => setFormData({ ...formData, notes: e.target.value })}
+                  style={{ 
+                    width: '100%', 
+                    padding: 10, 
+                    borderRadius: 8, 
+                    border: '2px solid #e0e0e0', 
+                    minHeight: 80,
+                    fontSize: 14
+                  }}
+                  placeholder="Additional notes or terms..."
+                />
+              </div>
+
+              {/* Total Display */}
+              <div style={{ 
+                padding: 16, 
+                background: 'linear-gradient(135deg, #43e97b 0%, #38f9d7 100%)',
+                borderRadius: 12,
+                marginBottom: 20,
+                textAlign: 'center'
+              }}>
+                <div style={{ fontSize: 14, color: '#fff', marginBottom: 4 }}>Estimated Total</div>
+                <div style={{ fontSize: 28, fontWeight: 800, color: '#fff' }}>
+                  KSh {calculateTotal().toLocaleString()}
+                </div>
+              </div>
+
+              <div style={{ display: 'flex', gap: 12, justifyContent: 'flex-end' }}>
+                <button
+                  type="button"
+                  onClick={() => { setShowForm(false); setEditing(null); }}
+                  style={{ 
+                    padding: '12px 24px', 
+                    background: '#666', 
+                    color: 'white', 
+                    border: 'none', 
+                    borderRadius: 8, 
+                    cursor: 'pointer',
+                    fontWeight: 600
                   }}
                 >
-                  Convert to Invoice
-                </motion.button>
-              )}
-              <motion.button
-                onClick={() => setViewing(null)}
-                whileHover={{ scale: 1.05 }}
-                whileTap={{ scale: 0.95 }}
-                style={{
-                  padding: '12px 24px',
-                  background: '#f5f5f5',
-                  color: '#666',
-                  border: 'none',
-                  borderRadius: 8,
-                  fontWeight: 600,
-                  cursor: 'pointer'
-                }}
-              >
-                Close
-              </motion.button>
-            </div>
+                  Cancel
+                </button>
+                <button
+                  type="submit"
+                  style={{ 
+                    padding: '12px 24px', 
+                    background: '#2d7a3e', 
+                    color: 'white', 
+                    border: 'none', 
+                    borderRadius: 8, 
+                    cursor: 'pointer',
+                    fontWeight: 600
+                  }}
+                >
+                  {editing ? 'Update Quotation' : 'Create Quotation'}
+                </button>
+              </div>
+            </form>
           </motion.div>
         </motion.div>
       )}
 
-      {showForm && canCreateQuotations && (
+      {/* View Quotation Modal */}
+      {viewing && (
         <motion.div
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           exit={{ opacity: 0 }}
+          onClick={() => setViewing(null)}
           style={{
             position: 'fixed',
             top: 0,
@@ -481,317 +1021,162 @@ export default function Quotations() {
             backdropFilter: 'blur(5px)'
           }}
         >
-          <motion.form
-            onSubmit={handleSubmit}
+          <motion.div
             initial={{ scale: 0.9, opacity: 0 }}
             animate={{ scale: 1, opacity: 1 }}
             transition={{ duration: 0.2 }}
+            onClick={(e) => e.stopPropagation()}
             style={{
-              background: 'linear-gradient(135deg, #ffffff 0%, #f8f9fa 100%)',
-              padding: 20,
-              borderRadius: 20,
-              width: '90%',
-              maxWidth: 450,
+              background: '#fff',
+              padding: 24,
+              borderRadius: 16,
+              width: '95%',
+              maxWidth: 600,
               maxHeight: '80vh',
               overflowY: 'auto',
               boxShadow: '0 20px 40px rgba(0,0,0,0.15)',
-              border: '1px solid rgba(67, 233, 123, 0.2)',
-              display: 'flex',
-              flexDirection: 'column',
-              gap: 12
+              border: '2px solid #43e97b'
             }}
           >
             <h2 style={{
-              color: '#2d7a3e',
+              color: '#186a3b',
               textAlign: 'center',
-              margin: 0,
-              fontSize: 24,
-              fontWeight: 700,
-              textShadow: '0 1px 2px rgba(0,0,0,0.1)'
+              margin: '0 0 20px 0',
+              fontSize: 22,
+              fontWeight: 700
             }}>
-              {editing ? 'Edit' : 'Create'} Quotation
+              Quotation Details
             </h2>
 
-            <div style={{ display: 'flex', flexDirection: 'column', gap: 15 }}>
-              <div>
-                <label style={{ display: 'block', marginBottom: 5, fontWeight: 600, color: '#2d7a3e' }}>Customer</label>
-                <select
-                  value={formData.customer}
-                  onChange={(e) => setFormData({ ...formData, customer: e.target.value })}
-                  required
-                  style={{
-                    width: '100%',
-                    padding: 12,
-                    borderRadius: 8,
-                    border: '2px solid #43e97b',
-                    fontSize: 14,
-                    background: '#f9fff9',
-                    boxSizing: 'border-box'
-                  }}
-                >
-                  <option value="">Select Customer</option>
-                  {customers.map(c => <option key={c._id} value={c._id}>{c?.name || 'Unnamed Customer'}</option>)}
-                </select>
-              </div>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
+              <table style={{ width: '100%', borderCollapse: 'collapse', border: '1px solid #e0e0e0', borderRadius: 8, overflow: 'hidden' }}>
+                <tbody>
+                  <tr style={{ background: '#f5f5f5' }}><td style={{ padding: 10, border: '1px solid #e0e0e0', fontWeight: 'bold', color: '#186a3b' }}>Number:</td><td style={{ padding: 10, border: '1px solid #e0e0e0', color: '#2d7a3e', fontWeight: 600 }}>{viewing.quotationNumber}</td></tr>
+                  <tr><td style={{ padding: 10, border: '1px solid #e0e0e0', fontWeight: 'bold', color: '#186a3b', background: '#f5f5f5' }}>Type:</td><td style={{ padding: 10, border: '1px solid #e0e0e0', color: '#2d7a3e' }}>{getQuotationTypeLabel(viewing.quotationType)}</td></tr>
+                  <tr style={{ background: '#f5f5f5' }}><td style={{ padding: 10, border: '1px solid #e0e0e0', fontWeight: 'bold', color: '#186a3b' }}>Customer:</td><td style={{ padding: 10, border: '1px solid #e0e0e0', color: '#2d7a3e' }}>{viewing.customer?.name || 'N/A'}</td></tr>
+                  {viewing.installationType && <tr style={{ background: '#f5f5f5' }}><td style={{ padding: 10, border: '1px solid #e0e0e0', fontWeight: 'bold', color: '#186a3b' }}>Installation Type:</td><td style={{ padding: 10, border: '1px solid #e0e0e0', color: '#2d7a3e' }}>{viewing.installationType}</td></tr>}
+                  {viewing.package && <tr style={{ background: '#f5f5f5' }}><td style={{ padding: 10, border: '1px solid #e0e0e0', fontWeight: 'bold', color: '#186a3b' }}>Package:</td><td style={{ padding: 10, border: '1px solid #e0e0e0', color: '#2d7a3e' }}>{viewing.package}</td></tr>}
+                  <tr style={{ background: '#f5f5f5' }}><td style={{ padding: 10, border: '1px solid #e0e0e0', fontWeight: 'bold', color: '#186a3b' }}>Start Date:</td><td style={{ padding: 10, border: '1px solid #e0e0e0', color: '#2d7a3e' }}>{viewing.startDate ? new Date(viewing.startDate).toLocaleDateString() : 'N/A'}</td></tr>
+                  <tr><td style={{ padding: 10, border: '1px solid #e0e0e0', fontWeight: 'bold', color: '#186a3b', background: '#f5f5f5' }}>End Date:</td><td style={{ padding: 10, border: '1px solid #e0e0e0', color: '#2d7a3e' }}>{viewing.endDate ? new Date(viewing.endDate).toLocaleDateString() : 'N/A'}</td></tr>
+                </tbody>
+              </table>
 
-              <div>
-                <label style={{ display: 'block', marginBottom: 5, fontWeight: 600, color: '#2d7a3e' }}>Quotation Type</label>
-                <select
-                  value={formData.quotationType}
-                  onChange={(e) => setFormData({ ...formData, quotationType: e.target.value })}
-                  style={{
-                    width: '100%',
-                    padding: 12,
-                    borderRadius: 8,
-                    border: '2px solid #43e97b',
-                    fontSize: 14,
-                    background: '#f9fff9',
-                    boxSizing: 'border-box'
-                  }}
-                >
-                  <option value="installation">Installation</option>
-                  <option value="support">Support</option>
-                  <option value="extension">Extension</option>
-                  <option value="transport">Transport</option>
-                  <option value="other">Other</option>
-                </select>
-              </div>
+              {viewing.otherServices && viewing.otherServices.length > 0 && (
+                <>
+                  <h3 style={{ color: '#186a3b', marginTop: 12 }}>Services</h3>
+                  <table style={{ width: '100%', borderCollapse: 'collapse', border: '1px solid #e0e0e0', borderRadius: 8, overflow: 'hidden' }}>
+                    <thead>
+                      <tr style={{ background: '#43e97b', color: 'white' }}>
+                        <th style={{ padding: 10, border: '1px solid #e0e0e0', textAlign: 'left', fontSize: 12 }}>Service</th>
+                        <th style={{ padding: 10, border: '1px solid #e0e0e0', textAlign: 'center', fontSize: 12 }}>Qty</th>
+                        <th style={{ padding: 10, border: '1px solid #e0e0e0', textAlign: 'right', fontSize: 12 }}>Price</th>
+                        <th style={{ padding: 10, border: '1px solid #e0e0e0', textAlign: 'right', fontSize: 12 }}>Total</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {viewing.otherServices.map((s, idx) => (
+                        <tr key={idx}>
+                          <td style={{ padding: 8, border: '1px solid #e0e0e0', fontSize: 12 }}>{s.name}</td>
+                          <td style={{ padding: 8, border: '1px solid #e0e0e0', textAlign: 'center', fontSize: 12 }}>{s.quantity || 1}</td>
+                          <td style={{ padding: 8, border: '1px solid #e0e0e0', textAlign: 'right', fontSize: 12 }}>KSh {s.price?.toLocaleString()}</td>
+                          <td style={{ padding: 8, border: '1px solid #e0e0e0', textAlign: 'right', fontSize: 12, fontWeight: 600 }}>KSh {((s.price || 0) * (s.quantity || 1)).toLocaleString()}</td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </>
+              )}
 
-              <div>
-                <label style={{ display: 'block', marginBottom: 5, fontWeight: 600, color: '#2d7a3e' }}>Installation Type</label>
-                <select
-                  value={formData.installationType}
-                  onChange={(e) => setFormData({ ...formData, installationType: e.target.value })}
-                  style={{
-                    width: '100%',
-                    padding: 12,
-                    borderRadius: 8,
-                    border: '2px solid #43e97b',
-                    fontSize: 14,
-                    background: '#f9fff9',
-                    boxSizing: 'border-box'
-                  }}
-                >
-                  <option value="fiber">Fiber</option>
-                  <option value="wireless">Wireless</option>
-                </select>
-              </div>
-
-              <div>
-                <label style={{ display: 'block', marginBottom: 5, fontWeight: 600, color: '#2d7a3e' }}>Package</label>
-                <select
-                  value={formData.package}
-                  onChange={(e) => setFormData({ ...formData, package: e.target.value })}
-                  style={{
-                    width: '100%',
-                    padding: 12,
-                    borderRadius: 8,
-                    border: '2px solid #43e97b',
-                    fontSize: 14,
-                    background: '#f9fff9',
-                    boxSizing: 'border-box'
-                  }}
-                >
-                  <option value="">No Package</option>
-                  <option value="10Mbps">10Mbps</option>
-                  <option value="15Mbps">15Mbps</option>
-                  <option value="20Mbps">20Mbps</option>
-                </select>
-              </div>
-
-              <div style={{ display: 'flex', gap: 10 }}>
-                <div style={{ flex: 1 }}>
-                  <label style={{ display: 'block', marginBottom: 5, fontWeight: 600, color: '#2d7a3e' }}>Start Date</label>
-                  <input
-                    type="date"
-                    value={formData.startDate}
-                    onChange={(e) => setFormData({ ...formData, startDate: e.target.value })}
-                    required
-                    style={{
-                      width: '100%',
-                      padding: 12,
-                      borderRadius: 8,
-                      border: '2px solid #43e97b',
-                      fontSize: 14,
-                      background: '#f9fff9',
-                      boxSizing: 'border-box'
-                    }}
-                  />
-                </div>
-                <div style={{ flex: 1 }}>
-                  <label style={{ display: 'block', marginBottom: 5, fontWeight: 600, color: '#2d7a3e' }}>End Date</label>
-                  <input
-                    type="date"
-                    value={formData.endDate}
-                    onChange={(e) => setFormData({ ...formData, endDate: e.target.value })}
-                    required
-                    style={{
-                      width: '100%',
-                      padding: 12,
-                      borderRadius: 8,
-                      border: '2px solid #43e97b',
-                      fontSize: 14,
-                      background: '#f9fff9',
-                      boxSizing: 'border-box'
-                    }}
-                  />
+              <div style={{ 
+                padding: 16, 
+                background: 'linear-gradient(135deg, #43e97b 0%, #38f9d7 100%)',
+                borderRadius: 12,
+                textAlign: 'center',
+                marginTop: 12
+              }}>
+                <div style={{ fontSize: 14, color: '#fff', marginBottom: 4 }}>Total Amount</div>
+                <div style={{ fontSize: 28, fontWeight: 800, color: '#fff' }}>
+                  KSh {(viewing.total || 0).toLocaleString()}
                 </div>
               </div>
 
-              <div>
-                <label style={{ display: 'block', marginBottom: 5, fontWeight: 600, color: '#2d7a3e' }}>Other Services</label>
-                {formData.otherServices.map((service, index) => (
-                  <div key={index} style={{ display: 'flex', gap: 10, marginBottom: 10, alignItems: 'center' }}>
-                    <input
-                      type="text"
-                      placeholder="Service Name"
-                      value={service.name}
-                      onChange={(e) => {
-                        const newServices = [...formData.otherServices];
-                        newServices[index].name = e.target.value;
-                        setFormData({ ...formData, otherServices: newServices });
-                      }}
-                      style={{
-                        flex: 2,
-                        padding: 8,
-                        borderRadius: 6,
-                        border: '1px solid #43e97b',
-                        fontSize: 14,
-                        background: '#f9fff9'
-                      }}
-                    />
-                    <input
-                      type="number"
-                      placeholder="Qty"
-                      value={service.quantity || 1}
-                      onChange={(e) => {
-                        const newServices = [...formData.otherServices];
-                        newServices[index].quantity = parseInt(e.target.value) || 1;
-                        setFormData({ ...formData, otherServices: newServices });
-                      }}
-                      style={{
-                        flex: 1,
-                        padding: 8,
-                        borderRadius: 6,
-                        border: '1px solid #43e97b',
-                        fontSize: 14,
-                        background: '#f9fff9'
-                      }}
-                    />
-                    <input
-                      type="number"
-                      placeholder="Price"
-                      value={service.price || 2000}
-                      onChange={(e) => {
-                        const newServices = [...formData.otherServices];
-                        newServices[index].price = parseFloat(e.target.value) || 2000;
-                        setFormData({ ...formData, otherServices: newServices });
-                      }}
-                      style={{
-                        flex: 1,
-                        padding: 8,
-                        borderRadius: 6,
-                        border: '1px solid #43e97b',
-                        fontSize: 14,
-                        background: '#f9fff9'
-                      }}
-                    />
-                    <button
-                      type="button"
-                      onClick={() => {
-                        const newServices = formData.otherServices.filter((_, i) => i !== index);
-                        setFormData({ ...formData, otherServices: newServices });
-                      }}
-                      style={{
-                        padding: '8px 12px',
-                        background: '#ff6b6b',
-                        color: 'white',
-                        border: 'none',
-                        borderRadius: 6,
-                        cursor: 'pointer'
-                      }}
-                    >
-                      Remove
-                    </button>
-                  </div>
-                ))}
+              {viewing.notes && (
+                <div style={{ padding: 12, background: '#f5f5f5', borderRadius: 8 }}>
+                  <strong style={{ color: '#186a3b' }}>Notes:</strong>
+                  <p style={{ margin: '8px 0 0 0', color: '#666' }}>{viewing.notes}</p>
+                </div>
+              )}
+            </div>
+
+            <div style={{ display: 'flex', gap: 12, marginTop: 20 }}>
+              <button
+                onClick={() => downloadQuotation(viewing._id, viewing.quotationNumber)}
+                style={{
+                  flex: 1,
+                  padding: '12px 16px',
+                  background: '#1565c0',
+                  color: 'white',
+                  border: 'none',
+                  borderRadius: 8,
+                  cursor: 'pointer',
+                  fontWeight: 600
+                }}
+              >
+                📥 Download
+              </button>
+              {canEditQuotations && (
                 <button
-                  type="button"
-                  onClick={() => setFormData({ ...formData, otherServices: [...formData.otherServices, { name: '', quantity: 1, price: 2000 }] })}
+                  onClick={() => { setViewing(null); handleEdit(viewing); }}
                   style={{
-                    padding: '8px 16px',
-                    background: '#43e97b',
+                    flex: 1,
+                    padding: '12px 16px',
+                    background: '#ff9800',
                     color: 'white',
                     border: 'none',
-                    borderRadius: 6,
+                    borderRadius: 8,
                     cursor: 'pointer',
                     fontWeight: 600
                   }}
                 >
-                  Add Service
+                  ✎ Edit
                 </button>
-              </div>
-
-              <div>
-                <label style={{ display: 'block', marginBottom: 5, fontWeight: 600, color: '#2d7a3e' }}>Notes</label>
-                <textarea
-                  placeholder="Additional notes..."
-                  value={formData.notes}
-                  onChange={(e) => setFormData({ ...formData, notes: e.target.value })}
-                  style={{
-                    width: '100%',
-                    padding: 12,
-                    borderRadius: 8,
-                    border: '2px solid #43e97b',
-                    fontSize: 14,
-                    background: '#f9fff9',
-                    minHeight: 60,
-                    resize: 'vertical',
-                    boxSizing: 'border-box'
-                  }}
-                />
-              </div>
-            </div>
-
-            <div style={{ display: 'flex', gap: 10, justifyContent: 'flex-end' }}>
-              <motion.button
-                type="submit"
-                whileHover={{ scale: 1.05 }}
-                whileTap={{ scale: 0.95 }}
+              )}
+              <button
+                onClick={() => convertToInvoice(viewing._id, viewing)}
                 style={{
-                  padding: '12px 24px',
-                  background: 'linear-gradient(135deg, #43e97b 0%, #38f9d7 100%)',
-                  color: '#fff',
+                  flex: 1,
+                  padding: '12px 16px',
+                  background: '#4caf50',
+                  color: 'white',
                   border: 'none',
                   borderRadius: 8,
-                  fontWeight: 600,
                   cursor: 'pointer',
-                  boxShadow: '0 4px 12px rgba(67, 233, 123, 0.3)'
+                  fontWeight: 600
                 }}
               >
-                {editing ? 'Update' : 'Create'}
-              </motion.button>
-              <motion.button
-                type="button"
-                onClick={() => { setShowForm(false); setEditing(null); }}
-                whileHover={{ scale: 1.05 }}
-                whileTap={{ scale: 0.95 }}
-                style={{
-                  padding: '12px 24px',
-                  background: '#f5f5f5',
-                  color: '#666',
-                  border: 'none',
-                  borderRadius: 8,
-                  fontWeight: 600,
-                  cursor: 'pointer'
-                }}
-              >
-                Cancel
-              </motion.button>
+                📋 Convert to Invoice
+              </button>
             </div>
-          </motion.form>
+
+            <button
+              onClick={() => setViewing(null)}
+              style={{
+                marginTop: 12,
+                width: '100%',
+                padding: '12px 16px',
+                background: '#666',
+                color: 'white',
+                border: 'none',
+                borderRadius: 8,
+                cursor: 'pointer',
+                fontWeight: 600
+              }}
+            >
+              Close
+            </button>
+          </motion.div>
         </motion.div>
       )}
     </div>
   );
-}
+};

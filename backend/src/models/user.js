@@ -23,7 +23,7 @@ const UserSchema = new mongoose.Schema(
     password: { type: String, required: true },
     role: {
       type: String,
-      enum: ['customer', 'csr', 'technician', 'admin', 'contractor', 'superadmin', 'hr', 'procurement', 'finance'],
+      enum: ['customer', 'csr', 'technician', 'admin', 'contractor', 'superadmin', 'hr', 'procurement', 'finance', 'marketing'],
       default: 'customer'
     },
     isActive: { type: Boolean, default: true },

@@ -25,6 +25,7 @@ const invoiceRoutes = require('./routes/invoiceroutes');
 const receiptRoutes = require('./routes/receiptroutes');
 const installationRequestRoutes = require('./routes/installationrequestroutes');
 const planRoutes = require('./routes/planroutes');
+const marketingRoutes = require('./routes/marketingroutes');
 
 const app = express();
 
@@ -72,6 +73,7 @@ app.use('/api/invoices', invoiceRoutes);
 app.use('/api/receipts', receiptRoutes);
 app.use('/api/installation-requests', installationRequestRoutes);
 app.use('/api/plans', planRoutes);
+app.use('/api/marketing', marketingRoutes);
 
 // Health check
 app.get('/health', (req, res) => res.json({ status: 'ok' }));
