@@ -326,7 +326,7 @@ export default function Invoices() {
               fontWeight: 800,
               textShadow: '0 2px 8px rgba(0,0,0,0.1)'
             }}>
-              📋 Invoices Management
+              Invoices Management
             </h1>
             <p style={{ 
               color: '#666', 
@@ -359,7 +359,7 @@ export default function Invoices() {
                 fontSize: 14
               }}
             >
-              ➕ Create Invoice
+              Create Invoice
             </button>
           )}
         </div>
@@ -483,7 +483,7 @@ export default function Invoices() {
           border: '2px solid #4caf50'
         }}>
           <h3 style={{ color: '#2e7d32', marginTop: 0, marginBottom: 16 }}>
-            📄 Convert Quotation to Invoice
+            Convert Quotation to Invoice
           </h3>
           <div style={{ 
             display: 'flex', 
@@ -554,7 +554,7 @@ export default function Invoices() {
             borderRadius: 12,
             boxShadow: '0 4px 12px rgba(0,0,0,0.05)'
           }}>
-            <div style={{ fontSize: 48, marginBottom: 16 }}>📋</div>
+            No Invoices
             <p style={{ fontSize: 18, color: '#666', fontWeight: 600 }}>
               No invoices found
             </p>
@@ -622,7 +622,7 @@ export default function Invoices() {
                           fontWeight: 600
                         }}
                       >
-                        👁️ View
+                        View
                       </button>
                       {canEditInvoices && (
                         <>
@@ -639,7 +639,7 @@ export default function Invoices() {
                               fontWeight: 600
                             }}
                           >
-                            ✎ Edit
+                            Edit
                           </button>
                           {invoice.status !== 'paid' && (
                             <button
@@ -655,7 +655,7 @@ export default function Invoices() {
                                 fontWeight: 600
                               }}
                             >
-                              💰 Receipt
+                              Create Receipt
                             </button>
                           )}
                           {canDeleteInvoices && (
@@ -672,7 +672,7 @@ export default function Invoices() {
                                 fontWeight: 600
                               }}
                             >
-                              🗑️ Delete
+                              Delete
                             </button>
                           )}
                         </>
@@ -720,7 +720,7 @@ export default function Invoices() {
             }}
           >
             <h3 style={{ color: '#1565c0', marginTop: 0, marginBottom: 20 }}>
-              {editing ? '✏️ Edit Invoice' : '📋 Create New Invoice'}
+              {editing ? 'Edit Invoice' : 'Create New Invoice'}
             </h3>
             <form onSubmit={handleSubmit}>
               {!editing && (

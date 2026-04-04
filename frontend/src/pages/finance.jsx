@@ -337,7 +337,7 @@ const Finance = () => {
             transition: 'all 0.3s ease'
           }}
         >
-          📊 Dashboard
+          Dashboard
         </button>
         <button 
           className={`nav-btn ${activeTab === 'quotations' ? 'active' : ''}`}
@@ -353,7 +353,7 @@ const Finance = () => {
             transition: 'all 0.3s ease'
           }}
         >
-          📄 Quotations ({stats.totalQuotations})
+          Quotations ({stats.totalQuotations})
         </button>
         <button 
           className={`nav-btn ${activeTab === 'invoices' ? 'active' : ''}`}
@@ -369,7 +369,7 @@ const Finance = () => {
             transition: 'all 0.3s ease'
           }}
         >
-          📋 Invoices ({stats.totalInvoices})
+          Invoices ({stats.totalInvoices})
         </button>
         <button 
           className={`nav-btn ${activeTab === 'receipts' ? 'active' : ''}`}
@@ -385,7 +385,7 @@ const Finance = () => {
             transition: 'all 0.3s ease'
           }}
         >
-          💰 Receipts ({stats.totalReceipts})
+          Receipts ({stats.totalReceipts})
         </button>
       </div>
 
@@ -406,7 +406,6 @@ const Finance = () => {
               boxShadow: '0 4px 12px rgba(0,0,0,0.08)',
               border: '2px solid #e8f5e9'
             }}>
-              <div style={{ fontSize: 32, marginBottom: 8 }}>📄</div>
               <div style={{ fontSize: 28, fontWeight: 800, color: '#2d7a3e' }}>{stats.totalQuotations}</div>
               <div style={{ color: '#666', fontSize: 14 }}>Total Quotations</div>
             </div>
@@ -417,7 +416,6 @@ const Finance = () => {
               boxShadow: '0 4px 12px rgba(0,0,0,0.08)',
               border: '2px solid #e3f2fd'
             }}>
-              <div style={{ fontSize: 32, marginBottom: 8 }}>📋</div>
               <div style={{ fontSize: 28, fontWeight: 800, color: '#1565c0' }}>{stats.totalInvoices}</div>
               <div style={{ color: '#666', fontSize: 14 }}>Total Invoices</div>
             </div>
@@ -428,7 +426,6 @@ const Finance = () => {
               boxShadow: '0 4px 12px rgba(0,0,0,0.08)',
               border: '2px solid #fff3e0'
             }}>
-              <div style={{ fontSize: 32, marginBottom: 8 }}>⏳</div>
               <div style={{ fontSize: 28, fontWeight: 800, color: '#ff9800' }}>{formatCurrency(stats.pendingAmount)}</div>
               <div style={{ color: '#666', fontSize: 14 }}>Pending Amount</div>
             </div>
@@ -439,7 +436,6 @@ const Finance = () => {
               boxShadow: '0 4px 12px rgba(0,0,0,0.08)',
               border: '2px solid #e8f5e9'
             }}>
-              <div style={{ fontSize: 32, marginBottom: 8 }}>✅</div>
               <div style={{ fontSize: 28, fontWeight: 800, color: '#4caf50' }}>{formatCurrency(stats.paidAmount)}</div>
               <div style={{ color: '#666', fontSize: 14 }}>Paid Amount</div>
             </div>
@@ -450,7 +446,6 @@ const Finance = () => {
               boxShadow: '0 4px 12px rgba(0,0,0,0.08)',
               border: '2px solid #ffebee'
             }}>
-              <div style={{ fontSize: 32, marginBottom: 8 }}>⚠️</div>
               <div style={{ fontSize: 28, fontWeight: 800, color: '#d32f2f' }}>{formatCurrency(stats.overdueAmount)}</div>
               <div style={{ color: '#666', fontSize: 14 }}>Overdue Amount</div>
             </div>
@@ -461,7 +456,6 @@ const Finance = () => {
               boxShadow: '0 4px 12px rgba(0,0,0,0.08)',
               border: '2px solid #e8f5e9'
             }}>
-              <div style={{ fontSize: 32, marginBottom: 8 }}>💵</div>
               <div style={{ fontSize: 28, fontWeight: 800, color: '#2d7a3e' }}>{stats.totalReceipts}</div>
               <div style={{ color: '#666', fontSize: 14 }}>Total Receipts</div>
             </div>
@@ -491,10 +485,9 @@ const Finance = () => {
                     display: 'flex',
                     alignItems: 'center',
                     gap: 8
-                  }}
-                >
-                  ➕ New Quotation
-                </button>
+                  }}>
+                    Create Quotation
+                  </button>
               )}
               {canCreateInvoices && (
                 <button 
@@ -512,7 +505,7 @@ const Finance = () => {
                     gap: 8
                   }}
                 >
-                  📝 New Invoice
+                  Create Invoice
                 </button>
               )}
               {canCreateReceipts && (
@@ -531,7 +524,7 @@ const Finance = () => {
                     gap: 8
                   }}
                 >
-                  💰 Record Payment
+                  Record Payment
                 </button>
               )}
               <button 
@@ -709,7 +702,7 @@ const Finance = () => {
                   fontWeight: 600
                 }}
               >
-                ➕ Create Quotation
+                Create Quotation
               </button>
             )}
           </div>
@@ -818,7 +811,7 @@ const Finance = () => {
                   fontWeight: 600
                 }}
               >
-                📝 Create Invoice
+                Create Invoice
               </button>
             )}
           </div>
@@ -938,7 +931,7 @@ const Finance = () => {
                   fontWeight: 600
                 }}
               >
-                💰 Record Payment
+                Record Payment
               </button>
             )}
           </div>

@@ -15,6 +15,7 @@ export default function Receipts() {
   const [editing, setEditing] = useState(null);
   const [filterStatus, setFilterStatus] = useState('all');
   const [searchTerm, setSearchTerm] = useState('');
+  const [linkedInvoice, setLinkedInvoice] = useState(null);
 
   const userRole = user?.role || '';
   const canCreateReceipts = hasPermission(userRole, 'canCreate', 'receipts');
@@ -51,8 +52,8 @@ export default function Receipts() {
   const fetchInvoices = async () => {
     try {
       const data = await API.get('/api/invoices');
-      // Only show unpaid or partially paid invoices
-      setInvoices(data.filter(inv => inv.status !== 'paid'));
+      // Show all invoices - paid ones will show their receipts
+      setInvoices(data);
     } catch (err) {
       console.error('Error fetching invoices:', err);
     }
@@ -77,6 +78,7 @@ export default function Receipts() {
       }
       setShowForm(false);
       setEditing(null);
+      setLinkedInvoice(null);
       setFormData({
         invoice: '',
         customer: '',
@@ -95,6 +97,7 @@ export default function Receipts() {
 
   const handleEdit = (receipt) => {
     setEditing(receipt);
+    setLinkedInvoice(receipt.invoice);
     setFormData({
       invoice: receipt.invoice?._id || '',
       customer: receipt.customer?._id || '',
@@ -119,36 +122,46 @@ export default function Receipts() {
     }
   };
 
-  const createReceiptFromInvoice = async (invoice) => {
-    const amount = prompt(`Enter payment amount (Total: KSh ${invoice.total?.toLocaleString()}):`, invoice.total?.toString() || '');
-    if (!amount) return;
-    
-    const paymentMethod = prompt('Enter payment method (mpesa/bank/cash):', 'mpesa');
-    if (!paymentMethod) return;
-    
-    const referenceNumber = prompt('Enter reference number (e.g., M-Pesa code):', '');
+  const selectInvoiceForReceipt = (invoice) => {
+    setLinkedInvoice(invoice);
+    setFormData({
+      invoice: invoice._id,
+      customer: invoice.customer?._id || '',
+      amount: invoice.total?.toString() || '',
+      paymentMethod: 'mpesa',
+      referenceNumber: '',
+      paymentDate: new Date().toISOString().split('T')[0],
+      notes: `Payment for invoice ${invoice.invoiceNumber}`
+    });
+    setShowForm(true);
+  };
+
+  const markInvoiceAsPaid = async (invoice) => {
+    if (!confirm(`Mark invoice ${invoice.invoiceNumber} as paid?\n\nThis will automatically create a receipt for the full amount (KSh ${invoice.total?.toLocaleString()}).`)) {
+      return;
+    }
     
     try {
+      // Update invoice status to paid
+      await API.put(`/api/invoices/${invoice._id}`, { status: 'paid' });
+      
+      // Create receipt automatically
       const receipt = await API.post('/api/receipts', {
         invoice: invoice._id,
-        amount: parseFloat(amount),
-        paymentMethod: paymentMethod.toLowerCase(),
-        referenceNumber: referenceNumber || '',
-        paymentDate: new Date().toISOString().split('T')[0]
+        customer: invoice.customer?._id,
+        amount: invoice.total,
+        paymentMethod: 'mpesa',
+        referenceNumber: 'AUTO-PAID',
+        paymentDate: new Date().toISOString().split('T')[0],
+        notes: `Auto-created when invoice marked as paid`
       });
       
-      alert(`Receipt created successfully! Receipt Number: ${receipt.receiptNumber}`);
-      
-      // Update invoice status if fully paid
-      if (parseFloat(amount) >= invoice.total) {
-        await API.put(`/api/invoices/${invoice._id}`, { status: 'paid' });
-        fetchInvoices();
-      }
-      
+      alert(`Invoice marked as paid and receipt ${receipt.receiptNumber} created successfully!`);
+      fetchInvoices();
       fetchReceipts();
     } catch (err) {
-      console.error('Error creating receipt:', err);
-      alert('Failed to create receipt: ' + (err.message || 'Unknown error'));
+      console.error('Error marking invoice as paid:', err);
+      alert('Failed to mark invoice as paid');
     }
   };
 
@@ -163,6 +176,10 @@ export default function Receipts() {
     return 'N/A';
   };
 
+  const getReceiptForInvoice = (invoiceId) => {
+    return receipts.find(r => r.invoice?._id === invoiceId);
+  };
+
   const filteredReceipts = receipts.filter(r => {
     const matchesStatus = filterStatus === 'all' || r.paymentMethod === filterStatus;
     const matchesSearch = searchTerm === '' || 
@@ -172,13 +189,16 @@ export default function Receipts() {
     return matchesStatus && matchesSearch;
   });
 
-  const getPaymentMethodColor = (method) => {
-    const colors = {
-      mpesa: { bg: '#e8f5e9', text: '#2e7d32' },
-      bank: { bg: '#e3f2fd', text: '#1565c0' },
-      cash: { bg: '#fff3e0', text: '#e65100' }
+  const unpaidInvoices = invoices.filter(inv => inv.status !== 'paid');
+  const paidInvoicesWithReceipts = invoices.filter(inv => inv.status === 'paid' && getReceiptForInvoice(inv._id));
+
+  const getPaymentMethodLabel = (method) => {
+    const labels = {
+      mpesa: 'M-Pesa',
+      bank: 'Bank Transfer',
+      cash: 'Cash'
     };
-    return colors[method?.toLowerCase()] || { bg: '#f5f5f5', text: '#666' };
+    return labels[method?.toLowerCase()] || method?.toUpperCase() || 'N/A';
   };
 
   if (loading) return <div style={{ padding: 20, textAlign: 'center' }}>Loading receipts...</div>;
@@ -194,38 +214,9 @@ export default function Receipts() {
       {/* Header */}
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 24, flexWrap: 'wrap', gap: 16 }}>
         <div>
-          <h1 style={{ color: '#e65100', margin: 0, fontSize: 28, fontWeight: 800 }}>💰 Receipts Management</h1>
-          <p style={{ color: '#666', marginTop: 8 }}>Manage all receipts and convert invoices to receipts</p>
+          <h1 style={{ color: '#e65100', margin: 0, fontSize: 28, fontWeight: 800 }}>Receipts Management</h1>
+          <p style={{ color: '#666', marginTop: 8 }}>All receipts linked to paid invoices</p>
         </div>
-        {canCreateReceipts && (
-          <button 
-            onClick={() => { 
-              setEditing(null); 
-              setFormData({
-                invoice: '',
-                customer: '',
-                amount: '',
-                paymentMethod: 'mpesa',
-                referenceNumber: '',
-                paymentDate: new Date().toISOString().split('T')[0],
-                notes: ''
-              }); 
-              setShowForm(true); 
-            }}
-            style={{ 
-              padding: '12px 24px', 
-              background: 'linear-gradient(135deg, #ff9800 0%, #f57c00 100%)', 
-              color: 'white', 
-              border: 'none', 
-              borderRadius: 8, 
-              cursor: 'pointer', 
-              fontWeight: 600,
-              fontSize: 14
-            }}
-          >
-            ➕ Create Receipt
-          </button>
-        )}
       </div>
 
       {/* Statistics */}
@@ -265,9 +256,9 @@ export default function Receipts() {
           boxShadow: '0 4px 12px rgba(0,0,0,0.08)'
         }}>
           <div style={{ fontSize: 32, fontWeight: 800, color: '#1565c0' }}>
-            {receipts.filter(r => r.paymentMethod?.toLowerCase() === 'mpesa').length}
+            {paidInvoicesWithReceipts.length}
           </div>
-          <div style={{ fontSize: 14, color: '#666' }}>M-Pesa</div>
+          <div style={{ fontSize: 14, color: '#666' }}>Paid Invoices</div>
         </div>
         <div style={{ 
           background: '#fff', 
@@ -277,14 +268,14 @@ export default function Receipts() {
           boxShadow: '0 4px 12px rgba(0,0,0,0.08)'
         }}>
           <div style={{ fontSize: 32, fontWeight: 800, color: '#9c27b0' }}>
-            {invoices.length}
+            {unpaidInvoices.length}
           </div>
-          <div style={{ fontSize: 14, color: '#666' }}>Pending Invoices</div>
+          <div style={{ fontSize: 14, color: '#666' }}>Unpaid Invoices</div>
         </div>
       </div>
 
-      {/* Invoice to Receipt Conversion */}
-      {canCreateReceipts && invoices.length > 0 && (
+      {/* Unpaid Invoices - Create Receipt */}
+      {unpaidInvoices.length > 0 && (
         <div style={{
           background: '#fff',
           padding: 20,
@@ -294,8 +285,11 @@ export default function Receipts() {
           border: '2px solid #ff9800'
         }}>
           <h3 style={{ color: '#e65100', marginTop: 0, marginBottom: 16 }}>
-            💰 Convert Invoice to Receipt
+            Unpaid Invoices - Create Receipt
           </h3>
+          <p style={{ color: '#666', marginBottom: 16, fontSize: 14 }}>
+            Select an invoice to record payment and generate a receipt
+          </p>
           <div style={{ 
             display: 'flex', 
             gap: 12, 
@@ -303,22 +297,35 @@ export default function Receipts() {
             overflowX: 'auto',
             paddingBottom: 8
           }}>
-            {invoices.slice(0, 5).map(inv => (
+            {unpaidInvoices.slice(0, 6).map(inv => (
               <div key={inv._id} style={{
                 padding: 16,
                 background: '#fff3e0',
                 borderRadius: 8,
                 border: '1px solid #ffcc80',
-                minWidth: 200
+                minWidth: 220,
+                flex: 1
               }}>
-                <div style={{ fontWeight: 600, color: '#e65100', fontSize: 14 }}>{inv.invoiceNumber}</div>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                  <span style={{ fontWeight: 600, color: '#e65100', fontSize: 14 }}>{inv.invoiceNumber}</span>
+                  <span style={{
+                    padding: '2px 8px',
+                    borderRadius: 10,
+                    fontSize: 10,
+                    fontWeight: 600,
+                    background: '#ffebee',
+                    color: '#d32f2f'
+                  }}>
+                    {inv.status?.toUpperCase()}
+                  </span>
+                </div>
                 <div style={{ fontSize: 12, color: '#666', marginTop: 4 }}>{inv.customer?.name}</div>
                 <div style={{ fontSize: 18, fontWeight: 700, color: '#e65100', marginTop: 8 }}>
                   KSh {(inv.total || 0).toLocaleString()}
                 </div>
                 <div style={{ fontSize: 11, color: '#999', marginTop: 4 }}>Due: {inv.dueDate ? new Date(inv.dueDate).toLocaleDateString() : 'N/A'}</div>
                 <button
-                  onClick={() => createReceiptFromInvoice(inv)}
+                  onClick={() => selectInvoiceForReceipt(inv)}
                   style={{
                     marginTop: 12,
                     padding: '8px 16px',
@@ -332,11 +339,28 @@ export default function Receipts() {
                     width: '100%'
                   }}
                 >
-                  💵 Record Payment
+                  Record Payment
+                </button>
+                <button
+                  onClick={() => markInvoiceAsPaid(inv)}
+                  style={{
+                    marginTop: 8,
+                    padding: '6px 12px',
+                    background: '#4caf50',
+                    color: 'white',
+                    border: 'none',
+                    borderRadius: 6,
+                    cursor: 'pointer',
+                    fontSize: 11,
+                    fontWeight: 600,
+                    width: '100%'
+                  }}
+                >
+                  Mark as Paid (Auto-Receipt)
                 </button>
               </div>
             ))}
-            {invoices.length > 5 && (
+            {unpaidInvoices.length > 6 && (
               <div style={{
                 padding: 16,
                 display: 'flex',
@@ -344,7 +368,7 @@ export default function Receipts() {
                 color: '#666',
                 fontSize: 12
               }}>
-                +{invoices.length - 5} more pending invoices
+                +{unpaidInvoices.length - 6} more unpaid invoices
               </div>
             )}
           </div>
@@ -400,12 +424,12 @@ export default function Receipts() {
             borderRadius: 12,
             boxShadow: '0 4px 12px rgba(0,0,0,0.05)'
           }}>
-            <div style={{ fontSize: 48, marginBottom: 16 }}>💰</div>
+            <div style={{ fontSize: 48, marginBottom: 16 }}>No Receipts</div>
             <p style={{ fontSize: 18, color: '#666', fontWeight: 600 }}>
               No receipts found
             </p>
             <p style={{ fontSize: 14, color: '#999', marginTop: 8 }}>
-              {canCreateReceipts ? 'Record payments from invoices to create receipts' : 'No receipts have been created yet'}
+              Receipts are created when invoices are marked as paid
             </p>
           </div>
         ) : (
@@ -416,54 +440,76 @@ export default function Receipts() {
             borderRadius: 12, 
             overflow: 'hidden', 
             boxShadow: '0 4px 12px rgba(0,0,0,0.05)',
-            minWidth: 800
+            minWidth: 900
           }}>
             <thead>
               <tr style={{ background: 'linear-gradient(135deg, #ff9800 0%, #f57c00 100%)', color: 'white' }}>
-                <th style={{ padding: 15, textAlign: 'left', fontWeight: 700 }}>Number</th>
-                <th style={{ padding: 15, textAlign: 'left', fontWeight: 700 }}>Date</th>
-                <th style={{ padding: 15, textAlign: 'left', fontWeight: 700 }}>Invoice</th>
+                <th style={{ padding: 15, textAlign: 'left', fontWeight: 700 }}>Receipt Number</th>
+                <th style={{ padding: 15, textAlign: 'left', fontWeight: 700 }}>Invoice Number</th>
                 <th style={{ padding: 15, textAlign: 'left', fontWeight: 700 }}>Customer</th>
                 <th style={{ padding: 15, textAlign: 'left', fontWeight: 700 }}>Amount</th>
-                <th style={{ padding: 15, textAlign: 'left', fontWeight: 700 }}>Method</th>
+                <th style={{ padding: 15, textAlign: 'left', fontWeight: 700 }}>Payment Method</th>
                 <th style={{ padding: 15, textAlign: 'left', fontWeight: 700 }}>Reference</th>
+                <th style={{ padding: 15, textAlign: 'left', fontWeight: 700 }}>Date</th>
                 <th style={{ padding: 15, textAlign: 'left', fontWeight: 700 }}>Actions</th>
               </tr>
             </thead>
             <tbody>
-              {filteredReceipts.map((receipt, index) => {
-                const methodColors = getPaymentMethodColor(receipt.paymentMethod);
-                return (
-                  <tr key={receipt._id} style={{ 
-                    borderBottom: '1px solid #e0e0e0',
-                    transition: 'background 0.2s',
-                    background: index % 2 === 0 ? '#fffbf0' : '#fff'
-                  }} onMouseOver={(e) => e.target.closest('tr').style.background = '#fff3e0'} onMouseOut={(e) => e.target.closest('tr').style.background = index % 2 === 0 ? '#fffbf0' : '#fff'}>
-                    <td style={{ padding: 15, fontWeight: 600, color: '#e65100' }}>{receipt.receiptNumber || 'N/A'}</td>
-                    <td style={{ padding: 15, color: '#666' }}>{receipt.paymentDate ? new Date(receipt.paymentDate).toLocaleDateString() : 'N/A'}</td>
-                    <td style={{ padding: 15, color: '#1565c0', fontWeight: 500 }}>{getInvoiceNumber(receipt)}</td>
-                    <td style={{ padding: 15, color: '#333' }}>{getCustomerName(receipt)}</td>
-                    <td style={{ padding: 15, fontWeight: 700, color: '#2e7d32', fontSize: 16 }}>KSh {parseFloat(receipt.amount || 0).toLocaleString()}</td>
-                    <td style={{ padding: 15 }}>
-                      <span style={{ 
-                        padding: '4px 12px', 
-                        borderRadius: 20,
-                        fontSize: 12,
-                        fontWeight: 600,
-                        background: methodColors.bg,
-                        color: methodColors.text
-                      }}>
-                        {receipt.paymentMethod?.toUpperCase() || 'N/A'}
-                      </span>
-                    </td>
-                    <td style={{ padding: 15, color: '#666', fontFamily: 'monospace', fontSize: 12 }}>{receipt.referenceNumber || '-'}</td>
-                    <td style={{ padding: 15 }}>
-                      <div style={{ display: 'flex', gap: 8 }}>
+              {filteredReceipts.map((receipt, index) => (
+                <tr key={receipt._id} style={{ 
+                  borderBottom: '1px solid #e0e0e0',
+                  transition: 'background 0.2s',
+                  background: index % 2 === 0 ? '#fffbf0' : '#fff'
+                }} onMouseOver={(e) => e.target.closest('tr').style.background = '#fff3e0'} onMouseOut={(e) => e.target.closest('tr').style.background = index % 2 === 0 ? '#fffbf0' : '#fff'}>
+                  <td style={{ padding: 15, fontWeight: 600, color: '#e65100' }}>{receipt.receiptNumber || 'N/A'}</td>
+                  <td style={{ padding: 15 }}>
+                    <span style={{ 
+                      color: '#1565c0', 
+                      fontWeight: 500,
+                      cursor: 'pointer'
+                    }}>
+                      {getInvoiceNumber(receipt)}
+                    </span>
+                  </td>
+                  <td style={{ padding: 15, color: '#333' }}>{getCustomerName(receipt)}</td>
+                  <td style={{ padding: 15, fontWeight: 700, color: '#2e7d32', fontSize: 16 }}>KSh {parseFloat(receipt.amount || 0).toLocaleString()}</td>
+                  <td style={{ padding: 15 }}>
+                    <span style={{ 
+                      padding: '4px 12px', 
+                      borderRadius: 20,
+                      fontSize: 12,
+                      fontWeight: 600,
+                      background: '#e8f5e9',
+                      color: '#2e7d32'
+                    }}>
+                      {getPaymentMethodLabel(receipt.paymentMethod)}
+                    </span>
+                  </td>
+                  <td style={{ padding: 15, color: '#666', fontFamily: 'monospace', fontSize: 12 }}>{receipt.referenceNumber || '-'}</td>
+                  <td style={{ padding: 15, color: '#666' }}>{receipt.paymentDate ? new Date(receipt.paymentDate).toLocaleDateString() : 'N/A'}</td>
+                  <td style={{ padding: 15 }}>
+                    <div style={{ display: 'flex', gap: 8 }}>
+                      <button 
+                        onClick={() => setViewing(receipt)}
+                        style={{ 
+                          padding: '6px 12px', 
+                          background: '#1565c0', 
+                          color: 'white', 
+                          border: 'none', 
+                          borderRadius: 6, 
+                          cursor: 'pointer',
+                          fontSize: 12,
+                          fontWeight: 600
+                        }}
+                      >
+                        View
+                      </button>
+                      {canDeleteReceipts && (
                         <button 
-                          onClick={() => setViewing(receipt)}
+                          onClick={() => handleDelete(receipt._id)}
                           style={{ 
                             padding: '6px 12px', 
-                            background: '#1565c0', 
+                            background: '#d32f2f', 
                             color: 'white', 
                             border: 'none', 
                             borderRadius: 6, 
@@ -472,47 +518,13 @@ export default function Receipts() {
                             fontWeight: 600
                           }}
                         >
-                          👁️ View
+                          Delete
                         </button>
-                        {canEditReceipts && (
-                          <button 
-                            onClick={() => handleEdit(receipt)}
-                            style={{ 
-                              padding: '6px 12px', 
-                              background: '#ff9800', 
-                              color: 'white', 
-                              border: 'none', 
-                              borderRadius: 6, 
-                              cursor: 'pointer',
-                              fontSize: 12,
-                              fontWeight: 600
-                            }}
-                          >
-                            ✎ Edit
-                          </button>
-                        )}
-                        {canDeleteReceipts && (
-                          <button 
-                            onClick={() => handleDelete(receipt._id)}
-                            style={{ 
-                              padding: '6px 12px', 
-                              background: '#d32f2f', 
-                              color: 'white', 
-                              border: 'none', 
-                              borderRadius: 6, 
-                              cursor: 'pointer',
-                              fontSize: 12,
-                              fontWeight: 600
-                            }}
-                          >
-                            🗑️ Delete
-                          </button>
-                        )}
-                      </div>
-                    </td>
-                  </tr>
-                );
-              })}
+                      )}
+                    </div>
+                  </td>
+                </tr>
+              ))}
             </tbody>
           </table>
         )}
@@ -523,7 +535,7 @@ export default function Receipts() {
         <motion.div
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
-          onClick={() => setShowForm(false)}
+          onClick={() => { setShowForm(false); setLinkedInvoice(null); }}
           style={{
             position: 'fixed',
             top: 0,
@@ -552,36 +564,29 @@ export default function Receipts() {
             onClick={(e) => e.stopPropagation()}
           >
             <h3 style={{ color: '#e65100', marginTop: 0, marginBottom: 20 }}>
-              {editing ? '✏️ Edit Receipt' : '💰 Create Receipt'}
+              {editing ? 'Edit Receipt' : 'Create Receipt'}
             </h3>
+            
+            {linkedInvoice && (
+              <div style={{
+                padding: 12,
+                background: '#e8f5e9',
+                borderRadius: 8,
+                marginBottom: 16,
+                border: '1px solid #a5d6a7'
+              }}>
+                <div style={{ fontSize: 12, color: '#2e7d32', marginBottom: 4 }}>Linked Invoice:</div>
+                <div style={{ fontWeight: 600, color: '#1565c0' }}>{linkedInvoice.invoiceNumber}</div>
+                <div style={{ fontSize: 12, color: '#666' }}>{linkedInvoice.customer?.name}</div>
+                <div style={{ fontSize: 18, fontWeight: 700, color: '#2e7d32', marginTop: 8 }}>
+                  KSh {(linkedInvoice.total || 0).toLocaleString()}
+                </div>
+              </div>
+            )}
+            
             <form onSubmit={handleSubmit}>
               <div style={{ marginBottom: 15 }}>
-                <label style={{ display: 'block', marginBottom: 5, fontWeight: 600 }}>Invoice *</label>
-                <select
-                  value={formData.invoice}
-                  onChange={(e) => {
-                    const inv = invoices.find(i => i._id === e.target.value);
-                    setFormData({ 
-                      ...formData, 
-                      invoice: e.target.value,
-                      customer: inv?.customer?._id || '',
-                      amount: inv ? (inv.total - (inv.paidAmount || 0)).toString() : ''
-                    });
-                  }}
-                  required
-                  style={{ width: '100%', padding: 10, borderRadius: 8, border: '2px solid #e0e0e0', fontSize: 14 }}
-                >
-                  <option value="">Select Invoice</option>
-                  {invoices.map(inv => (
-                    <option key={inv._id} value={inv._id}>
-                      {inv.invoiceNumber} - {inv.customer?.name} (KSh {(inv.total - (inv.paidAmount || 0)).toLocaleString()} due)
-                    </option>
-                  ))}
-                </select>
-              </div>
-
-              <div style={{ marginBottom: 15 }}>
-                <label style={{ display: 'block', marginBottom: 5, fontWeight: 600 }}>Amount *</label>
+                <label style={{ display: 'block', marginBottom: 5, fontWeight: 600 }}>Amount</label>
                 <input
                   type="number"
                   value={formData.amount}
@@ -593,7 +598,7 @@ export default function Receipts() {
               </div>
 
               <div style={{ marginBottom: 15 }}>
-                <label style={{ display: 'block', marginBottom: 5, fontWeight: 600 }}>Payment Method *</label>
+                <label style={{ display: 'block', marginBottom: 5, fontWeight: 600 }}>Payment Method</label>
                 <select
                   value={formData.paymentMethod}
                   onChange={(e) => setFormData({ ...formData, paymentMethod: e.target.value })}
@@ -640,7 +645,7 @@ export default function Receipts() {
               <div style={{ display: 'flex', gap: 10, justifyContent: 'flex-end' }}>
                 <button
                   type="button"
-                  onClick={() => { setShowForm(false); setEditing(null); }}
+                  onClick={() => { setShowForm(false); setLinkedInvoice(null); }}
                   style={{ padding: '10px 20px', background: '#666', color: 'white', border: 'none', borderRadius: 8, cursor: 'pointer' }}
                 >
                   Cancel
@@ -683,7 +688,7 @@ export default function Receipts() {
               background: 'white',
               padding: 30,
               borderRadius: 16,
-              maxWidth: 450,
+              maxWidth: 500,
               width: '90%'
             }}
             onClick={(e) => e.stopPropagation()}
@@ -693,20 +698,28 @@ export default function Receipts() {
               <table style={{ width: '100%', borderCollapse: 'collapse', border: '1px solid #e0e0e0', borderRadius: 8, overflow: 'hidden' }}>
                 <tbody>
                   <tr style={{ background: '#f5f5f5' }}>
-                    <td style={{ padding: 10, border: '1px solid #e0e0e0', fontWeight: 'bold', color: '#e65100' }}>Number:</td>
+                    <td style={{ padding: 10, border: '1px solid #e0e0e0', fontWeight: 'bold', color: '#e65100' }}>Receipt Number:</td>
                     <td style={{ padding: 10, border: '1px solid #e0e0e0', color: '#333', fontWeight: 600 }}>{viewing.receiptNumber || 'N/A'}</td>
+                  </tr>
+                  <tr>
+                    <td style={{ padding: 10, border: '1px solid #e0e0e0', fontWeight: 'bold', color: '#e65100', background: '#f5f5f5' }}>Invoice:</td>
+                    <td style={{ padding: 10, border: '1px solid #e0e0e0', color: '#1565c0', fontWeight: 500 }}>{getInvoiceNumber(viewing)}</td>
+                  </tr>
+                  <tr style={{ background: '#f5f5f5' }}>
+                    <td style={{ padding: 10, border: '1px solid #e0e0e0', fontWeight: 'bold', color: '#e65100' }}>Customer:</td>
+                    <td style={{ padding: 10, border: '1px solid #e0e0e0', color: '#333' }}>{getCustomerName(viewing)}</td>
+                  </tr>
+                  <tr>
+                    <td style={{ padding: 10, border: '1px solid #e0e0e0', fontWeight: 'bold', color: '#e65100', background: '#f5f5f5' }}>Payment Method:</td>
+                    <td style={{ padding: 10, border: '1px solid #e0e0e0' }}>{getPaymentMethodLabel(viewing.paymentMethod)}</td>
+                  </tr>
+                  <tr style={{ background: '#f5f5f5' }}>
+                    <td style={{ padding: 10, border: '1px solid #e0e0e0', fontWeight: 'bold', color: '#e65100' }}>Reference:</td>
+                    <td style={{ padding: 10, border: '1px solid #e0e0e0', color: '#333', fontFamily: 'monospace' }}>{viewing.referenceNumber || '-'}</td>
                   </tr>
                   <tr>
                     <td style={{ padding: 10, border: '1px solid #e0e0e0', fontWeight: 'bold', color: '#e65100', background: '#f5f5f5' }}>Date:</td>
                     <td style={{ padding: 10, border: '1px solid #e0e0e0', color: '#333' }}>{viewing.paymentDate ? new Date(viewing.paymentDate).toLocaleDateString() : 'N/A'}</td>
-                  </tr>
-                  <tr style={{ background: '#f5f5f5' }}>
-                    <td style={{ padding: 10, border: '1px solid #e0e0e0', fontWeight: 'bold', color: '#e65100' }}>Invoice:</td>
-                    <td style={{ padding: 10, border: '1px solid #e0e0e0', color: '#1565c0', fontWeight: 500 }}>{getInvoiceNumber(viewing)}</td>
-                  </tr>
-                  <tr>
-                    <td style={{ padding: 10, border: '1px solid #e0e0e0', fontWeight: 'bold', color: '#e65100', background: '#f5f5f5' }}>Customer:</td>
-                    <td style={{ padding: 10, border: '1px solid #e0e0e0', color: '#333' }}>{getCustomerName(viewing)}</td>
                   </tr>
                 </tbody>
               </table>
@@ -723,30 +736,6 @@ export default function Receipts() {
                 </div>
               </div>
 
-              <table style={{ width: '100%', borderCollapse: 'collapse', border: '1px solid #e0e0e0', borderRadius: 8, overflow: 'hidden' }}>
-                <tbody>
-                  <tr>
-                    <td style={{ padding: 10, border: '1px solid #e0e0e0', fontWeight: 'bold', color: '#e65100', background: '#f5f5f5' }}>Method:</td>
-                    <td style={{ padding: 10, border: '1px solid #e0e0e0' }}>
-                      <span style={{ 
-                        padding: '4px 12px', 
-                        borderRadius: 20,
-                        fontSize: 12,
-                        fontWeight: 600,
-                        background: getPaymentMethodColor(viewing.paymentMethod).bg,
-                        color: getPaymentMethodColor(viewing.paymentMethod).text
-                      }}>
-                        {viewing.paymentMethod?.toUpperCase() || 'N/A'}
-                      </span>
-                    </td>
-                  </tr>
-                  <tr>
-                    <td style={{ padding: 10, border: '1px solid #e0e0e0', fontWeight: 'bold', color: '#e65100', background: '#f5f5f5' }}>Reference:</td>
-                    <td style={{ padding: 10, border: '1px solid #e0e0e0', color: '#333', fontFamily: 'monospace' }}>{viewing.referenceNumber || '-'}</td>
-                  </tr>
-                </tbody>
-              </table>
-
               {viewing.notes && (
                 <div style={{ padding: 12, background: '#f5f5f5', borderRadius: 8 }}>
                   <strong style={{ color: '#e65100' }}>Notes:</strong>
@@ -755,40 +744,22 @@ export default function Receipts() {
               )}
             </div>
             
-            <div style={{ display: 'flex', gap: 12, marginTop: 20 }}>
-              {canEditReceipts && (
-                <button
-                  onClick={() => { setViewing(null); handleEdit(viewing); }}
-                  style={{ 
-                    flex: 1,
-                    padding: '12px 16px', 
-                    background: '#ff9800', 
-                    color: 'white', 
-                    border: 'none', 
-                    borderRadius: 8, 
-                    cursor: 'pointer',
-                    fontWeight: 600
-                  }}
-                >
-                  ✎ Edit
-                </button>
-              )}
-              <button
-                onClick={() => setViewing(null)}
-                style={{ 
-                  flex: 1,
-                  padding: '12px 16px', 
-                  background: '#666', 
-                  color: 'white', 
-                  border: 'none', 
-                  borderRadius: 8, 
-                  cursor: 'pointer',
-                  fontWeight: 600
-                }}
-              >
-                Close
-              </button>
-            </div>
+            <button
+              onClick={() => setViewing(null)}
+              style={{ 
+                marginTop: 20, 
+                padding: '12px 16px', 
+                background: '#666', 
+                color: 'white', 
+                border: 'none', 
+                borderRadius: 8, 
+                cursor: 'pointer',
+                fontWeight: 600,
+                width: '100%'
+              }}
+            >
+              Close
+            </button>
           </motion.div>
         </motion.div>
       )}

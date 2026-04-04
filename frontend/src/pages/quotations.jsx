@@ -390,7 +390,7 @@ export default function Quotations() {
       {/* Header */}
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 24, flexWrap: 'wrap', gap: 16 }}>
         <div>
-          <h1 style={{ color: '#1b5e20', margin: 0, fontSize: 28, fontWeight: 800 }}>📄 Quotations Management</h1>
+          <h1 style={{ color: '#1b5e20', margin: 0, fontSize: 28, fontWeight: 800 }}>Quotations Management</h1>
           <p style={{ color: '#666', marginTop: 8 }}>Create and manage all quotations for your company operations</p>
         </div>
         {canCreateQuotations && (
@@ -407,7 +407,7 @@ export default function Quotations() {
               fontSize: 14
             }}
           >
-            ➕ Create Quotation
+            Create Quotation
           </button>
         )}
       </div>
@@ -515,7 +515,7 @@ export default function Quotations() {
             borderRadius: 12,
             boxShadow: '0 4px 12px rgba(0,0,0,0.05)'
           }}>
-            <div style={{ fontSize: 48, marginBottom: 16 }}>📄</div>
+            <div style={{ fontSize: 48, marginBottom: 16 }}>No Quotations</div>
             <p style={{ fontSize: 18, color: '#666', fontWeight: 600 }}>
               {isCustomer ? 'No quotations received yet.' : 'No quotations created yet.'}
             </p>
@@ -595,7 +595,7 @@ export default function Quotations() {
                           fontWeight: 600
                         }}
                       >
-                        👁️ View
+                        View
                       </button>
                       {canEditQuotations && (
                         <>
@@ -612,7 +612,7 @@ export default function Quotations() {
                               fontWeight: 600
                             }}
                           >
-                            ✎ Edit
+                            Edit
                           </button>
                           <button
                             onClick={() => convertToInvoice(q._id, q)}
@@ -627,7 +627,7 @@ export default function Quotations() {
                               fontWeight: 600
                             }}
                           >
-                            📋 Invoice
+                            Create Invoice
                           </button>
                           {canDeleteQuotations && (
                             <button
@@ -643,7 +643,7 @@ export default function Quotations() {
                                 fontWeight: 600
                               }}
                             >
-                              🗑️ Delete
+                              Delete
                             </button>
                           )}
                         </>
@@ -702,7 +702,7 @@ export default function Quotations() {
               fontSize: 22,
               fontWeight: 700
             }}>
-              {editing ? '✏️ Edit Quotation' : '📄 Create New Quotation'}
+              {editing ? 'Edit Quotation' : 'Create New Quotation'}
             </h2>
 
             <form onSubmit={handleSubmit}>
@@ -1138,7 +1138,7 @@ export default function Quotations() {
                     fontWeight: 600
                   }}
                 >
-                  ✎ Edit
+                  Edit
                 </button>
               )}
               <button
@@ -1154,7 +1154,7 @@ export default function Quotations() {
                   fontWeight: 600
                 }}
               >
-                📋 Convert to Invoice
+                Convert to Invoice
               </button>
             </div>
 
