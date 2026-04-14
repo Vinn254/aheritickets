@@ -86,6 +86,14 @@ app.use(errorHandler);
 const PORT = process.env.PORT || 5000;
 const start = async () => {
   try {
+    // Validate required env variables
+    if (!process.env.MONGO_URI) {
+      throw new Error('MONGO_URI environment variable is not set');
+    }
+    if (!process.env.JWT_SECRET) {
+      throw new Error('JWT_SECRET environment variable is not set');
+    }
+    
     await connectDB(process.env.MONGO_URI);
     app.listen(PORT, () => logger.info(`Server running on port ${PORT}`));
   } catch (err) {
